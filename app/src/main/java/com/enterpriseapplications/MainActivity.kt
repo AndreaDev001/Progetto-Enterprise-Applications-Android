@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.enterpriseapplications.navigation.NavigationBarController
 import com.enterpriseapplications.ui.theme.EnterpriseApplicationsAndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +25,8 @@ class MainActivity : ComponentActivity() {
             EnterpriseApplicationsAndroidTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background)
                 {
-
+                    val navController: NavHostController = rememberNavController()
+                    NavigationBarController(navController = navController)
                 }
             }
         }

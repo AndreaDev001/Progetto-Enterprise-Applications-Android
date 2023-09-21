@@ -1,14 +1,10 @@
-package com.enterpriseapplications.views.lists
+package com.enterpriseapplications.views.pages
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,15 +19,15 @@ import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsList(navController: NavHostController) {
-    Column(modifier = Modifier.padding(vertical = 2.dp)) {
-        TopAppBar(modifier = Modifier.fillMaxWidth(),
-            title = {
-                Text(text = "Settings", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            }, navigationIcon = {
+fun HomePage(navController: NavHostController) {
+    Column(modifier = Modifier.padding(vertical = 5.dp)) {
+        TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
+            Text(text = "Home", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }, navigationIcon = {
+            if(navController.previousBackStackEntry != null)
                 IconButton(onClick = {navController.popBackStack()}) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                 }
-            })
+        })
     }
 }

@@ -1,9 +1,10 @@
-package com.enterpriseapplications.views.lists
+package com.enterpriseapplications.views.pages
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 
 
 @Composable
-fun HomePage(navController: NavHostController) {
+fun AddProduct(navController: NavHostController) {
+
 }
