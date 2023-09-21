@@ -64,7 +64,7 @@ val texts = listOf(
     "Search",
     "Add",
     "Profile",
-    "Settings"g
+    "Settings"
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
