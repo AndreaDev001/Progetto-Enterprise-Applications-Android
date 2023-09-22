@@ -27,17 +27,19 @@ import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuItem(callback: () -> Unit, icon: ImageVector, headerText: String, supportingText: String) {
+fun MenuItem(callback: () -> Unit, leadingIcon: ImageVector? = null,trailingIcon: ImageVector = Icons.Filled.ArrowForward, headerText: String, supportingText: String) {
     ListItem(headlineText = {
         Text(text = headerText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }, supportingText = {
         Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
     }, leadingContent = {
-        Icon(imageVector = icon, contentDescription = null)
+        if (leadingIcon != null) {
+            Icon(imageVector = leadingIcon, contentDescription = null)
+        }
     },
         trailingContent = {
             IconButton(onClick = {callback()}) {
-                Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = null)
+                Icon(imageVector = trailingIcon, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
 }
@@ -57,8 +59,8 @@ fun SearchList(navController: NavHostController)
         }
         ,modifier = Modifier.fillMaxWidth())
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
-            MenuItem(callback = {navController.navigate("searchProducts")}, icon = Icons.Filled.ShoppingCart, headerText = "Products", supportingText = "Search for products")
-            MenuItem(callback = {navController.navigate("searchUsers")}, icon = Icons.Filled.Person, headerText = "Users", supportingText = "Search for users")
+            MenuItem(callback = {navController.navigate("searchProducts")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Products", supportingText = "Search for products")
+            MenuItem(callback = {navController.navigate("searchUsers")}, leadingIcon = Icons.Filled.Person, headerText = "Users", supportingText = "Search for users")
         }
     }
 }

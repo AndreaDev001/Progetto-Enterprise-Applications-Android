@@ -39,12 +39,12 @@ fun ProfileList(navController: NavHostController)
             }
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
-            MenuItem(callback = {navController.navigate("profilePage")}, icon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
-            MenuItem(callback = {navController.navigate("likedProducts")}, icon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
-            MenuItem(callback = {navController.navigate("orders")}, icon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
-            MenuItem(callback = {navController.navigate("offers")}, icon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
-            MenuItem(callback = {navController.navigate("reviews")}, icon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
-            MenuItem(callback = {navController.navigate("addresses")}, icon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
+            MenuItem(callback = {navController.navigate("profilePage")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
+            MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
+            MenuItem(callback = {navController.navigate("orders")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
+            MenuItem(callback = {navController.navigate("offers")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
+            MenuItem(callback = {navController.navigate("reviews")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
+            MenuItem(callback = {navController.navigate("addresses")}, leadingIcon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
         }
     }
 }
