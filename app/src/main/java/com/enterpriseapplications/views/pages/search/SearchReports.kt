@@ -1,7 +1,6 @@
 package com.enterpriseapplications.views.pages.search
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,33 +28,32 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
+import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchProducts(navController: NavHostController) {
-    val viewModel: SearchProductsViewModel = SearchProductsViewModel()
+fun SearchReports(navController: NavHostController) {
+    val viewModel: SearchReportsViewModel = SearchReportsViewModel()
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp)) {
         TopAppBar(title = {
-            Text(text = "Search Products", fontSize = 20.sp)
+            Text(text = "Search Reports", fontSize = 20.sp)
         }, navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
-        },modifier = Modifier.fillMaxWidth())
+        }, modifier = Modifier.fillMaxWidth())
         ModalNavigationDrawer(gesturesEnabled = true, drawerState = drawerState, drawerContent = {
-            ModalDrawerSheet(drawerShape = RectangleShape){
+            ModalDrawerSheet(drawerShape = RectangleShape) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(modifier = Modifier
                     .fillMaxWidth()
@@ -71,7 +69,8 @@ fun SearchProducts(navController: NavHostController) {
                 .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Button(onClick = {scope.launch {drawerState.open()}}, modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),shape = RoundedCornerShape(10.dp)) {
+                    .padding(10.dp),shape = RoundedCornerShape(10.dp)
+                ) {
                     Text(text = "Filters", fontSize = 16.sp)
                 }
                 MissingItems(callback = { /*TODO*/ })
@@ -81,33 +80,16 @@ fun SearchProducts(navController: NavHostController) {
 }
 
 @Composable
-private fun FilterOptions(viewModel: SearchProductsViewModel)
-{
+private fun FilterOptions(viewModel: SearchReportsViewModel) {
     Column(modifier = Modifier
-        .fillMaxWidth()
         .padding(10.dp)
+        .fillMaxWidth()
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
-        GeneralInformation(viewModel = viewModel)
-        Spacer(modifier = Modifier.height(5.dp))
-        CategoryInformation(viewModel = viewModel)
+        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reporterEmail, supportingText = "Write the reporter's email", placeHolder = "Write an email...", label = "Reporter Email")
+        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedEmail, supportingText = "Write the reported email", placeHolder = "Write an email...", label = "Reported Email")
+        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reporterUsername, supportingText = "Write the reporter username", placeHolder = "Write an username...", label = "Reporter username")
+        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
+        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reason, items = listOf("RACISM","NUDITY"), label = "Reason")
+        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.type, items = listOf("USER","PRODUCT","MESSAGE"), label = "Type")
     }
-}
-
-@Composable
-private fun GeneralInformation(viewModel: SearchProductsViewModel) {
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.conditionControl, items = listOf("A","B","C"), label = "Condition")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
-}
-
-@Composable
-private fun CategoryInformation(viewModel: SearchProductsViewModel) {
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.primaryCategoryControl, items = listOf("A","B","C"), label = "Primary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.secondaryCategoryControl, items = listOf("A","B","C"), label = "Secondary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.tertiaryCategoryControl, items = listOf("A","B","C"), label = "Tertiary Category")
 }

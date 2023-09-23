@@ -23,6 +23,10 @@ class FormGroup(private vararg val controls: FormControl<*>)
         this._controlsList.value.remove(control)
     }
 
+    fun reset() {
+        for(control in _controlsList.value)
+            control.reset()
+    }
     fun validate(): Boolean {
         for(control in _controlsList.value) {
             if(!control.isValid()) {

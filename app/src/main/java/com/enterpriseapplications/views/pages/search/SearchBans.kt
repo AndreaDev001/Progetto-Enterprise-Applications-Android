@@ -31,32 +31,37 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.enterpriseapplications.viewmodel.search.SearchUsersViewModel
+import com.enterpriseapplications.viewmodel.search.SearchBansViewModel
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchUsers(navController: NavHostController) {
+fun SearchBans(navController: NavHostController) {
+    val viewModel: SearchBansViewModel = SearchBansViewModel()
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
-    val viewModel: SearchUsersViewModel = SearchUsersViewModel()
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp)) {
         TopAppBar(title = {
-            Text(text = "Search Users", fontSize = 20.sp)
+            Text(text = "Search Bans", fontSize = 20.sp)
         }, navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
-        },modifier = Modifier.fillMaxWidth())
-        ModalNavigationDrawer(drawerContent = {
+        }, modifier = Modifier.fillMaxWidth())
+        ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = true,drawerContent = {
             ModalDrawerSheet(drawerShape = RectangleShape) {
-                MenuItem(callback = {scope.launch {drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters", supportingText = "Use the filters to find the desired users")
-                Spacer(modifier = Modifier.height(10.dp))
-                FilterOptions(viewModel = viewModel)
+                Spacer(modifier = Modifier.height(12.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)) {
+                    MenuItem(callback = {scope.launch {drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
+                    Spacer(modifier = Modifier.height(10.dp))
+                    FilterOptions(viewModel = viewModel)
+                }
             }
         }) {
             Column(modifier = Modifier
@@ -75,15 +80,15 @@ fun SearchUsers(navController: NavHostController) {
 }
 
 @Composable
-private fun FilterOptions(viewModel: SearchUsersViewModel) {
+private fun FilterOptions(viewModel: SearchBansViewModel) {
     Column(modifier = Modifier
-        .fillMaxWidth()
         .padding(10.dp)
+        .fillMaxWidth()
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Name", placeHolder = "Write a name...")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.surnameControl, supportingText = "Write the product's surname",label = "Surname", placeHolder = "Write a surname...")
-        CustomTextField(modifier = Modifier.padding(5.dp), formControl = viewModel.usernameControl, supportingText = "Write the user's username",label = "Username", placeHolder = "Write a username...")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.genderControl, items = listOf("MALE","FEMALE"), label = "Gender")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the user's description", label = "Description", placeHolder = "Write a description...")
+        CustomTextField(formControl = viewModel.bannerEmail, supportingText = "Write the banner email", placeHolder = "Write an email...", label = "Banner email")
+        CustomTextField(formControl = viewModel.bannedEmail, supportingText = "Write the banned email", placeHolder = "Write an email...", label = "Banned email")
+        CustomTextField(formControl = viewModel.bannerUsername, supportingText = "Write the banner username", placeHolder = "Write an username...",label = "Banner username")
+        CustomTextField(formControl = viewModel.bannedUsername, supportingText = "Write the banned username", placeHolder = "Write an username...",label = "Banned username")
+        FormDropdown(formControl = viewModel.reason, items = listOf("RACISM","NUDITY"), label = "Reason")
     }
 }

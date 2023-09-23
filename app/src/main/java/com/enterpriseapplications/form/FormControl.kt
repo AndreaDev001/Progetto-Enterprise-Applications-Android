@@ -8,7 +8,7 @@ import java.lang.Thread.State
 
 class FormControl<T>(private var _initialValue: T, vararg val validators: Validator<T>)
 {
-    private var _currentValue: MutableStateFlow<T> = MutableStateFlow(_initialValue)
+    private var _currentValue: MutableStateFlow<T?> = MutableStateFlow(_initialValue)
     private var _valid: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _errors: MutableStateFlow<MutableSet<String>> = MutableStateFlow(mutableSetOf())
 
@@ -25,7 +25,9 @@ class FormControl<T>(private var _initialValue: T, vararg val validators: Valida
         this._currentValue.value = value
         this.isValid()
     }
-
+    fun reset() {
+        this._currentValue.value = null
+    }
     fun isValid(): Boolean {
         for(validator in validators) {
             if(!validator.validate(_currentValue.value)) {
@@ -38,7 +40,7 @@ class FormControl<T>(private var _initialValue: T, vararg val validators: Valida
         return true;
     }
 
-    val currentValue: StateFlow<T> = _currentValue.asStateFlow()
+    val currentValue: StateFlow<T?> = _currentValue.asStateFlow()
     val valid: StateFlow<Boolean> = _valid.asStateFlow()
     val errors: StateFlow<MutableSet<String>> = _errors.asStateFlow()
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.enterpriseapplications.form.FormControl
@@ -48,19 +50,23 @@ fun MissingItems(missingText: String = "No results found, set is empty", missing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormDropdown(modifier: Modifier = Modifier,formControl: FormControl<String?>,items: List<String>,valueCallback: () -> Unit = {},expandedChange: (value: Boolean) -> Unit = {}) {
-    val expanded: MutableState<Boolean> = remember {mutableStateOf(false)};
+fun FormDropdown(modifier: Modifier = Modifier,formControl: FormControl<String?>,label: String? = null,items: List<String>,valueCallback: () -> Unit = {},expandedChange: (value: Boolean) -> Unit = {}) {
+    var expanded: MutableState<Boolean> = remember {mutableStateOf(false)};
     val value: State<String?> = formControl.currentValue.collectAsState()
     if(items.isNotEmpty()) {
-        ExposedDropdownMenuBox(expanded = expanded.value, onExpandedChange = expandedChange) {
+        ExposedDropdownMenuBox(expanded = expanded.value, onExpandedChange = {expanded.value = !expanded.value;expandedChange(expanded.value)}) {
             TextField(readOnly = true, modifier = modifier.menuAnchor(),value = value.value.toString(), onValueChange = {valueCallback()}, trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
                 expanded = expanded.value
-            )})
+            )},label = {
+                if(label != null)
+                    Text(text = label, fontSize = 15.sp)
+            })
             ExposedDropdownMenu(expanded = expanded.value, onDismissRequest = {expanded.value = false}) {
                 items.forEach { value: String ->
                     DropdownMenuItem(text = {
                        Text(text = value, fontSize = 15.sp)
                     }, onClick = {
+                        expanded.value = false
                         formControl.updateValue(value)
                     })
                 }
@@ -70,7 +76,7 @@ fun FormDropdown(modifier: Modifier = Modifier,formControl: FormControl<String?>
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<String?>, leadingIcon: ImageVector? = null, trailingIcon: ImageVector? = null, label: String? = null, supportingText: String? = null, placeHolder: String? = null, valueCallback: () -> Unit = {}) {
+fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<String?>, leadingIcon: ImageVector? = null, trailingIcon: ImageVector? = null, label: String? = null, supportingText: String? = null, placeHolder: String? = null, keyboardType: KeyboardType = KeyboardType.Text, valueCallback: () -> Unit = {}) {
     val currentValue = formControl.currentValue.collectAsState()
     val currentErrors = formControl.errors.collectAsState()
     val isValid = formControl.valid.collectAsState()
@@ -103,5 +109,6 @@ fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<Stri
                     }
                 }
             }
-        })
+        }, keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
+    )
 }

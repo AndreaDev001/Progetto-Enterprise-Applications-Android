@@ -61,6 +61,8 @@ fun SearchList(navController: NavHostController)
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             MenuItem(callback = {navController.navigate("searchProducts")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Products", supportingText = "Search for products")
             MenuItem(callback = {navController.navigate("searchUsers")}, leadingIcon = Icons.Filled.Person, headerText = "Users", supportingText = "Search for users")
+            MenuItem(callback = {navController.navigate("searchReports")},headerText = "Reports", supportingText = "Search for reports")
+            MenuItem(callback = {navController.navigate("searchBans")}, headerText = "Bans", supportingText = "Search for bans")
         }
     }
 }

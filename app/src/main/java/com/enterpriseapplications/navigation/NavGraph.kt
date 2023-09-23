@@ -23,17 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navigation
 import com.enterpriseapplications.R
 import com.enterpriseapplications.views.pages.HomePage
 import com.enterpriseapplications.views.lists.ProfileList
 import com.enterpriseapplications.views.lists.SearchList
-import com.enterpriseapplications.views.lists.SettingsList
+import com.enterpriseapplications.views.pages.SettingsPage
 import com.enterpriseapplications.views.pages.AddProduct
 import com.enterpriseapplications.views.pages.profile.AddressesPage
 import com.enterpriseapplications.views.pages.profile.LikedProductsPage
@@ -41,7 +39,9 @@ import com.enterpriseapplications.views.pages.profile.OffersPage
 import com.enterpriseapplications.views.pages.profile.OrdersPage
 import com.enterpriseapplications.views.pages.profile.ProfilePage
 import com.enterpriseapplications.views.pages.profile.ReviewsPage
+import com.enterpriseapplications.views.pages.search.SearchBans
 import com.enterpriseapplications.views.pages.search.SearchProducts
+import com.enterpriseapplications.views.pages.search.SearchReports
 import com.enterpriseapplications.views.pages.search.SearchUsers
 
 
@@ -96,10 +96,12 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Search.route) { SearchList(navController = navController)}
             composable(Screen.Add.route) {AddProduct(navController = navController)}
             composable(Screen.Profile.route) { ProfileList(navController = navController)}
-            composable(Screen.Settings.route) { SettingsList(navController = navController) }
+            composable(Screen.Settings.route) { SettingsPage(navController = navController) }
 
             composable(Screen.Search.SearchProducts.route) { SearchProducts(navController = navController)}
             composable(Screen.Search.SearchUsers.route) { SearchUsers(navController = navController)}
+            composable(Screen.Search.SearchReports.route) { SearchReports(navController = navController)}
+            composable(Screen.Search.SearchBans.route) { SearchBans(navController = navController)}
 
             composable(Screen.Profile.LikedProducts.route) { LikedProductsPage(navController = navController)}
             composable(Screen.Profile.Reviews.route) {ReviewsPage(navController = navController)}
@@ -122,6 +124,8 @@ sealed class Screen(val route: String, @StringRes resourceID: Int) {
     object Search: Screen("search",R.string.search) {
         object SearchProducts: Screen("searchProducts",R.string.searchProducts)
         object SearchUsers: Screen("searchUsers",R.string.searchUsers)
+        object SearchReports: Screen("searchReports",R.string.searchReports)
+        object SearchBans: Screen("searchBans",R.string.searchBans)
     }
     object Add: Screen("add",R.string.add);
     object Home: Screen("home",R.string.home)
