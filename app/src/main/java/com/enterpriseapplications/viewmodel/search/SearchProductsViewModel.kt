@@ -1,10 +1,18 @@
 package com.enterpriseapplications.viewmodel.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.viewmodel.BaseViewModel
 
-class SearchProductsViewModel : ViewModel() {
+class SearchProductsViewModel : BaseViewModel() {
+
+
+    init
+    {
+        test()
+    }
 
     private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
@@ -18,6 +26,17 @@ class SearchProductsViewModel : ViewModel() {
     private var _primaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _secondaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _tertiaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
+    
+    
+    fun test()
+    {
+        this.retrofitConfig.productController.getConditions().process { strings, throwable ->
+            Log.d("TEST", strings.toString())
+            if (throwable != null) {
+                throwable.message?.let { Log.d("TEST", it) }
+            }
+        }
+    }
 
     val nameControl: FormControl<String?> = _nameControl
     val descriptionControl: FormControl<String?> = _descriptionControl

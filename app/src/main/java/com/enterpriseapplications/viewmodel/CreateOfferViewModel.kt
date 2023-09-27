@@ -5,7 +5,7 @@ import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class CreateOfferViewModel : ViewModel()
+class CreateOfferViewModel : BaseViewModel()
 {
     var productID: Number? = null
     var update: Boolean = false

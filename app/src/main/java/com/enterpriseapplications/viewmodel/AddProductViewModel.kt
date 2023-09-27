@@ -5,7 +5,7 @@ import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class AddProductViewModel : ViewModel()
+class AddProductViewModel : BaseViewModel()
 {
     private var _nameControl: FormControl<String?> = FormControl("",Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())

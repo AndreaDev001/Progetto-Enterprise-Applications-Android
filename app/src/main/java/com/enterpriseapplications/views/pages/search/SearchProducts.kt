@@ -1,13 +1,19 @@
 package com.enterpriseapplications.views.pages.search
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -33,7 +39,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.model.User
 import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
+import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -74,7 +83,7 @@ fun SearchProducts(navController: NavHostController) {
                     .padding(10.dp),shape = RoundedCornerShape(10.dp)) {
                     Text(text = "Filters", fontSize = 16.sp)
                 }
-                MissingItems(callback = { /*TODO*/ })
+                ItemsList(products = mutableListOf())
             }
         }
     }
@@ -110,4 +119,22 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
     FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.primaryCategoryControl, items = listOf("A","B","C"), label = "Primary Category")
     FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.secondaryCategoryControl, items = listOf("A","B","C"), label = "Secondary Category")
     FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.tertiaryCategoryControl, items = listOf("A","B","C"), label = "Tertiary Category")
+}
+
+@Composable
+private fun ItemsList(products: MutableList<Product>) {
+    Box(modifier = Modifier.padding(5.dp)) {
+        val product: Product= Product("test","test","test","test",10,10,10,"test","test","test",
+            User("marchioandrea02@gmail.com","andrea","marchio","andreadev01","MALE"))
+        for(i in 0..20){
+            products.add(product)
+        }
+        LazyVerticalGrid(modifier = Modifier.padding(5.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+            itemsIndexed(items = products) {index, item ->
+                Box(modifier = Modifier.padding(5.dp)) {
+                    ProductCard(product = item)
+                }
+            }
+        })
+    }
 }

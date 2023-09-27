@@ -5,7 +5,7 @@ import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class CreateReviewViewModel : ViewModel()
+class CreateReviewViewModel : BaseViewModel()
 {
     var userID: Number? = null
     var update: Boolean = false

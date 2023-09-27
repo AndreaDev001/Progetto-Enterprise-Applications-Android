@@ -3,8 +3,9 @@ package com.enterpriseapplications.viewmodel.search
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.viewmodel.BaseViewModel
 
-class SearchUsersViewModel: ViewModel()
+class SearchUsersViewModel: BaseViewModel()
 {
     private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
     private var _surnameControl: FormControl<String?> = FormControl("",Validators.required())

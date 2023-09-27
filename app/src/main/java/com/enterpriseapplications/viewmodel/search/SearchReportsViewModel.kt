@@ -3,8 +3,9 @@ package com.enterpriseapplications.viewmodel.search
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.viewmodel.BaseViewModel
 
-class SearchReportsViewModel : ViewModel() {
+class SearchReportsViewModel : BaseViewModel() {
     private var _reporterEmail: FormControl<String?> = FormControl("",Validators.required())
     private var _reportedEmail: FormControl<String?> = FormControl("",Validators.required())
     private var _reporterUsername: FormControl<String?> = FormControl("",Validators.required())

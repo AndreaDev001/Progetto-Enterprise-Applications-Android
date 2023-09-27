@@ -5,7 +5,7 @@ import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class CreateReportViewModel : ViewModel() {
+class CreateReportViewModel : BaseViewModel() {
 
     var userID: Number? = null
     var productID: Number? = null

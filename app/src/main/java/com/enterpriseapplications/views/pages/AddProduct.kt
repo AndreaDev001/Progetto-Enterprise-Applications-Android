@@ -38,7 +38,6 @@ import com.enterpriseapplications.views.pages.search.FormDropdown
 fun AddProduct(navController: NavHostController)
 {
     val viewModel: AddProductViewModel = AddProductViewModel()
-    CreateReport(messageID = 0)
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp, horizontal = 20.dp)) {
