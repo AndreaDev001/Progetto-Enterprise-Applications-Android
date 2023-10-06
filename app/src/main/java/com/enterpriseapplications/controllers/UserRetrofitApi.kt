@@ -1,4 +1,8 @@
 package com.enterpriseapplications.controllers
 
-interface UserRetrofitApi {
+import retrofit2.http.GET
+
+interface UserRetrofitApi
+{
+
 }

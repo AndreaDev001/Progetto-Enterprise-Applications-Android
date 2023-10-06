@@ -1,5 +1,6 @@
 package com.enterpriseapplications.navigation
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -94,7 +95,7 @@ fun NavigationBarController(navController: NavHostController) {
         NavHost(navController, startDestination = Screen.Home.route,Modifier.padding(it)) {
             composable(Screen.Home.route) { HomePage(navController = navController) }
             composable(Screen.Search.route) { SearchList(navController = navController)}
-            composable(Screen.Add.route) {AddProduct(navController = navController)}
+            composable(Screen.Add.route) { AddProduct(navController = navController) }
             composable(Screen.Profile.route) { ProfileList(navController = navController)}
             composable(Screen.Settings.route) { SettingsPage(navController = navController) }
 

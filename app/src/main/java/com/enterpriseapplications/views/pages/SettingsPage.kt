@@ -18,15 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.viewmodel.SettingsViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsPage(navController: NavHostController) {
-    val viewModel: SettingsViewModel = SettingsViewModel()
+    val viewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
     Column(modifier = Modifier.padding(vertical = 2.dp, horizontal = 20.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(),
             title = {
@@ -46,8 +48,16 @@ fun SettingsPage(navController: NavHostController) {
 
 @Composable
 private fun UserInformation(viewModel: SettingsViewModel) {
-    CustomTextField(modifier = Modifier.padding(5.dp).fillMaxWidth(),formControl = viewModel.nameControl, supportingText = "Write a new name", placeHolder = "Write a name...", label = "Name")
-    CustomTextField(modifier = Modifier.padding(5.dp).fillMaxWidth(),formControl = viewModel.surnameControl, supportingText = "Write a new surname", placeHolder = "Write a name...", label = "Surname")
-    CustomTextField(modifier = Modifier.padding(5.dp).fillMaxWidth(),formControl = viewModel.descriptionControl, supportingText = "Write a new description", placeHolder = "Write a description...", label = "Description")
-    FormDropdown(modifier = Modifier.padding(5.dp).fillMaxWidth(),formControl = viewModel.genderControl, items = listOf("GENDER","MALE","NOT_SPECIFIED"), label = "Gender")
+    CustomTextField(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(),formControl = viewModel.nameControl, supportingText = "Write a new name", placeHolder = "Write a name...", label = "Name")
+    CustomTextField(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(),formControl = viewModel.surnameControl, supportingText = "Write a new surname", placeHolder = "Write a name...", label = "Surname")
+    CustomTextField(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(),formControl = viewModel.descriptionControl, supportingText = "Write a new description", placeHolder = "Write a description...", label = "Description")
+    FormDropdown(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(),formControl = viewModel.genderControl, items = listOf("GENDER","MALE","NOT_SPECIFIED"), label = "Gender")
 }

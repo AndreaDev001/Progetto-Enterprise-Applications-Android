@@ -30,8 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.viewmodel.search.SearchBansViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -39,7 +41,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBans(navController: NavHostController) {
-    val viewModel: SearchBansViewModel = SearchBansViewModel()
+    val viewModel: SearchBansViewModel = viewModel(factory = viewModelFactory)
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier

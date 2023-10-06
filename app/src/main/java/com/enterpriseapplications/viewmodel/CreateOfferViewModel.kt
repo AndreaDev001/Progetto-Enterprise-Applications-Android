@@ -1,11 +1,12 @@
 package com.enterpriseapplications.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class CreateOfferViewModel : BaseViewModel()
+class CreateOfferViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
     var productID: Number? = null
     var update: Boolean = false

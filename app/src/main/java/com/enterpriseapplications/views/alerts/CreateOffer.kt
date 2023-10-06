@@ -19,14 +19,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enterpriseapplications.viewmodel.CreateOfferViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.ButtonSection
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 
 @Composable
 fun CreateOffer(productID: Number,update: Boolean,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
-    val viewModel: CreateOfferViewModel = CreateOfferViewModel()
+    val viewModel: CreateOfferViewModel = viewModel(factory = viewModelFactory)
     val text: String = if(!update) "Create an Offer" else "Update Offer";
     viewModel.productID = productID
     viewModel.update = update

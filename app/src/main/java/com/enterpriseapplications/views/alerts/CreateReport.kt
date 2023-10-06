@@ -20,14 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.enterpriseapplications.viewmodel.CreateReportViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.ButtonSection
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 
 @Composable
 fun CreateReport(userID: Number? = null,productID: Number? = null,messageID: Number?,update: Boolean = false,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
-    val viewModel: CreateReportViewModel = CreateReportViewModel()
+    val viewModel: CreateReportViewModel = viewModel(factory = viewModelFactory)
     val text: String = if(!update) "Create" else "Update";
     viewModel.userID = userID
     viewModel.productID = productID

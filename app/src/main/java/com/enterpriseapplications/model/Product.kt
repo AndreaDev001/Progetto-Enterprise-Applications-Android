@@ -1,13 +1,17 @@
 package com.enterpriseapplications.model
 
-data class Product(val name: String,
+import com.enterpriseapplications.model.refs.UserRef
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.util.UUID
+
+data class Product(val id: UUID,
+val name: String,
 val description: String,
 val brand: String,
+val seller: UserRef,
 val condition: String,
-val price: Number,
-val minPrice: Number,
-val likes: Number,
-val primaryCategory: String,
-val secondaryCategory: String,
-val tertiaryCategory: String,
-val seller: User)
+val price: BigDecimal,
+val minPrice: BigDecimal,
+val category: Category,
+val createdDate: LocalDate)

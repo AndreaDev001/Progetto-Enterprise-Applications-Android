@@ -2,11 +2,15 @@ package com.enterpriseapplications.viewmodel.search
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.viewmodel.BaseViewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-class SearchProductsViewModel : BaseViewModel() {
+class SearchProductsViewModel(val application: CustomApplication) : BaseViewModel(application) {
 
 
     init
@@ -30,12 +34,16 @@ class SearchProductsViewModel : BaseViewModel() {
     
     fun test()
     {
-        this.retrofitConfig.productController.getConditions().process { strings, throwable ->
-            Log.d("TEST", strings.toString())
-            if (throwable != null) {
-                throwable.message?.let { Log.d("TEST", it) }
+        this.retrofitConfig.productController.getConditions().enqueue(object: Callback<List<String>> {
+            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
+                Log.d("CALLED", response.body().toString())
             }
-        }
+
+            override fun onFailure(call: Call<List<String>>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
     val nameControl: FormControl<String?> = _nameControl

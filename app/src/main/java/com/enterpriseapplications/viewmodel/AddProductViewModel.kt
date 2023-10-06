@@ -1,11 +1,12 @@
 package com.enterpriseapplications.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 
-class AddProductViewModel : BaseViewModel()
+class AddProductViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
     private var _nameControl: FormControl<String?> = FormControl("",Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())

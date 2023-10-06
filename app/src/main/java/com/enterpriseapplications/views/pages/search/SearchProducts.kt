@@ -4,14 +4,12 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,10 +36,12 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.model.Product
-import com.enterpriseapplications.model.User
+import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchProducts(navController: NavHostController) {
-    val viewModel: SearchProductsViewModel = SearchProductsViewModel()
+    val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier
@@ -125,7 +125,7 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 private fun ItemsList(products: MutableList<Product>) {
     Box(modifier = Modifier.padding(5.dp)) {
         val product: Product= Product("test","test","test","test",10,10,10,"test","test","test",
-            User("marchioandrea02@gmail.com","andrea","marchio","andreadev01","MALE"))
+            UserDetails("marchioandrea02@gmail.com","andrea","marchio","andreadev01","MALE"))
         for(i in 0..20){
             products.add(product)
         }

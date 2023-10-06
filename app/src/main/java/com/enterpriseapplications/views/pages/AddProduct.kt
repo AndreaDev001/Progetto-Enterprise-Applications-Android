@@ -26,8 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.viewmodel.AddProductViewModel
+import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.alerts.CreateReport
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
@@ -37,7 +39,7 @@ import com.enterpriseapplications.views.pages.search.FormDropdown
 @Composable
 fun AddProduct(navController: NavHostController)
 {
-    val viewModel: AddProductViewModel = AddProductViewModel()
+    val viewModel: AddProductViewModel = viewModel(factory = viewModelFactory)
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp, horizontal = 20.dp)) {

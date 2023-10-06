@@ -1,11 +1,12 @@
 package com.enterpriseapplications.viewmodel.search
 
 import androidx.lifecycle.ViewModel
+import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.viewmodel.BaseViewModel
 
-class SearchBansViewModel : BaseViewModel()
+class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
     private var _bannerEmail: FormControl<String?> = FormControl("", Validators.required())
     private var _bannedEmail: FormControl<String?> = FormControl("", Validators.required())

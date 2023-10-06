@@ -1,5 +1,6 @@
 package com.enterpriseapplications.config
 
+import android.util.Log
 import com.enterpriseapplications.R
 import retrofit2.Call
 import retrofit2.Callback
