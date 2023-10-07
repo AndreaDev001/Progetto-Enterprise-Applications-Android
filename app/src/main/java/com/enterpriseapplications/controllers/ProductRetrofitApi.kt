@@ -12,14 +12,14 @@ interface ProductRetrofitApi {
 
     @GET("products/public/spec")
     fun getProducts(
-        @Query("primaryCat") primaryCat: String,
-        @Query("secondaryCat") secondaryCat: String,
-        @Query("tertiaryCat") tertiaryCat: String,
-        @Query("name") name: String,
-        @Query("description") description: String,
-        @Query("condition") condition: String,
-        @Query("minPrice") minPrice: Number,
-        @Query("maxPrice") maxPrice: Number,
+        @Query("primaryCat") primaryCat: String?,
+        @Query("secondaryCat") secondaryCat: String?,
+        @Query("tertiaryCat") tertiaryCat: String?,
+        @Query("name") name: String?,
+        @Query("description") description: String?,
+        @Query("condition") condition: String?,
+        @Query("minPrice") minPrice: Number?,
+        @Query("maxPrice") maxPrice: Number?,
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20) : Call<PagedModel<Product>>
 

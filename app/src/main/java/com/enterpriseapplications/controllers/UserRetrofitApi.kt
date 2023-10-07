@@ -13,13 +13,13 @@ interface UserRetrofitApi
 
     @GET("users/public/spec")
     fun getUsers(
-        @Query("email") email: String,
-        @Query("username") username: String,
-        @Query("name") name: String,
-        @Query("surname") surname: String,
-        @Query("description") description: String,
-        @Query("minRating") minRating: Number,
-        @Query("maxRating") maxRating: Number,
+        @Query("email") email: String?,
+        @Query("username") username: String?,
+        @Query("name") name: String?,
+        @Query("surname") surname: String?,
+        @Query("description") description: String?,
+        @Query("minRating") minRating: Number?,
+        @Query("maxRating") maxRating: Number?,
         @Query("page") page: Int,
         @Query("pageSize") pageSize: Int
     ): Call<PagedModel<UserDetails>>

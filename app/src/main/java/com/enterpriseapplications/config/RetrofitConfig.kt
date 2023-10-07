@@ -4,6 +4,7 @@ import android.app.Application
 import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.config.authentication.AuthorizationInterceptor
 import com.enterpriseapplications.controllers.BanRetrofitApi
+import com.enterpriseapplications.controllers.CategoryRetrofitApi
 import com.enterpriseapplications.controllers.FollowRetrofitApi
 import com.enterpriseapplications.controllers.MessageRetrofitApi
 import com.enterpriseapplications.controllers.OfferRetrofitApi
@@ -36,6 +37,7 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
             .build()
 
     val productController: ProductRetrofitApi = retrofit.create(ProductRetrofitApi::class.java)
+    val categoryController: CategoryRetrofitApi = retrofit.create(CategoryRetrofitApi::class.java)
     val userController: UserRetrofitApi = retrofit.create(UserRetrofitApi::class.java)
     val banController: BanRetrofitApi = retrofit.create(BanRetrofitApi::class.java)
     val reportController: ReportRetrofitApi = retrofit.create(ReportRetrofitApi::class.java)

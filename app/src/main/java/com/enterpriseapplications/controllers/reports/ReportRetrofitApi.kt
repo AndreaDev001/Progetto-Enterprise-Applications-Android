@@ -11,13 +11,13 @@ interface ReportRetrofitApi {
 
     @GET("/reports/public/spec")
     fun getReports(
-        @Query("reporterEmail") reporterEmail: String,
-        @Query("reportedEmail") reportedEmail: String,
-        @Query("reporterUsername") reporterUsername: String,
-        @Query("reportedUsername") reportedUsername: String,
-        @Query("description") description: String,
-        @Query("reason") reason: String,
-        @Query("type") type: String,
+        @Query("reporterEmail") reporterEmail: String?,
+        @Query("reportedEmail") reportedEmail: String?,
+        @Query("reporterUsername") reporterUsername: String?,
+        @Query("reportedUsername") reportedUsername: String?,
+        @Query("description") description: String?,
+        @Query("reason") reason: String?,
+        @Query("type") type: String?,
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20,
     ) : Call<PagedModel<Report>>
