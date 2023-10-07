@@ -18,7 +18,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _bannedUsername: FormControl<String?> = FormControl("", Validators.required())
     private var _reason: FormControl<String?> = FormControl("", Validators.required())
 
-
+    private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
     private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0)
     private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0)
@@ -34,6 +34,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     val bannedUsername: FormControl<String?> = _bannedUsername
     val reason: FormControl<String?> = _reason
 
+    val reasons: StateFlow<List<String>> = _reasons.asStateFlow()
     val currentBans: StateFlow<List<Ban>> = _currentBans.asStateFlow()
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
     val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()

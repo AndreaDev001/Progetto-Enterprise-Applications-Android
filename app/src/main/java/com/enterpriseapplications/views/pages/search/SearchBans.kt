@@ -94,6 +94,7 @@ fun SearchBans(navController: NavHostController) {
 
 @Composable
 private fun FilterOptions(viewModel: SearchBansViewModel) {
+    val reasons: State<List<String>> = viewModel.reasons.collectAsState()
     Column(modifier = Modifier
         .padding(10.dp)
         .fillMaxWidth()
@@ -102,7 +103,7 @@ private fun FilterOptions(viewModel: SearchBansViewModel) {
         CustomTextField(formControl = viewModel.bannedEmail, supportingText = "Write the banned email", placeHolder = "Write an email...", label = "Banned email")
         CustomTextField(formControl = viewModel.bannerUsername, supportingText = "Write the banner username", placeHolder = "Write an username...",label = "Banner username")
         CustomTextField(formControl = viewModel.bannedUsername, supportingText = "Write the banned username", placeHolder = "Write an username...",label = "Banned username")
-        FormDropdown(formControl = viewModel.reason, items = listOf("RACISM","NUDITY"), label = "Reason")
+        FormDropdown(formControl = viewModel.reason, items = reasons.value, label = "Reason")
     }
 }
 @Composable

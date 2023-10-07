@@ -88,6 +88,7 @@ fun SearchUsers(navController: NavHostController) {
 
 @Composable
 private fun FilterOptions(viewModel: SearchUsersViewModel) {
+    val genders: State<List<String>> = viewModel.genders.collectAsState();
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(10.dp)
@@ -95,7 +96,7 @@ private fun FilterOptions(viewModel: SearchUsersViewModel) {
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Name", placeHolder = "Write a name...")
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.surnameControl, supportingText = "Write the product's surname",label = "Surname", placeHolder = "Write a surname...")
         CustomTextField(modifier = Modifier.padding(5.dp), formControl = viewModel.usernameControl, supportingText = "Write the user's username",label = "Username", placeHolder = "Write a username...")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.genderControl, items = listOf("MALE","FEMALE"), label = "Gender")
+        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.genderControl, items = genders.value, label = "Gender")
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the user's description", label = "Description", placeHolder = "Write a description...")
     }
 }

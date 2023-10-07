@@ -29,6 +29,10 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     private var _secondaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _tertiaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
 
+    private var _conditions: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private var _primaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private var _secondaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private var _tertiaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var _currentProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
@@ -47,6 +51,11 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     val minLikesControl: FormControl<String?> = _minLikesControl
     val maxLikesControl: FormControl<String?> = _maxLikesControl
     val conditionControl: FormControl<String?> = _conditionControl
+
+    val conditions: StateFlow<List<String>> = _conditions.asStateFlow()
+    val primaryCategories: StateFlow<List<String>> = _primaryCategories.asStateFlow()
+    val secondaryCategories: StateFlow<List<String>> = _secondaryCategories.asStateFlow()
+    val tertiaryCategories: StateFlow<List<String>> = _tertiaryCategories.asStateFlow()
 
     val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()

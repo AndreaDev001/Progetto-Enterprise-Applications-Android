@@ -1,14 +1,15 @@
-package com.enterpriseapplications.viewmodel
+package com.enterpriseapplications.viewmodel.create
 
-import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.viewmodel.BaseViewModel
+import java.util.UUID
 
 class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(application)
 {
-    var userID: Number? = null
+    var userID: UUID? = null
     var update: Boolean = false
     private var _textControl: FormControl<String?> = FormControl("",Validators.required())
     private var _ratingControl: FormControl<String?> = FormControl("",Validators.required())

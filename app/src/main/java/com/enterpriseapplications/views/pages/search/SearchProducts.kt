@@ -106,10 +106,11 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 
 @Composable
 private fun GeneralInformation(viewModel: SearchProductsViewModel) {
+    val conditions: State<List<String>> = viewModel.conditions.collectAsState()
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.conditionControl, items = listOf("A","B","C"), label = "Condition")
+    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
     CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
@@ -118,9 +119,12 @@ private fun GeneralInformation(viewModel: SearchProductsViewModel) {
 
 @Composable
 private fun CategoryInformation(viewModel: SearchProductsViewModel) {
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.primaryCategoryControl, items = listOf("A","B","C"), label = "Primary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.secondaryCategoryControl, items = listOf("A","B","C"), label = "Secondary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.tertiaryCategoryControl, items = listOf("A","B","C"), label = "Tertiary Category")
+    val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
+    val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
+    val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
+    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
+    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
+    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
 }
 
 @Composable

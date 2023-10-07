@@ -1,4 +1,4 @@
-package com.enterpriseapplications.views
+package com.enterpriseapplications.views.alerts
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

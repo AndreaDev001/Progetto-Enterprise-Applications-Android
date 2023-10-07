@@ -8,6 +8,10 @@ import retrofit2.http.Query
 
 interface UserRetrofitApi
 {
+
+    @GET("users/public/genders")
+    fun getGenders(): Call<List<String>>;
+
     @GET("users/public/visibilities")
     fun getVisibilities(): Call<List<String>>;
 

@@ -10,13 +10,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(application) {
+class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(application)
+{
     private var _reporterEmail: FormControl<String?> = FormControl("",Validators.required())
     private var _reportedEmail: FormControl<String?> = FormControl("",Validators.required())
     private var _reporterUsername: FormControl<String?> = FormControl("",Validators.required())
     private var _reportedUsername: FormControl<String?> = FormControl("",Validators.required())
     private var _reason: FormControl<String?> = FormControl("",Validators.required())
     private var _type: FormControl<String?> = FormControl("",Validators.required())
+
+    private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var _currentReports: MutableStateFlow<List<Report>> = MutableStateFlow(emptyList())
     private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
@@ -34,6 +38,8 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val reason: FormControl<String?> = _reason
     val type: FormControl<String?> = _type
 
+    val reasons: StateFlow<List<String>> = _reasons.asStateFlow();
+    val types: StateFlow<List<String>> = _types.asStateFlow();
     val currentReports: StateFlow<List<Report>> = _currentReports.asStateFlow()
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow();
     val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()

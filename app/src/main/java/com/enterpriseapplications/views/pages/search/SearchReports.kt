@@ -94,6 +94,8 @@ fun SearchReports(navController: NavHostController) {
 
 @Composable
 private fun FilterOptions(viewModel: SearchReportsViewModel) {
+    val reasons: State<List<String>> = viewModel.reasons.collectAsState()
+    val types: State<List<String>> = viewModel.types.collectAsState()
     Column(modifier = Modifier
         .padding(10.dp)
         .fillMaxWidth()
@@ -102,8 +104,8 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedEmail, supportingText = "Write the reported email", placeHolder = "Write an email...", label = "Reported Email")
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reporterUsername, supportingText = "Write the reporter username", placeHolder = "Write an username...", label = "Reporter username")
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reason, items = listOf("RACISM","NUDITY"), label = "Reason")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.type, items = listOf("USER","PRODUCT","MESSAGE"), label = "Type")
+        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reason, items = reasons.value, label = "Reason")
+        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.type, items = types.value, label = "Type")
     }
 }
 @Composable

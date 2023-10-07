@@ -18,6 +18,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _genderControl: FormControl<String?> = FormControl("",Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("", Validators.required())
 
+    private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
     private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
@@ -33,6 +34,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     val genderControl: FormControl<String?> = _genderControl
     val descriptionControl: FormControl<String?> =_descriptionControl
 
+    val genders: StateFlow<List<String>> = _genders.asStateFlow()
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()
     val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
     val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
