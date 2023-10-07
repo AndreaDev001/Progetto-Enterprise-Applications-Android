@@ -1,12 +1,17 @@
 package com.enterpriseapplications.views.pages.search
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -24,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,10 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
+import com.enterpriseapplications.views.ProductCard
+import com.enterpriseapplications.views.ReportCard
 import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +86,7 @@ fun SearchReports(navController: NavHostController) {
                 ) {
                     Text(text = "Filters", fontSize = 16.sp)
                 }
-                MissingItems(callback = { /*TODO*/ })
+                ItemList(viewModel = viewModel)
             }
         }
     }
@@ -93,5 +104,29 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
         CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
         FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reason, items = listOf("RACISM","NUDITY"), label = "Reason")
         FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.type, items = listOf("USER","PRODUCT","MESSAGE"), label = "Type")
+    }
+}
+@Composable
+private fun ItemList(viewModel: SearchReportsViewModel) {
+    val currentReports: State<List<Report>> = viewModel.currentReports.collectAsState()
+    val currentPage: State<Int> = viewModel.currentPage.collectAsState()
+    val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
+    val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
+    Column(modifier = Modifier.padding(5.dp)) {
+        Text(text = "Use the available filters to find the desired products", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentPage.value} page", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentTotalPages.value} total pages", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentTotalElements.value} total elements", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        if(currentTotalElements.value > 0) {
+            LazyVerticalGrid(modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+                itemsIndexed(items = currentReports.value) { _, item ->
+                    Box(modifier = Modifier.padding(5.dp)) {
+                        ReportCard(report = item)
+                    }
+                }
+            })
+        }
+        else
+            MissingItems(callback = {viewModel.resetSearch()})
     }
 }

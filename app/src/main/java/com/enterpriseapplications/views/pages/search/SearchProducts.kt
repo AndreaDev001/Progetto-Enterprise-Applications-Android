@@ -29,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,7 +85,7 @@ fun SearchProducts(navController: NavHostController) {
                     .padding(10.dp),shape = RoundedCornerShape(10.dp)) {
                     Text(text = "Filters", fontSize = 16.sp)
                 }
-                ItemsList(products = mutableListOf())
+                ItemsList(viewModel = viewModel)
             }
         }
     }
@@ -122,19 +124,26 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 }
 
 @Composable
-private fun ItemsList(products: MutableList<Product>) {
-    Box(modifier = Modifier.padding(5.dp)) {
-        val product: Product= Product("test","test","test","test",10,10,10,"test","test","test",
-            UserDetails("marchioandrea02@gmail.com","andrea","marchio","andreadev01","MALE"))
-        for(i in 0..20){
-            products.add(product)
-        }
-        LazyVerticalGrid(modifier = Modifier.padding(5.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
-            itemsIndexed(items = products) {index, item ->
-                Box(modifier = Modifier.padding(5.dp)) {
-                    ProductCard(product = item)
+private fun ItemsList(viewModel: SearchProductsViewModel){
+    val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
+    val currentPage: State<Int> = viewModel.currentPage.collectAsState()
+    val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
+    val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
+    Column(modifier = Modifier.padding(5.dp)) {
+        Text(text = "Use the available filters to find the desired products", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentPage.value} page", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentTotalPages.value} total pages", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentTotalElements.value} total elements", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        if(currentTotalElements.value > 0) {
+            LazyVerticalGrid(modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+                itemsIndexed(items = currentProducts.value) { _, item ->
+                    Box(modifier = Modifier.padding(5.dp)) {
+                        ProductCard(product = item)
+                    }
                 }
-            }
-        })
+            })
+        }
+        else
+            MissingItems(callback = {viewModel.resetSearch()})
     }
 }

@@ -5,18 +5,16 @@ import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.BaseViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class SearchProductsViewModel(val application: CustomApplication) : BaseViewModel(application) {
-
-
-    init
-    {
-        test()
-    }
 
     private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
@@ -30,20 +28,15 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     private var _primaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _secondaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _tertiaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
-    
-    
-    fun test()
-    {
-        this.retrofitConfig.productController.getConditions().enqueue(object: Callback<List<String>> {
-            override fun onResponse(call: Call<List<String>>, response: Response<List<String>>) {
-                Log.d("CALLED", response.body().toString())
-            }
 
-            override fun onFailure(call: Call<List<String>>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
 
-        })
+    private var _currentProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
+    private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
+    private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
+    private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
+
+    fun resetSearch() {
+
     }
 
     val nameControl: FormControl<String?> = _nameControl
@@ -54,6 +47,11 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     val minLikesControl: FormControl<String?> = _minLikesControl
     val maxLikesControl: FormControl<String?> = _maxLikesControl
     val conditionControl: FormControl<String?> = _conditionControl
+
+    val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
+    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
+    val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()
+    val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
 
     val primaryCategoryControl: FormControl<String?> = _primaryCategoryControl
     val secondaryCategoryControl: FormControl<String?> = _secondaryCategoryControl
