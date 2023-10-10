@@ -16,7 +16,9 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _bannedEmail: FormControl<String?> = FormControl("", Validators.required())
     private var _bannerUsername: FormControl<String?> = FormControl("", Validators.required())
     private var _bannedUsername: FormControl<String?> = FormControl("", Validators.required())
+    private var _description: FormControl<String?> = FormControl("",Validators.required())
     private var _reason: FormControl<String?> = FormControl("", Validators.required())
+    private var _expired: FormControl<Boolean> = FormControl(false)
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
@@ -24,6 +26,20 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0)
     private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0)
 
+    init
+    {
+        this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
+            this._reasons.value = it
+        })
+        this.makeRequest(this.retrofitConfig.banController.getBans(_bannerEmail.currentValue.value,
+        _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
+        this._expired.currentValue.value,this._currentPage.value,20),{
+            //this._currentBans.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
+    }
     fun resetSearch() {
 
     }
@@ -32,6 +48,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     val bannedEmail: FormControl<String?> = _bannedEmail
     val bannerUsername: FormControl<String?> = _bannerUsername
     val bannedUsername: FormControl<String?> = _bannedUsername
+    val description: FormControl<String?> = _description
     val reason: FormControl<String?> = _reason
 
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow()

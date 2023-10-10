@@ -18,6 +18,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -61,6 +63,8 @@ fun AddProduct(navController: NavHostController)
 
 @Composable
 private fun GeneralInformation(viewModel: AddProductViewModel) {
+    val conditions: State<List<String>> = viewModel.conditions.collectAsState();
+    val visibilities: State<List<String>> = viewModel.visibilities.collectAsState()
     Text(text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     CustomTextField(modifier = Modifier
         .padding(5.dp)
@@ -79,21 +83,27 @@ private fun GeneralInformation(viewModel: AddProductViewModel) {
         .fillMaxWidth(),formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product (offers)", placeHolder = "Write a number...",label = "Product Minimum Price (Offer)")
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.conditionControl, items = listOf("A","B","C"))
+        .fillMaxWidth(),formControl = viewModel.conditionControl, items = conditions.value)
+    FormDropdown(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(),formControl = viewModel.visibilityControl,items = visibilities.value)
 }
 
 @Composable
 private fun CategoryInformation(viewModel: AddProductViewModel) {
+    val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
+    val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
+    val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
     Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.primaryCategoryControl, items = listOf("A","B","C"))
+        .fillMaxWidth(),formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.secondaryCategoryControl, items = listOf("A","B","C"))
+        .fillMaxWidth(),formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.tertiaryCategoryControl, items =  listOf("A","B","C"))
+        .fillMaxWidth(),formControl = viewModel.tertiaryCategoryControl, items =  tertiaryCategories.value)
 }
 
 @Composable

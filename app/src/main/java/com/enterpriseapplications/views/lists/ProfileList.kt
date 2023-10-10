@@ -1,8 +1,10 @@
 package com.enterpriseapplications.views.lists
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
@@ -30,7 +32,7 @@ import com.enterpriseapplications.navigation.icons
 @Composable
 fun ProfileList(navController: NavHostController)
 {
-    Column(modifier = Modifier.padding(vertical = 2.dp)) {
+    Column(modifier = Modifier.padding(vertical = 2.dp).verticalScroll(ScrollState(0))) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
             Text(text = "Profile", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }, navigationIcon = {

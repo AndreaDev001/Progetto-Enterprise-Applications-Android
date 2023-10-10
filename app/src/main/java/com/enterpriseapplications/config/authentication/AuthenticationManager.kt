@@ -47,8 +47,8 @@ class AuthenticationManager(val application: CustomApplication)
         private var _currentToken: MutableStateFlow<TokenData?> = MutableStateFlow(null)
         val currentUser: StateFlow<AuthenticatedUser?> = _currentUser.asStateFlow()
         val currentToken: StateFlow<TokenData?> = _currentToken.asStateFlow()
-        val authorizeURI: String = "http://10.0.2.2:9000/oauth2/authorize"
-        val tokenURI: String = "http://10.0.2.2:9000/oauth2/token"
+        val authorizeURI: String = "http://192.168.1.74:9000/oauth2/authorize"
+        val tokenURI: String = "http://192.168.1.74:9000/oauth2/token"
         val redirectURI: String = "clowning://moose.ac"
         val clientID: String = "client"
         val clientSecret: String = "secret"

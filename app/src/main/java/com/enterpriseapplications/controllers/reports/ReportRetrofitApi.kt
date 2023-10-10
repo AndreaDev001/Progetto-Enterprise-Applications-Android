@@ -1,6 +1,5 @@
 package com.enterpriseapplications.controllers.reports
 
-import com.enterpriseapplications.config.Adapter
 import com.enterpriseapplications.model.PagedModel
 import com.enterpriseapplications.model.reports.Report
 import retrofit2.Call
@@ -9,7 +8,7 @@ import retrofit2.http.Query
 
 interface ReportRetrofitApi {
 
-    @GET("/reports/public/spec")
+    @GET("reports/public/spec")
     fun getReports(
         @Query("reporterEmail") reporterEmail: String?,
         @Query("reportedEmail") reportedEmail: String?,
@@ -21,8 +20,8 @@ interface ReportRetrofitApi {
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20,
     ) : Call<PagedModel<Report>>
-    @GET("/reports/public/reasons")
+    @GET("reports/public/reasons")
     fun getReasons(): Call<List<String>>
-    @GET("/reports/public/types")
+    @GET("reports/public/types")
     fun getTypes(): Call<List<String>>
 }

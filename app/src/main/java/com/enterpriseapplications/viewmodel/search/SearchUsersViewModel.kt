@@ -1,5 +1,6 @@
 package com.enterpriseapplications.viewmodel.search
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
@@ -12,11 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(application)
 {
+    private var _emailControl: FormControl<String?> = FormControl("",Validators.required())
     private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
     private var _surnameControl: FormControl<String?> = FormControl("",Validators.required())
     private var _usernameControl: FormControl<String?> = FormControl("",Validators.required())
     private var _genderControl: FormControl<String?> = FormControl("",Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("", Validators.required())
+    private var _minRatingControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _maxRatingControl: FormControl<String?> = FormControl("",Validators.required())
 
     private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
@@ -24,6 +28,20 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
 
+    init
+    {
+        this.makeRequest(this.retrofitConfig.userController.getGenders(),{
+            this._genders.value = it
+        });
+        this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
+        _nameControl.currentValue.value,_surnameControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
+        _currentPage.value,20),{
+            this._currentUsers.value = it._embedded.content;
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
+    }
     fun resetSearch() {
 
     }
@@ -33,6 +51,9 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     val usernameControl: FormControl<String?> = _usernameControl
     val genderControl: FormControl<String?> = _genderControl
     val descriptionControl: FormControl<String?> =_descriptionControl
+    val emailControl: FormControl<String?> = _emailControl
+    val minRatingControl: FormControl<String?> = _minRatingControl
+    val maxRatingControl: FormControl<String?> = _maxRatingControl
 
     val genders: StateFlow<List<String>> = _genders.asStateFlow()
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()

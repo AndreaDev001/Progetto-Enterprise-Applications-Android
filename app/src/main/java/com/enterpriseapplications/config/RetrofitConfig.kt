@@ -31,7 +31,6 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
     private val retrofit: Retrofit = Retrofit.
             Builder()
             .baseUrl(baseURL)
-            .addCallAdapterFactory(AdapterFactory())
             .addConverterFactory(GsonConverterFactory.create()).
             client(httpClient)
             .build()

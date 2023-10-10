@@ -16,6 +16,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     private var _reportedEmail: FormControl<String?> = FormControl("",Validators.required())
     private var _reporterUsername: FormControl<String?> = FormControl("",Validators.required())
     private var _reportedUsername: FormControl<String?> = FormControl("",Validators.required())
+    private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
     private var _reason: FormControl<String?> = FormControl("",Validators.required())
     private var _type: FormControl<String?> = FormControl("",Validators.required())
 
@@ -27,6 +28,24 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
 
+    init
+    {
+        this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
+            this._reasons.value = it
+        })
+        this.makeRequest(this.retrofitConfig.reportController.getTypes(),{
+            this._types.value = it
+        })
+        this.makeRequest(this.retrofitConfig.reportController.getReports(_reporterEmail.currentValue.value,
+        _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
+        _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentPage.value,20),{
+            //this._currentReports.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
+    }
+
     fun resetSearch() {
 
     }
@@ -35,6 +54,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val reportedEmail: FormControl<String?> = _reportedEmail
     val reporterUsername: FormControl<String?> = _reporterUsername
     val reportedUsername: FormControl<String?> = _reportedUsername
+    val descriptionControl: FormControl<String?> = _descriptionControl
     val reason: FormControl<String?> = _reason
     val type: FormControl<String?> = _type
 

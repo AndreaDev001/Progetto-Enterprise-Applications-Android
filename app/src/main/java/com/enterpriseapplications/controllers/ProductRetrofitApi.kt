@@ -1,6 +1,5 @@
 package com.enterpriseapplications.controllers
 
-import com.enterpriseapplications.config.Adapter
 import com.enterpriseapplications.model.PagedModel
 import com.enterpriseapplications.model.Product
 import retrofit2.Call
@@ -25,8 +24,8 @@ interface ProductRetrofitApi {
 
     @GET("products/public/{productID}")
     fun getDetails(@Path("productID") id: Long): Call<Product>
-    @GET("products/public/products/conditions")
+    @GET("products/public/conditions")
     fun getConditions(): Call<List<String>>;
-    @GET("/products/public/visibilities")
+    @GET("products/public/visibilities")
     fun getVisibilities(): Call<List<String>>
 }

@@ -39,6 +39,25 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
 
+    init
+    {
+        this.makeRequest(this.retrofitConfig.productController.getConditions(),{
+            this._conditions.value = it
+        })
+        this.makeRequest(this.retrofitConfig.categoryController.getPrimaries(),{
+            this._primaryCategories.value = it
+        })
+        this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
+        _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
+        _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
+        0,100,this._currentPage.value,20),{
+            //this._currentProducts.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
+    }
+
     fun resetSearch() {
 
     }

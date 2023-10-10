@@ -107,9 +107,8 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = {application.authenticationManager.createLoginRequest(launcher) }) {
-                            Text(text = "Perform login");
-                        }
+                        val navController: NavHostController = rememberNavController()
+                        NavigationBarController(navController = navController)
                     }
                 }
             }

@@ -1,10 +1,9 @@
 package com.enterpriseapplications.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
-import com.enterpriseapplications.config.Adapter
 import com.enterpriseapplications.config.RetrofitConfig
-import com.enterpriseapplications.config.authentication.AuthenticationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,17 +15,18 @@ abstract class BaseViewModel(application: CustomApplication) : ViewModel()
 {
     protected var retrofitConfig: RetrofitConfig = RetrofitConfig(application,application.authenticationManager)
 
-    fun<T> makeRequest(adapter: Adapter<T>,successCallback: (T) -> Unit,errorCallback: () -> Unit) {
+    fun<T> makeRequest(call: Call<T>, successCallback: (T) -> Unit, errorCallback: () -> Unit = {}) {
         CoroutineScope(Dispatchers.Default).launch {
-            adapter.process { t, throwable ->
-                if(throwable == null && t != null) {
-                    successCallback(t)
+            call.enqueue(object: Callback<T> {
+                override fun onResponse(call: Call<T>, response: Response<T>) {
+                    if(response.isSuccessful)
+                        successCallback(response.body()!!);
                 }
-                else
-                {
+
+                override fun onFailure(call: Call<T>, t: Throwable) {
                     errorCallback()
                 }
-            }
+            })
         }
     }
 }

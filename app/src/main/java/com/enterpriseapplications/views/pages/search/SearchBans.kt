@@ -113,10 +113,12 @@ private fun ItemList(viewModel: SearchBansViewModel) {
     val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
     val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
     Column(modifier = Modifier.padding(5.dp)) {
-        Text(text = "Use the available filters to find the desired bans", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentPage.value} page", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalPages.value} total pages",fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalElements.value} total elements", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Column(modifier = Modifier.padding(5.dp)) {
+            Text(text = "Use the available filters to find the desired bans", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentTotalPages.value} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentTotalElements.value} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        }
         if(currentTotalElements.value > 0) {
             LazyVerticalGrid(modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentBans.value) { _, item ->

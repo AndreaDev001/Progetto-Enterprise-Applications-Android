@@ -42,8 +42,8 @@ fun MissingItems(missingText: String = "No results found, set is empty", missing
         .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = missingIcon,contentDescription = null,modifier = Modifier
             .padding(5.dp)
-            .size(60.dp))
-        Text(text = missingText,modifier = Modifier.padding(5.dp))
+            .size(80.dp))
+        Text(text = missingText, fontSize = 15.sp,modifier = Modifier.padding(5.dp))
         button();
     }
 }

@@ -13,6 +13,8 @@ interface BanRetrofitApi {
         @Query("bannedEmail") bannedEmail: String?,
         @Query("bannerUsername") bannerUsername: String?,
         @Query("bannedUsername") bannedUsername: String?,
+        @Query("description") description: String?,
+        @Query("reason") reason: String?,
         @Query("expired") expired: Boolean?,
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20) : Call<PagedModel<Ban>>

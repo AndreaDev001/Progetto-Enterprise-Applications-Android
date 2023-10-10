@@ -71,7 +71,7 @@ val texts = listOf(
 @Composable
 fun NavigationBarController(navController: NavHostController) {
     Scaffold(modifier = Modifier.fillMaxWidth(), bottomBar = {
-        NavigationBar(modifier = Modifier.padding(5.dp)){
+        NavigationBar(){
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             screens.forEachIndexed{index, screen ->

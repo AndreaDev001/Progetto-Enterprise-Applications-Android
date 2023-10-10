@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -76,16 +77,14 @@ fun RatingComponent(rating: Int) {
             amountOfHalfStars = 1;
     }
     amountOfEmptyStars = 10 - amountOfFullStars - amountOfHalfStars;
-    Row(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth()) {
+    Row(modifier = Modifier.fillMaxWidth()) {
         for(i in 0..amountOfFullStars ) {
-            Icon(modifier = Modifier.padding(5.dp),imageVector = Icons.Default.Star,contentDescription = null)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
         }
         if(amountOfHalfStars == 1)
-            Icon(modifier = Modifier.padding(5.dp),imageVector = Icons.Default.StarHalf,contentDescription = null)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
         for(i in 0..amountOfEmptyStars) {
-            Icon(modifier = Modifier.padding(5.dp),imageVector = Icons.Default.StarBorder,contentDescription = null)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
         }
     }
 }
@@ -120,29 +119,25 @@ fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
 @Composable
 fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
     Button(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth(),onClick = {clickCallback()}) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)) {
-                AsyncImage(modifier = Modifier
-                    .size(20.dp)
-                    .clip(RoundedCornerShape(60)),model = "http://10.0.0.2/api/v1/userImages/" + user.id.toString(), contentDescription = null)
+        .padding(2.dp)
+        .fillMaxWidth(),shape = RoundedCornerShape(10.dp),onClick = {clickCallback()})
+    {
+        Column(modifier = Modifier
+            .padding(vertical = 2.dp)
+            .fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                    modifier = Modifier.clip(RoundedCornerShape(60)).size(80.dp))
             }
-            Column(modifier = Modifier
+            Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            Row(modifier = Modifier
                 .fillMaxWidth()
-                .padding(5.dp)
-                .weight(1f)) {
-                Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)) {
-                    Text(text = user.name, fontSize = 12.sp)
-                    Text(text = user.surname, fontSize = 12.sp)
-                }
+                .padding(vertical = 2.dp)) {
+                Text(text = user.name,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+                Text(text = user.surname,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+            }
+            Column(modifier = Modifier.padding(vertical = 2.dp)) {
+                Text(text = user.gender,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 RatingComponent(rating = user.rating.toInt())
             }
         }

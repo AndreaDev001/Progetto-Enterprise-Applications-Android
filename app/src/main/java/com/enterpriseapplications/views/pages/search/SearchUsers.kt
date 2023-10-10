@@ -1,5 +1,6 @@
 package com.enterpriseapplications.views.pages.search
 
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,7 +65,7 @@ fun SearchUsers(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
-        ModalNavigationDrawer(drawerContent = {
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             ModalDrawerSheet(drawerShape = RectangleShape) {
                 MenuItem(callback = {scope.launch {drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters", supportingText = "Use the filters to find the desired users")
                 Spacer(modifier = Modifier.height(10.dp))
@@ -108,10 +109,12 @@ private fun ItemList(viewModel: SearchUsersViewModel) {
     val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
     val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
     Column(modifier = Modifier.padding(5.dp)) {
-        Text(text = "Use the available filters to find the desired users", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentPage.value} page", fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalPages.value} total pages",fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalElements.value} total elements",fontSize = 10.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Column(modifier = Modifier.padding(5.dp)) {
+            Text(text = "Use the available filters to find the desired users", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentTotalPages.value} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentTotalElements.value} total elements",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        }
         if(currentTotalElements.value > 0) {
             LazyVerticalGrid(modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentUsers.value) { _, item ->
