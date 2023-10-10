@@ -36,18 +36,26 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
         this.makeRequest(this.retrofitConfig.reportController.getTypes(),{
             this._types.value = it
         })
+        this.updateCurrentReports();
+    }
+    fun updateCurrentReports() {
         this.makeRequest(this.retrofitConfig.reportController.getReports(_reporterEmail.currentValue.value,
-        _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
-        _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentPage.value,20),{
-            //this._currentReports.value = it._embedded.content
+            _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
+            _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentPage.value,20),{
+            this._currentReports.value = it._embedded.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
     }
-
     fun resetSearch() {
-
+        this.makeRequest(this.retrofitConfig.reportController.getReports(null,null,null,null,
+            null,null,null,0,20),{
+            this._currentReports.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
     }
 
     val reporterEmail: FormControl<String?> = _reporterEmail

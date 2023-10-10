@@ -99,11 +99,12 @@ private fun FilterOptions(viewModel: SearchBansViewModel) {
         .padding(10.dp)
         .fillMaxWidth()
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
-        CustomTextField(formControl = viewModel.bannerEmail, supportingText = "Write the banner email", placeHolder = "Write an email...", label = "Banner email")
-        CustomTextField(formControl = viewModel.bannedEmail, supportingText = "Write the banned email", placeHolder = "Write an email...", label = "Banned email")
-        CustomTextField(formControl = viewModel.bannerUsername, supportingText = "Write the banner username", placeHolder = "Write an username...",label = "Banner username")
-        CustomTextField(formControl = viewModel.bannedUsername, supportingText = "Write the banned username", placeHolder = "Write an username...",label = "Banned username")
-        FormDropdown(formControl = viewModel.reason, items = reasons.value, label = "Reason")
+        CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannerEmail, valueCallback = {viewModel.updateCurrentBans()}, supportingText = "Write the banner email", placeHolder = "Write an email...", label = "Banner email")
+        CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannedEmail, valueCallback = {viewModel.updateCurrentBans()}, supportingText = "Write the banned email", placeHolder = "Write an email...", label = "Banned email")
+        CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannerUsername, valueCallback = {viewModel.updateCurrentBans()}, supportingText = "Write the banner username", placeHolder = "Write an username...",label = "Banner username")
+        CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannedUsername, valueCallback = {viewModel.updateCurrentBans()}, supportingText = "Write the banned username", placeHolder = "Write an username...",label = "Banned username")
+        CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.description, valueCallback = {viewModel.updateCurrentBans()}, supportingText = "Write the description of the ban", placeHolder = "Write a description...", label = "Description")
+        FormDropdown(modifier = Modifier.padding(2.dp),formControl = viewModel.reason, valueCallback = {viewModel.updateCurrentBans()}, items = reasons.value, label = "Reason")
     }
 }
 @Composable

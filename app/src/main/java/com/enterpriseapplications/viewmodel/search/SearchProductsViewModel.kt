@@ -47,19 +47,49 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         this.makeRequest(this.retrofitConfig.categoryController.getPrimaries(),{
             this._primaryCategories.value = it
         })
+        this.updateCurrentProducts()
+    }
+
+    fun updateCurrentProducts() {
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
-        _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
-        _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
-        0,100,this._currentPage.value,20),{
-            //this._currentProducts.value = it._embedded.content
+            _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
+            _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
+            0,100,this._currentPage.value,20),{
+            this._currentProducts.value = it._embedded.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
     }
 
+    fun updateSecondaries() {
+        val primary: String? = _primaryCategoryControl.currentValue.value;
+        if(primary != null) {
+            this.makeRequest(this.retrofitConfig.categoryController.getSecondaries(primary),{
+                this._secondaryCategories.value = it
+            })
+        }
+    }
+    fun updateTertiaries() {
+        val primary: String? = _primaryCategoryControl.currentValue.value;
+        val secondary: String? = _secondaryCategoryControl.currentValue.value;
+        if(primary != null && secondary != null) {
+            if(_primaryCategoryControl.currentValue.value != null) {
+                this.makeRequest(this.retrofitConfig.categoryController.getTertiaries(
+                    _primaryCategoryControl.currentValue.value!!,secondary),{
+                    this._tertiaryCategories.value = it
+                })
+            }
+        }
+    }
     fun resetSearch() {
-
+        this.makeRequest(this.retrofitConfig.productController.getProducts(null,null,null, null,null,null,
+            null,null,0,20),{
+            this._currentProducts.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
     }
 
     val nameControl: FormControl<String?> = _nameControl

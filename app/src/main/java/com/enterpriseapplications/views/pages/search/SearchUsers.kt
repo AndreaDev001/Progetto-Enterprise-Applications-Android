@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -94,11 +95,14 @@ private fun FilterOptions(viewModel: SearchUsersViewModel) {
         .fillMaxWidth()
         .padding(10.dp)
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Name", placeHolder = "Write a name...")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.surnameControl, supportingText = "Write the product's surname",label = "Surname", placeHolder = "Write a surname...")
-        CustomTextField(modifier = Modifier.padding(5.dp), formControl = viewModel.usernameControl, supportingText = "Write the user's username",label = "Username", placeHolder = "Write a username...")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.genderControl, items = genders.value, label = "Gender")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the user's description", label = "Description", placeHolder = "Write a description...")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()}, formControl = viewModel.emailControl, supportingText = "Write the user's email",label = "Email")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()},formControl = viewModel.nameControl, supportingText = "Write the user's name", label = "Name", placeHolder = "Write a name...")
+        CustomTextField(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentUsers()},formControl = viewModel.surnameControl, supportingText = "Write the user's surname",label = "Surname", placeHolder = "Write a surname...")
+        CustomTextField(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentUsers()}, formControl = viewModel.usernameControl, supportingText = "Write the user's username",label = "Username", placeHolder = "Write a username...")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()},formControl = viewModel.descriptionControl, supportingText = "Write the user's description", label = "Description", placeHolder = "Write a description...")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()}, formControl = viewModel.minRatingControl, supportingText = "Write the user's minimum rating",label = "Minimum rating", keyboardType = KeyboardType.Number)
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()}, formControl = viewModel.maxRatingControl, supportingText = "Write the user's maximum rating",label = "Maximum rating", keyboardType = KeyboardType.Number)
+        FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentUsers()},formControl = viewModel.genderControl, items = genders.value, label = "Gender")
     }
 }
 

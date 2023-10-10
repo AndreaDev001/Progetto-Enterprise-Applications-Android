@@ -107,14 +107,14 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 @Composable
 private fun GeneralInformation(viewModel: SearchProductsViewModel) {
     val conditions: State<List<String>> = viewModel.conditions.collectAsState()
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
 }
 
 @Composable
@@ -122,9 +122,9 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
     val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
     val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
     val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
-    FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateSecondaries();viewModel.updateCurrentProducts()},formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateTertiaries();viewModel.updateCurrentProducts()},formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
 }
 
 @Composable

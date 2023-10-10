@@ -100,12 +100,12 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
         .padding(10.dp)
         .fillMaxWidth()
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reporterEmail, supportingText = "Write the reporter's email", placeHolder = "Write an email...", label = "Reporter Email")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedEmail, supportingText = "Write the reported email", placeHolder = "Write an email...", label = "Reported Email")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reporterUsername, supportingText = "Write the reporter username", placeHolder = "Write an username...", label = "Reporter username")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reason, items = reasons.value, label = "Reason")
-        FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.type, items = types.value, label = "Type")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.reporterEmail, supportingText = "Write the reporter's email", placeHolder = "Write an email...", label = "Reporter Email")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.reportedEmail, supportingText = "Write the reported email", placeHolder = "Write an email...", label = "Reported Email")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.reporterUsername, supportingText = "Write the reporter username", placeHolder = "Write an username...", label = "Reporter username")
+        CustomTextField(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
+        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.reason, items = reasons.value, label = "Reason")
+        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports()},formControl = viewModel.type, items = types.value, label = "Type")
     }
 }
 @Composable

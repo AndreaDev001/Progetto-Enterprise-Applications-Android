@@ -33,9 +33,13 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
         this.makeRequest(this.retrofitConfig.userController.getGenders(),{
             this._genders.value = it
         });
+        this.updateCurrentUsers()
+    }
+
+    fun updateCurrentUsers() {
         this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
-        _nameControl.currentValue.value,_surnameControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
-        _currentPage.value,20),{
+            _nameControl.currentValue.value,_surnameControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
+            _currentPage.value,20),{
             this._currentUsers.value = it._embedded.content;
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
@@ -43,7 +47,14 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
         })
     }
     fun resetSearch() {
-
+        this.makeRequest(this.retrofitConfig.userController.getUsers(null,null,
+            null,null,null,null,null,
+            0,20),{
+            this._currentUsers.value = it._embedded.content;
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
     }
 
     val nameControl: FormControl<String?> = _nameControl

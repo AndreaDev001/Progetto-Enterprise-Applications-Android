@@ -31,17 +31,27 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
             this._reasons.value = it
         })
+        this.updateCurrentBans()
+    }
+    fun updateCurrentBans() {
         this.makeRequest(this.retrofitConfig.banController.getBans(_bannerEmail.currentValue.value,
-        _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
-        this._expired.currentValue.value,this._currentPage.value,20),{
-            //this._currentBans.value = it._embedded.content
+            _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
+            this._expired.currentValue.value,this._currentPage.value,20),{
+            this._currentBans.value = it._embedded.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
     }
     fun resetSearch() {
-
+        this.makeRequest(this.retrofitConfig.banController.getBans(null,
+            null,null,null,null,null,
+            null,0,20),{
+            this._currentBans.value = it._embedded.content
+            this._currentPage.value = it.page.number
+            this._currentTotalPages.value = it.page.totalPages
+            this._currentTotalElements.value = it.page.totalElements
+        })
     }
 
     val bannerEmail: FormControl<String?> = _bannerEmail
