@@ -97,10 +97,10 @@ private fun CategoryInformation(viewModel: AddProductViewModel) {
     Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
+        .fillMaxWidth(), valueCallback = {viewModel.updateSecondaries()}, formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
+        .fillMaxWidth(), valueCallback = {viewModel.updateTertiaries()}, formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
     FormDropdown(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth(),formControl = viewModel.tertiaryCategoryControl, items =  tertiaryCategories.value)

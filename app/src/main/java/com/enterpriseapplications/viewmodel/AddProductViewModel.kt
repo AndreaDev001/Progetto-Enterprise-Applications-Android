@@ -44,6 +44,24 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
         })
     }
 
+    fun updateSecondaries() {
+        val primary: String? = _primaryCategoryControl.currentValue.value;
+        if(primary != null) {
+            this.makeRequest(this.retrofitConfig.categoryController.getSecondaries(primary),{
+                this._secondaryCategories.value = it
+            })
+        }
+    }
+    fun updateTertiaries() {
+        val primary: String? = _primaryCategoryControl.currentValue.value;
+        val secondary: String? = _secondaryCategoryControl.currentValue.value;
+        if(primary != null && secondary != null) {
+            this.makeRequest(this.retrofitConfig.categoryController.getTertiaries(primary,secondary),{
+                this._tertiaryCategories.value = it
+            })
+        }
+    }
+
     fun confirm()
     {
 
@@ -51,7 +69,7 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
 
     fun reset()
     {
-
+        this._formGroup.reset()
     }
 
     val nameControl: FormControl<String?> = _nameControl
