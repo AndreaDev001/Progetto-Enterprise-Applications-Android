@@ -47,19 +47,37 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         this.makeRequest(this.retrofitConfig.categoryController.getPrimaries(),{
             this._primaryCategories.value = it
         })
-        this.updateCurrentProducts()
+        this.resetSearch();
     }
 
-    fun updateCurrentProducts() {
+    fun updateCurrentProducts(page: Boolean) {
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
             0,100,this._currentPage.value,20),{
-            this._currentProducts.value = it._embedded.content
+            if(it._embedded != null) {
+                if(!page)
+                    this._currentProducts.value = it._embedded.content;
+                else
+                {
+                    val mutableList: MutableList<Product> = mutableListOf()
+                    mutableList.addAll(this._currentProducts.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentProducts.value = mutableList
+                }
+            }
+            else
+                this._currentProducts.value = emptyList();
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
+    }
+
+    fun updateCurrentPage() {
+        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+            return;
+        this.updateCurrentProducts(true)
     }
 
     fun updateSecondaries() {
@@ -85,7 +103,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     fun resetSearch() {
         this.makeRequest(this.retrofitConfig.productController.getProducts(null,null,null, null,null,null,
             null,null,0,20),{
-            this._currentProducts.value = it._embedded.content
+            this._currentProducts.value = it._embedded!!.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements

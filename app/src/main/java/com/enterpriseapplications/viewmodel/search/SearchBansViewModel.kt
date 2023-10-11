@@ -5,6 +5,7 @@ import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Ban
+import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,23 +32,43 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
             this._reasons.value = it
         })
-        this.updateCurrentBans()
+        this.resetSearch();
     }
-    fun updateCurrentBans() {
+    fun updateCurrentBans(page: Boolean) {
         this.makeRequest(this.retrofitConfig.banController.getBans(_bannerEmail.currentValue.value,
             _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
             this._expired.currentValue.value,this._currentPage.value,20),{
-            this._currentBans.value = it._embedded.content
+            if(it._embedded != null)
+            {
+                if(!page)
+                    this._currentBans.value = it._embedded.content
+                else
+                {
+                    val mutableList: MutableList<Ban> = mutableListOf();
+                    mutableList.addAll(this.currentBans.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentBans.value = mutableList
+                }
+            }
+            else
+                this._currentBans.value = emptyList()
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
     }
+
+    fun updateCurrentPage() {
+        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+            return;
+        this._currentPage.value = this._currentPage.value + 1;
+        this.updateCurrentBans(true);
+    }
     fun resetSearch() {
         this.makeRequest(this.retrofitConfig.banController.getBans(null,
             null,null,null,null,null,
             null,0,20),{
-            this._currentBans.value = it._embedded.content
+            this._currentBans.value = it._embedded!!.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements

@@ -36,22 +36,41 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
         this.makeRequest(this.retrofitConfig.reportController.getTypes(),{
             this._types.value = it
         })
-        this.updateCurrentReports();
+        this.resetSearch();
     }
-    fun updateCurrentReports() {
+    fun updateCurrentReports(page: Boolean) {
         this.makeRequest(this.retrofitConfig.reportController.getReports(_reporterEmail.currentValue.value,
             _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
             _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentPage.value,20),{
-            this._currentReports.value = it._embedded.content
+            if(it._embedded != null)
+            {
+                if(!page)
+                    this._currentReports.value = it._embedded.content;
+                else
+                {
+                    val mutableList: MutableList<Report> = mutableListOf()
+                    mutableList.addAll(this._currentReports.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentReports.value = mutableList
+                }
+            }
+            else
+                this._currentReports.value = emptyList()
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
         })
     }
+
+    fun updateCurrentPage() {
+        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+            return;
+        this.updateCurrentReports(true);
+    }
     fun resetSearch() {
         this.makeRequest(this.retrofitConfig.reportController.getReports(null,null,null,null,
             null,null,null,0,20),{
-            this._currentReports.value = it._embedded.content
+            this._currentReports.value = it._embedded!!.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements

@@ -16,6 +16,7 @@ abstract class BaseViewModel(application: CustomApplication) : ViewModel()
     protected var retrofitConfig: RetrofitConfig = RetrofitConfig(application,application.authenticationManager)
 
     fun<T> makeRequest(call: Call<T>, successCallback: (T) -> Unit, errorCallback: () -> Unit = {}) {
+
         CoroutineScope(Dispatchers.Default).launch {
             call.enqueue(object: Callback<T> {
                 override fun onResponse(call: Call<T>, response: Response<T>) {

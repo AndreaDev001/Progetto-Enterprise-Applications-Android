@@ -21,6 +21,7 @@ interface UserRetrofitApi
         @Query("username") username: String?,
         @Query("name") name: String?,
         @Query("surname") surname: String?,
+        @Query("gender") gender: String?,
         @Query("description") description: String?,
         @Query("minRating") minRating: Number?,
         @Query("maxRating") maxRating: Number?,

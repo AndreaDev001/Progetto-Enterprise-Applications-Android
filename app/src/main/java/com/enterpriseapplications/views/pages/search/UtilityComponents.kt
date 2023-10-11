@@ -68,6 +68,7 @@ fun FormDropdown(modifier: Modifier = Modifier,formControl: FormControl<String?>
                     }, onClick = {
                         expanded.value = false
                         formControl.updateValue(value)
+                        valueCallback();
                     })
                 }
             }

@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -29,17 +31,26 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
@@ -49,7 +60,7 @@ import com.enterpriseapplications.views.lists.MenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchProducts(navController: NavHostController) {
     val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
@@ -65,13 +76,16 @@ fun SearchProducts(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
-        ModalNavigationDrawer(gesturesEnabled = true, drawerState = drawerState, drawerContent = {
+        val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
+        ModalNavigationDrawer(gesturesEnabled = false, drawerState = drawerState, drawerContent = {
             ModalDrawerSheet(drawerShape = RectangleShape){
                 Spacer(modifier = Modifier.height(12.dp))
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)) {
-                    MenuItem(callback = {scope.launch {drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
+                    MenuItem(callback = {scope.launch {
+                        controller?.hide()
+                        drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
                     Spacer(modifier = Modifier.height(10.dp))
                     FilterOptions(viewModel = viewModel)
                 }
@@ -96,10 +110,11 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 {
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(10.dp)
-        .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
+        .padding(2.dp)
+        .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally)
+    {
         GeneralInformation(viewModel = viewModel)
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         CategoryInformation(viewModel = viewModel)
     }
 }
@@ -107,14 +122,18 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 @Composable
 private fun GeneralInformation(viewModel: SearchProductsViewModel) {
     val conditions: State<List<String>> = viewModel.conditions.collectAsState()
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
+    Column(modifier = Modifier.padding(5.dp).fillMaxWidth()) {
+        Text(text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text = "General information about the product, name, description,brand,condition,minimum and maximum price,minimum and maximum likes", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
+    }
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false )},formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
+    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
 }
 
 @Composable
@@ -122,9 +141,13 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
     val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
     val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
     val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateSecondaries();viewModel.updateCurrentProducts()},formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateTertiaries();viewModel.updateCurrentProducts()},formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts()},formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
+    Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+        Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text = "Category information about the product, primary, secondary, tertiary categories", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
+    }
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateSecondaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateTertiaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
+    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
 }
 
 @Composable
@@ -133,15 +156,24 @@ private fun ItemsList(viewModel: SearchProductsViewModel){
     val currentPage: State<Int> = viewModel.currentPage.collectAsState()
     val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
     val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
+    val lazyGridState: LazyGridState = rememberLazyGridState()
+    val bottomReached by remember {
+        derivedStateOf {
+            lazyGridState.isScrolledToEnd()
+        }
+    }
+    LaunchedEffect(bottomReached) {
+        viewModel.updateCurrentPage();
+    }
     Column(modifier = Modifier.padding(5.dp)) {
         Column(modifier = Modifier.padding(5.dp)) {
             Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentTotalPages.value} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentTotalElements.value} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
         if(currentTotalElements.value > 0) {
-            LazyVerticalGrid(modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+            LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentProducts.value) { _, item ->
                     Box(modifier = Modifier.padding(5.dp)) {
                         ProductCard(product = item)
@@ -150,6 +182,6 @@ private fun ItemsList(viewModel: SearchProductsViewModel){
             })
         }
         else
-            MissingItems(callback = {viewModel.resetSearch()})
+            MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
     }
 }

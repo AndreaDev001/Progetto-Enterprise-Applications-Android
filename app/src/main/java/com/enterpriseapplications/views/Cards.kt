@@ -1,7 +1,9 @@
 package com.enterpriseapplications.views
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,10 +16,12 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.material.icons.filled.Start
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,26 +41,34 @@ import com.enterpriseapplications.model.reports.Report
 import java.util.UUID
 
 
+data class DescriptionItem(val description: String,val value: String)
 @Composable
-fun GenericCard(title: String,userID: UUID,values: List<String>) {
-    Column(modifier = Modifier
+fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,values: List<DescriptionItem>) {
+    Button(modifier = Modifier
         .fillMaxWidth()
-        .padding(2.dp)) {
-        Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(2.dp)) {
-        AsyncImage(model = "http://10.0.2.2/api/v1/userImages/$userID", contentDescription = null,
-            modifier = Modifier
-                .clip(RoundedCornerShape(60))
-                .size(20.dp))
-    }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(2.dp)) {
-        values.forEach {value ->
-            Text(text = value, fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        .padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}){
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(1.dp)) {
+                Text(text = title,fontSize = 20.sp, fontWeight = FontWeight.Bold);
+            }
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(60))
+                        .size(80.dp))
+            }
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(1.dp)) {
+                values.forEach {value ->
+                    Text(text = value.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
+                    Text(text = value.value, fontSize = 12.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
+                }
+            }
         }
     }
 }
@@ -79,39 +91,47 @@ fun RatingComponent(rating: Int) {
     amountOfEmptyStars = 10 - amountOfFullStars - amountOfHalfStars;
     Row(modifier = Modifier.fillMaxWidth()) {
         for(i in 0..amountOfFullStars ) {
-            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
         }
         if(amountOfHalfStars == 1)
-            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
         for(i in 0..amountOfEmptyStars) {
-            Icon(modifier = Modifier.padding(horizontal = 1.dp).size(5.dp),imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
+            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
         }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
-    Card(border = BorderStroke(1.dp,Color.Black), shape = RoundedCornerShape(10.dp),modifier = Modifier.fillMaxWidth(), onClick = {clickCallback()}) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start)
-            {
-                Row(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(modifier = Modifier
-                        .size(20.dp)
-                        .clip(CircleShape),model = "https://images.chesscomfiles.com/uploads/v1/user/212484587.6a37b66e.30x30o.54811ef28c54@2x.png", contentDescription = null)
-                    Text(modifier = Modifier.padding(horizontal = 10.dp),text = product.seller.username,fontSize = 12.sp, fontWeight = FontWeight.Bold)
+    Card(shape = RoundedCornerShape(5.dp),modifier = Modifier
+        .fillMaxWidth()
+    ) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                    AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(60))
+                            .size(40.dp))
+                    Text(text = product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 5.dp))
-                {
-                    AsyncImage(modifier = Modifier.fillMaxWidth(),model = "https://images.chesscomfiles.com/uploads/v1/user/212484587.6a37b66e.30x30o.54811ef28c54@2x.png", contentDescription = null)
-                    Text(modifier = Modifier.padding(2.dp),text = product.name, fontSize = 12.sp)
-                    Text(modifier = Modifier.padding(2.dp),text = product.description, fontSize = 12.sp)
-                    Text(modifier = Modifier.padding(2.dp),text = product.brand, fontSize = 12.sp)
+            }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                AsyncImage(model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,
+                modifier = Modifier.fillMaxWidth())
+            }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Row(modifier = Modifier.weight(0.1f), horizontalArrangement = Arrangement.Start) {
+                    Text(text = product.price.toString(), fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
+            }
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)) {
+                Text(text = product.name, fontSize = 15.sp, fontWeight = FontWeight.Thin)
+                Text(text = product.description, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
             }
         }
     }
@@ -125,9 +145,13 @@ fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
         Column(modifier = Modifier
             .padding(vertical = 2.dp)
             .fillMaxWidth()) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                    modifier = Modifier.clip(RoundedCornerShape(60)).size(80.dp))
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(60))
+                        .size(80.dp))
             }
             Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             Row(modifier = Modifier
@@ -145,19 +169,19 @@ fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
 }
 @Composable
 fun ReportCard(report: Report,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth(), onClick = {clickCallback()}) {
-        GenericCard(title = "Report", userID = report.reported.id, values = listOf(report.description,report.reason,report.type,report.createdDate.toString()))
-    }
+        val description: DescriptionItem = DescriptionItem("Description",report.description)
+        val reason: DescriptionItem = DescriptionItem("Reason",report.reason)
+        val type: DescriptionItem = DescriptionItem("type",report.type)
+        val createdDate: DescriptionItem = DescriptionItem("Created Date",report.createdDate)
+        GenericCard(title = "Report",clickCallback = clickCallback, userID = report.reported.id, values = listOf(description,reason,type,createdDate))
 }
 @Composable
 fun BanCard(ban: Ban,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth(), onClick = {clickCallback()}) {
-        GenericCard(title = "Ban", userID = ban.banned.id, values = listOf(ban.description,ban.reason,ban.createdDate.toString(),ban.expirationDate.toString()))
-    }
+        val description: DescriptionItem = DescriptionItem("Description",ban.description)
+        val reason: DescriptionItem = DescriptionItem("Reason",ban.reason)
+        val createdDate: DescriptionItem = DescriptionItem("Created date",ban.createdDate)
+        val expirationDate: DescriptionItem = DescriptionItem("Expiration date",ban.expirationDate)
+        GenericCard(title = "Ban", userID = ban.banned.id, values = listOf(description,reason,createdDate,expirationDate))
 }
 @Composable
 fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
