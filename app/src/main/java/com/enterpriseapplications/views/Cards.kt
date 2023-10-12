@@ -1,6 +1,7 @@
 package com.enterpriseapplications.views
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -122,10 +123,8 @@ fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
                 AsyncImage(model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,
                 modifier = Modifier.fillMaxWidth())
             }
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Row(modifier = Modifier.weight(0.1f), horizontalArrangement = Arrangement.Start) {
-                    Text(text = product.price.toString(), fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(text = product.price.toString(),modifier = Modifier.fillMaxWidth(), fontSize = 15.sp, fontWeight = FontWeight.Normal)
             }
             Column(modifier = Modifier
                 .fillMaxWidth()

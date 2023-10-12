@@ -22,6 +22,13 @@ interface ProductRetrofitApi {
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20) : Call<PagedModel<Product>>
 
+
+    @GET("products/public/created")
+    fun getRecentlyCreated(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
+    @GET("products/public/liked")
+    fun getMostLiked(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
+    @GET("products/public/expensive")
+    fun getMostExpensive(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
     @GET("products/public/{productID}")
     fun getDetails(@Path("productID") id: Long): Call<Product>
     @GET("products/public/conditions")
