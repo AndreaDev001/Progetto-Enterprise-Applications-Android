@@ -45,12 +45,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
                 if(!page)
                     this._currentUsers.value = it._embedded.content
                 else
-                {
-                    val mutableList: MutableList<UserDetails> = mutableListOf()
-                    mutableList.addAll(this._currentUsers.value)
-                    mutableList.addAll(it._embedded.content)
-                    this._currentUsers.value = mutableList
-                }
+                    this._currentUsers.value.toMutableList().addAll(it._embedded.content)
             }
             else
                 this._currentUsers.value = emptyList()

@@ -43,12 +43,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
                 if(!page)
                     this._currentBans.value = it._embedded.content
                 else
-                {
-                    val mutableList: MutableList<Ban> = mutableListOf();
-                    mutableList.addAll(this.currentBans.value)
-                    mutableList.addAll(it._embedded.content)
-                    this._currentBans.value = mutableList
-                }
+                    this._currentBans.value.toMutableList().addAll(it._embedded.content)
             }
             else
                 this._currentBans.value = emptyList()

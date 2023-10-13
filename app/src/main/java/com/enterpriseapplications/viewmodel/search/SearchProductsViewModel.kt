@@ -59,12 +59,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
                 if(!page)
                     this._currentProducts.value = it._embedded.content;
                 else
-                {
-                    val mutableList: MutableList<Product> = mutableListOf()
-                    mutableList.addAll(this._currentProducts.value)
-                    mutableList.addAll(it._embedded.content)
-                    this._currentProducts.value = mutableList
-                }
+                    this._currentProducts.value.toMutableList().addAll(it._embedded.content)
             }
             else
                 this._currentProducts.value = emptyList();

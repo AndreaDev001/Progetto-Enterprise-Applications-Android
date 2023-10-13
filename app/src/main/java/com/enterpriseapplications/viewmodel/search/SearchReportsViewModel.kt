@@ -47,12 +47,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
                 if(!page)
                     this._currentReports.value = it._embedded.content;
                 else
-                {
-                    val mutableList: MutableList<Report> = mutableListOf()
-                    mutableList.addAll(this._currentReports.value)
-                    mutableList.addAll(it._embedded.content)
-                    this._currentReports.value = mutableList
-                }
+                    this._currentReports.value.toMutableList().addAll(it._embedded.content)
             }
             else
                 this._currentReports.value = emptyList()
