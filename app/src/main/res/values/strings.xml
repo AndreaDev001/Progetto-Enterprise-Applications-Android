@@ -15,4 +15,5 @@
     <string name = "profilePage">Profile Page</string>
     <string name = "offers">Offers</string>
     <string name= "likedProducts">Liked Products</string>
+    <string name = "follows">Follows</string>
 </resources>

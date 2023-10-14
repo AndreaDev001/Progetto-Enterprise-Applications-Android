@@ -36,10 +36,14 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
         }
         this.makeRequest(this.retrofitConfig.followController.getFollowers(this.userID!!,this._currentFollowersPage.value.number,20),{
             if(it._embedded != null) {
-                val mutableList: MutableList<Follow> = mutableListOf()
-                mutableList.addAll(this._currentFollowers.value)
-                mutableList.addAll(it._embedded.content)
-                this._currentFollowers.value = mutableList
+                if(page) {
+                    val mutableList: MutableList<Follow> = mutableListOf()
+                    mutableList.addAll(this._currentFollowers.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentFollowers.value = mutableList
+                }
+                else
+                    this._currentFollowers.value = it._embedded.content
             }
             this._currentFollowersPage.value = this._currentFollowersPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
@@ -51,10 +55,14 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
         }
         this.makeRequest(this.retrofitConfig.followController.getFollowed(this.userID!!,this._currentFollowsPage.value.number,20),{
             if(it._embedded != null) {
-                val mutableList: MutableList<Follow> = mutableListOf()
-                mutableList.addAll(this._currentFollows.value)
-                mutableList.addAll(it._embedded.content)
-                this._currentFollows.value = mutableList
+                if(page) {
+                    val mutableList: MutableList<Follow> = mutableListOf()
+                    mutableList.addAll(this._currentFollows.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentFollows.value = mutableList
+                }
+                else
+                    this._currentFollows.value = it._embedded.content
             }
             this._currentFollowsPage.value = this._currentFollowsPage.value.copy(size = it.page.size,number = it.page.number,totalPages = it.page.totalPages,totalElements = it.page.totalElements)
         })

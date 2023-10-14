@@ -41,6 +41,7 @@ import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.model.refs.ProductRef
 import com.enterpriseapplications.model.refs.UserRef
 import com.enterpriseapplications.model.reports.Report
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.util.UUID
 
 
@@ -91,14 +92,14 @@ fun RatingComponent(rating: Int) {
         if(values[1].toInt() >= 5)
             amountOfHalfStars = 1;
     }
-    amountOfEmptyStars = 10 - amountOfFullStars - amountOfHalfStars;
-    Row(modifier = Modifier.fillMaxWidth()) {
-        for(i in 0..amountOfFullStars ) {
+    amountOfEmptyStars = 5 - amountOfFullStars - amountOfHalfStars;
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        for(i in 0 until amountOfFullStars) {
             Icon(imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
         }
         if(amountOfHalfStars == 1)
             Icon(imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
-        for(i in 0..amountOfEmptyStars) {
+        for(i in 0 until amountOfEmptyStars) {
             Icon(imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
         }
     }
@@ -199,26 +200,23 @@ fun BanCard(ban: Ban,clickCallback: () -> Unit = {}) {
 }
 @Composable
 fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth(), onClick = {clickCallback()}) {
+    Button(modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)) {
-                AsyncImage(modifier = Modifier
-                    .size(20.dp)
-                    .clip(RoundedCornerShape(60)),model = "http://10.0.0.2/api/v1/userImages/" + review.id.toString(), contentDescription = null)
+            Column(modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = review.writer.username, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
+                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(60))
+                        .size(80.dp))
             }
             Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-                .weight(1f))
+                .padding(10.dp), verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally)
             {
                 RatingComponent(rating = review.rating)
-                Text(text = review.text,fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = review.text,fontSize = 15.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = review.createdDate, fontWeight = FontWeight.Normal, fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             }
         }
     }
