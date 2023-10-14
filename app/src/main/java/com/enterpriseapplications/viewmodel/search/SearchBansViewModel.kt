@@ -63,7 +63,8 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.makeRequest(this.retrofitConfig.banController.getBans(null,
             null,null,null,null,null,
             null,0,20),{
-            this._currentBans.value = it._embedded!!.content
+            if(it._embedded != null)
+                 this._currentBans.value = it._embedded!!.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements

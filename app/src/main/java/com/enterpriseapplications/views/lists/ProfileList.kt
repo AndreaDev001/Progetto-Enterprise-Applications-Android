@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
@@ -43,6 +44,7 @@ fun ProfileList(navController: NavHostController)
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             MenuItem(callback = {navController.navigate("profilePage")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
             MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
+            MenuItem(callback = {navController.navigate("follows")},leadingIcon = Icons.Filled.Person,headerText = "Follows", supportingText = "View who you follow and who is following you")
             MenuItem(callback = {navController.navigate("orders")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
             MenuItem(callback = {navController.navigate("offers")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
             MenuItem(callback = {navController.navigate("reviews")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")

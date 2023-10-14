@@ -30,29 +30,30 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
 
     init
     {
-        this.makeRequest(this.retrofitConfig.userController.getGenders(),{
+       this.makeRequest(this.retrofitConfig.userController.getGenders(),{
             this._genders.value = it
         });
-        this.resetSearch();
+       this.resetSearch();
     }
 
     fun updateCurrentUsers(page: Boolean) {
-        this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
+        /***this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
             _nameControl.currentValue.value,_surnameControl.currentValue.value,genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
             _currentPage.value,20),{
             if(it._embedded != null)
             {
                 if(!page)
                     this._currentUsers.value = it._embedded.content
-                else
-                    this._currentUsers.value.toMutableList().addAll(it._embedded.content)
+                else {
+
+                }
             }
             else
                 this._currentUsers.value = emptyList()
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements
-        })
+        })***/
     }
     fun resetSearch() {
         this.makeRequest(this.retrofitConfig.userController.getUsers(null,null,

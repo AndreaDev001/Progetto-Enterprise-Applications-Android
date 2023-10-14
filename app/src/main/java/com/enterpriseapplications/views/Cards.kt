@@ -38,6 +38,8 @@ import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
 import com.enterpriseapplications.model.UserDetails
+import com.enterpriseapplications.model.refs.ProductRef
+import com.enterpriseapplications.model.refs.UserRef
 import com.enterpriseapplications.model.reports.Report
 import java.util.UUID
 
@@ -92,16 +94,15 @@ fun RatingComponent(rating: Int) {
     amountOfEmptyStars = 10 - amountOfFullStars - amountOfHalfStars;
     Row(modifier = Modifier.fillMaxWidth()) {
         for(i in 0..amountOfFullStars ) {
-            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
         }
         if(amountOfHalfStars == 1)
-            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
         for(i in 0..amountOfEmptyStars) {
-            Icon(modifier = Modifier.padding(horizontal = 1.dp),imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
     Card(shape = RoundedCornerShape(5.dp),modifier = Modifier
@@ -136,6 +137,16 @@ fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
     }
 }
 @Composable
+fun UserCard(user: UserRef,clickCallback: () -> Unit = {}) {
+    val userDetails: UserDetails = UserDetails(id = user.id, gender = user.gender,username = user.username, name = user.name, surname = user.surname, rating = user.rating)
+    UserCard(user = userDetails,clickCallback)
+}
+@Composable
+fun ProductCard(product: ProductRef,clickCallback: () -> Unit = {}) {
+    val productDetails: Product = Product(id = product.id,name = product.name, description = product.description, amountOfLikes = product.likes, price = product.price,seller = product.seller);
+    ProductCard(product = productDetails)
+}
+@Composable
 fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
     Button(modifier = Modifier
         .padding(2.dp)
@@ -153,15 +164,19 @@ fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
                         .size(80.dp))
             }
             Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp)) {
-                Text(text = user.name,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
-                Text(text = user.surname,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+            if(user.name != null && user.surname != null) {
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp)) {
+                    Text(text = user.name,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+                    Text(text = user.surname,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+                }
             }
-            Column(modifier = Modifier.padding(vertical = 2.dp)) {
-                Text(text = user.gender,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
-                RatingComponent(rating = user.rating.toInt())
+            if(user.rating != null && user.gender != null) {
+                Column(modifier = Modifier.padding(vertical = 2.dp)) {
+                    Text(text = user.gender,modifier = Modifier.padding(horizontal = 2.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+                    RatingComponent(rating = user.rating.toInt())
+                }
             }
         }
     }

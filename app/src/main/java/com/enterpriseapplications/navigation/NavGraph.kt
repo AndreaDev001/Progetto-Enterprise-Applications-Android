@@ -35,6 +35,7 @@ import com.enterpriseapplications.views.lists.SearchList
 import com.enterpriseapplications.views.pages.SettingsPage
 import com.enterpriseapplications.views.pages.AddProduct
 import com.enterpriseapplications.views.pages.profile.AddressesPage
+import com.enterpriseapplications.views.pages.profile.FollowPage
 import com.enterpriseapplications.views.pages.profile.LikedProductsPage
 import com.enterpriseapplications.views.pages.profile.OffersPage
 import com.enterpriseapplications.views.pages.profile.OrdersPage
@@ -107,6 +108,7 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Profile.LikedProducts.route) { LikedProductsPage(navController = navController)}
             composable(Screen.Profile.Reviews.route) {ReviewsPage(navController = navController)}
             composable(Screen.Profile.Orders.route) { OrdersPage(navController = navController)}
+            composable(Screen.Profile.Follows.route) { FollowPage(navController = navController)}
             composable(Screen.Profile.ProfilePage.route) {ProfilePage(navController = navController)}
             composable(Screen.Profile.Offers.route) { OffersPage(navController = navController)}
             composable(Screen.Profile.Addresses.route) { AddressesPage(navController = navController)}
@@ -120,6 +122,7 @@ sealed class Screen(val route: String, @StringRes resourceID: Int) {
         object Orders: Screen("orders",R.string.orders)
         object Reviews: Screen("reviews",R.string.reviews)
         object Offers: Screen("offers",R.string.offers)
+        object Follows: Screen("follows",R.string.follows)
         object Addresses: Screen("addresses",R.string.addresses)
     }
     object Search: Screen("search",R.string.search) {

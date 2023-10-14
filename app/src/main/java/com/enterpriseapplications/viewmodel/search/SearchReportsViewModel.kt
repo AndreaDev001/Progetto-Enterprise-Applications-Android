@@ -65,7 +65,8 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     fun resetSearch() {
         this.makeRequest(this.retrofitConfig.reportController.getReports(null,null,null,null,
             null,null,null,0,20),{
-            this._currentReports.value = it._embedded!!.content
+            if(it._embedded != null)
+                this._currentReports.value = it._embedded!!.content
             this._currentPage.value = it.page.number
             this._currentTotalPages.value = it.page.totalPages
             this._currentTotalElements.value = it.page.totalElements

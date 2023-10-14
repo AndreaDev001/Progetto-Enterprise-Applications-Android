@@ -144,7 +144,7 @@ private fun ItemList(viewModel: SearchUsersViewModel) {
     }
     Column(modifier = Modifier.padding(5.dp)) {
         if(currentTotalElements.value > 0) {
-            LazyVerticalGrid(state = lazyGridState, modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+           LazyVerticalGrid(state = lazyGridState, modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentUsers.value) { _, item ->
                     Box(modifier = Modifier.padding(5.dp)) {
                         UserCard(user = item)
