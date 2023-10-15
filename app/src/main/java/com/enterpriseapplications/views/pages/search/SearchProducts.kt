@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.isScrolledToEnd
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
@@ -122,7 +123,9 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 @Composable
 private fun GeneralInformation(viewModel: SearchProductsViewModel) {
     val conditions: State<List<String>> = viewModel.conditions.collectAsState()
-    Column(modifier = Modifier.padding(5.dp).fillMaxWidth()) {
+    Column(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth()) {
         Text(text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = "General information about the product, name, description,brand,condition,minimum and maximum price,minimum and maximum likes", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
     }
@@ -141,7 +144,9 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
     val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
     val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
     val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
-    Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(5.dp)) {
         Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = "Category information about the product, primary, secondary, tertiary categories", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
     }
@@ -153,9 +158,7 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 @Composable
 private fun ItemsList(viewModel: SearchProductsViewModel){
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
-    val currentPage: State<Int> = viewModel.currentPage.collectAsState()
-    val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
-    val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
+    val currentPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -168,11 +171,11 @@ private fun ItemsList(viewModel: SearchProductsViewModel){
     Column(modifier = Modifier.padding(5.dp)) {
         Column(modifier = Modifier.padding(5.dp)) {
             Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentTotalPages.value} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentTotalElements.value} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
-        if(currentTotalElements.value > 0) {
+        if(currentPage.value.totalElements > 0) {
             LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentProducts.value) { _, item ->
                     Box(modifier = Modifier.padding(5.dp)) {

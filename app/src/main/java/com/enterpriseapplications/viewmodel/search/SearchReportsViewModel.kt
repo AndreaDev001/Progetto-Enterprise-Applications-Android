@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +25,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var _currentReports: MutableStateFlow<List<Report>> = MutableStateFlow(emptyList())
-    private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
+    private var _currentReportsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
 
     init
     {
@@ -41,36 +40,32 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     fun updateCurrentReports(page: Boolean) {
         this.makeRequest(this.retrofitConfig.reportController.getReports(_reporterEmail.currentValue.value,
             _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
-            _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentPage.value,20),{
+            _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentReportsPage.value.number,20),{
             if(it._embedded != null)
             {
                 if(!page)
                     this._currentReports.value = it._embedded.content;
                 else
-                    this._currentReports.value.toMutableList().addAll(it._embedded.content)
+                {
+                    val mutableList: MutableList<Report> = mutableListOf()
+                    mutableList.addAll(this._currentReports.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentReports.value = mutableList
+                }
             }
-            else
-                this._currentReports.value = emptyList()
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
+            this._currentReportsPage.value = this._currentReportsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
         })
     }
 
     fun updateCurrentPage() {
-        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+        if(this._currentReportsPage.value.number + 1 >= this._currentReportsPage.value.totalPages)
             return;
+        this._currentReportsPage.value = this._currentReportsPage.value.copy(size = this._currentReportsPage.value.size, totalElements = this._currentReportsPage.value.totalElements, totalPages = this._currentReportsPage.value.totalPages, number = 0)
         this.updateCurrentReports(true);
     }
     fun resetSearch() {
-        this.makeRequest(this.retrofitConfig.reportController.getReports(null,null,null,null,
-            null,null,null,0,20),{
-            if(it._embedded != null)
-                this._currentReports.value = it._embedded!!.content
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
-        })
+        this._currentReportsPage.value = this._currentReportsPage.value.copy(20,0,0,0)
+        this.updateCurrentReports(false)
     }
 
     val reporterEmail: FormControl<String?> = _reporterEmail
@@ -84,7 +79,5 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow();
     val types: StateFlow<List<String>> = _types.asStateFlow();
     val currentReports: StateFlow<List<Report>> = _currentReports.asStateFlow()
-    val currentPage: StateFlow<Int> = _currentPage.asStateFlow();
-    val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
-    val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()
+    val currentReportsPage: StateFlow<Page> = _currentReportsPage.asStateFlow()
 }

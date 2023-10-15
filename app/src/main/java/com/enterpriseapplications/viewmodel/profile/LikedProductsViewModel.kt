@@ -11,36 +11,39 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 class LikedProductsViewModel(val application: CustomApplication): BaseViewModel(application) {
+
     var userID: UUID? = null;
     private var _currentLikedProducts: MutableStateFlow<List<Like>> = MutableStateFlow(emptyList())
     private var _currentLikedProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(size = 20,0,0,0));
 
     fun initialize() {
         if(userID != null)
-            this.updateLikedProducts(page = false,first = true)
+            this.updateLikedProducts(page = false)
     }
-    private fun updateLikedProducts(page: Boolean,first: Boolean = false) {
-        if(page && !first)
-            this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(size = this._currentLikedProductsPage.value.size, totalPages = this._currentLikedProductsPage.value.totalPages, totalElements = this._currentLikedProductsPage.value.totalElements,number = this._currentLikedProductsPage.value.number)
-        if(first)
-            this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(number = 0)
+    private fun updateLikedProducts(page: Boolean) {
         this.makeRequest(this.retrofitConfig.likeController.getLikedProducts(userID!!,this._currentLikedProductsPage.value.number,20),{
             if(it._embedded != null) {
-                val mutableList: MutableList<Like> = mutableListOf()
-                mutableList.addAll(this._currentLikedProducts.value)
-                mutableList.addAll(it._embedded.content)
-                this._currentLikedProducts.value = mutableList
+                if(!page)
+                    this._currentLikedProducts.value = it._embedded.content
+                else
+                {
+                    val mutableList: MutableList<Like> = mutableListOf()
+                    mutableList.addAll(this._currentLikedProducts.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentLikedProducts.value = mutableList
+                }
             }
             this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements =  it.page.totalElements)
         })
     }
     fun resetSearch() {
-        this.updateLikedProducts(page = false,first = true);
+        this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(size = 20, totalElements = 0,totalPages = 0,number = 0)
+        this.updateLikedProducts(page = false)
     }
     fun updateCurrentPage() {
         if(this._currentLikedProductsPage.value.number + 1 >= this._currentLikedProductsPage.value.totalPages)
             return;
-        this.updateLikedProducts(page = true,first = false);
+        this.updateLikedProducts(page = true)
     }
     val currentLikedProducts: StateFlow<List<Like>> = _currentLikedProducts.asStateFlow();
     val currentLikedProductsPage: StateFlow<Page> = _currentLikedProductsPage.asStateFlow()

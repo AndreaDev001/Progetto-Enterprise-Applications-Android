@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,10 +36,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     private var _tertiaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var _currentProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
-    private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
-
+    private var _currentProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     init
     {
         this.makeRequest(this.retrofitConfig.productController.getConditions(),{
@@ -54,24 +52,26 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
-            0,100,this._currentPage.value,20),{
+            0,100,this._currentProductsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
                     this._currentProducts.value = it._embedded.content;
                 else
-                    this._currentProducts.value.toMutableList().addAll(it._embedded.content)
+                {
+                    val mutableList: MutableList<Product> = mutableListOf()
+                    mutableList.addAll(this._currentProducts.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentProducts.value = mutableList
+                }
             }
-            else
-                this._currentProducts.value = emptyList();
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
+            this._currentProductsPage.value = this._currentProductsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements, totalPages = it.page.totalPages, number = it.page.number)
         })
     }
 
     fun updateCurrentPage() {
-        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+        if(this._currentProductsPage.value.number + 1 >= this._currentProductsPage.value.totalPages)
             return;
+        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = this._currentProductsPage.value.size,totalElements = this._currentProductsPage.value.totalElements,totalPages = this._currentProductsPage.value.totalPages, number = 0)
         this.updateCurrentProducts(true)
     }
 
@@ -96,13 +96,8 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         }
     }
     fun resetSearch() {
-        this.makeRequest(this.retrofitConfig.productController.getProducts(null,null,null, null,null,null,
-            null,null,0,20),{
-            this._currentProducts.value = it._embedded!!.content
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
-        })
+        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = 20,0,0,0);
+        this.updateCurrentProducts(false)
     }
 
     val nameControl: FormControl<String?> = _nameControl
@@ -120,9 +115,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     val tertiaryCategories: StateFlow<List<String>> = _tertiaryCategories.asStateFlow()
 
     val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
-    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
-    val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()
-    val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
+    val currentProductsPage: StateFlow<Page> = _currentProductsPage.asStateFlow()
 
     val primaryCategoryControl: FormControl<String?> = _primaryCategoryControl
     val secondaryCategoryControl: FormControl<String?> = _secondaryCategoryControl

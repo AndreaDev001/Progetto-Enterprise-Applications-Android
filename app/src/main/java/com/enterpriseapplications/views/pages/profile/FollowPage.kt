@@ -75,12 +75,12 @@ fun FollowPage(navController: NavHostController) {
         TabRow(selectedTabIndex = currentSelectedTab.value, modifier = Modifier.fillMaxWidth()) {
             Tab(icon = {
                Icon(imageVector = Icons.Filled.Person, contentDescription = null)
-            }, selected = currentSelectedTab.value == 0, onClick = { viewModel.updateCurrentSelectedTab(0) }, text = {
+            }, selected = currentSelectedTab.value == 0, onClick = { viewModel.updateCurrentSelectedTab(0);viewModel.resetTab(1)}, text = {
                 Text(text = "Followers", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
             })
             Tab(icon = {
                 Icon(imageVector = Icons.Filled.Person,contentDescription = null)
-            },selected = currentSelectedTab.value == 1, onClick = { viewModel.updateCurrentSelectedTab(1) }, text = {
+            },selected = currentSelectedTab.value == 1, onClick = { viewModel.updateCurrentSelectedTab(1);viewModel.resetTab(0)}, text = {
                 Text(text = "Followed", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
             })
         }

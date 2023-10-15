@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +25,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
 
     private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
-    private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0);
-    private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0);
+    private var _currentUsersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
 
     init
     {
@@ -37,39 +36,33 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     }
 
     fun updateCurrentUsers(page: Boolean) {
-        /***this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
+        this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
             _nameControl.currentValue.value,_surnameControl.currentValue.value,genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
-            _currentPage.value,20),{
+            _currentUsersPage.value.number,20),{
             if(it._embedded != null)
             {
                 if(!page)
                     this._currentUsers.value = it._embedded.content
-                else {
-
+                else
+                {
+                    val mutableList: MutableList<UserDetails> = mutableListOf()
+                    mutableList.addAll(this._currentUsers.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentUsers.value = mutableList
                 }
             }
-            else
-                this._currentUsers.value = emptyList()
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
-        })***/
+            this._currentUsersPage.value = this._currentUsersPage.value.copy(size = it.page.size,totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
+        })
     }
     fun resetSearch() {
-        this.makeRequest(this.retrofitConfig.userController.getUsers(null,null,
-            null,null,null,null,null,null,
-            0,20),{
-            this._currentUsers.value = it._embedded!!.content;
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
-        })
+        this._currentUsersPage.value = this._currentUsersPage.value.copy(20,0,0,0)
+        this.updateCurrentUsers(false)
     }
 
     fun updateCurrentPage() {
-        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+        if(this._currentUsersPage.value.number + 1 >= this._currentUsersPage.value.number)
             return;
-        this._currentPage.value = this._currentPage.value + 1;
+        this._currentUsersPage.value = this._currentUsersPage.value.copy(size = this._currentUsersPage.value.size, totalElements = this._currentUsersPage.value.totalElements,totalPages = this._currentUsersPage.value.totalPages,number = this._currentUsersPage.value.number + 1)
         this.updateCurrentUsers(true);
     }
 
@@ -84,7 +77,5 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
 
     val genders: StateFlow<List<String>> = _genders.asStateFlow()
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()
-    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
-    val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
-    val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()
+    val currentUsersPage: StateFlow<Page> = _currentUsersPage.asStateFlow()
 }

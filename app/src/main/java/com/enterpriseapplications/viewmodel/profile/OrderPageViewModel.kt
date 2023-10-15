@@ -14,16 +14,36 @@ class OrderPageViewModel(val application: CustomApplication): BaseViewModel(appl
     private var _ordersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
 
     fun initialize() {
-        this.updateOrders(page = false,first = true)
+        if(this.userID != null)
+             this.updateOrders(page = false)
     }
-    fun updateOrders(page: Boolean,first: Boolean) {
-        if(page && !first && this._ordersPage.value.number + 1 >= this._ordersPage.value.totalPages)
-            return;
-        this.makeRequest(this.retrofitConfig.orderController.getOrders(userID!!),{
+    fun updateOrders(page: Boolean) {
+        this.makeRequest(this.retrofitConfig.orderController.getOrders(userID!!,_ordersPage.value.number,_ordersPage.value.totalPages),{
             if(it._embedded != null)
-                this._orders.value.toMutableList().addAll(it._embedded.content)
+            {
+                if(!page)
+                    this._orders.value = it._embedded.content;
+                else
+                {
+                    val mutableList: MutableList<Order> = mutableListOf()
+                    mutableList.addAll(this._orders.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._orders.value = mutableList
+                }
+            }
             this._ordersPage.value = this._ordersPage.value.copy(size = it.page.size,totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
         })
+    }
+
+    fun resetSearch() {
+        this._ordersPage.value = this._ordersPage.value.copy(size = this._ordersPage.value.size,totalElements = 0,totalPages = this._ordersPage.value.totalPages,number = 0)
+        this.updateOrders(page = false)
+    }
+    fun updateCurrentPage() {
+        if(this._ordersPage.value.number + 1 >= this._ordersPage.value.totalPages)
+            return;
+        this._ordersPage.value = this._ordersPage.value.copy(size = this._ordersPage.value.size, totalElements = this._ordersPage.value.totalElements,totalPages = this._ordersPage.value.totalPages,number = this._ordersPage.value.number + 1)
+        this.updateOrders(page = true)
     }
 
     val orders: StateFlow<List<Order>> = _orders

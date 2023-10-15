@@ -5,6 +5,7 @@ import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Ban
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,9 +24,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
-    private var _currentPage: MutableStateFlow<Int> = MutableStateFlow(0)
-    private var _currentTotalPages: MutableStateFlow<Int> = MutableStateFlow(0)
-    private var _currentTotalElements: MutableStateFlow<Int> = MutableStateFlow(0)
+    private var _currentBansPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
 
     init
     {
@@ -37,38 +36,32 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     fun updateCurrentBans(page: Boolean) {
         this.makeRequest(this.retrofitConfig.banController.getBans(_bannerEmail.currentValue.value,
             _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
-            this._expired.currentValue.value,this._currentPage.value,20),{
+            this._expired.currentValue.value,this._currentBansPage.value.number,20),{
             if(it._embedded != null)
             {
                 if(!page)
                     this._currentBans.value = it._embedded.content
                 else
-                    this._currentBans.value.toMutableList().addAll(it._embedded.content)
+                {
+                    val mutableList: MutableList<Ban> = mutableListOf()
+                    mutableList.addAll(this._currentBans.value)
+                    mutableList.addAll(it._embedded.content)
+                    this._currentBans.value = mutableList
+                }
             }
-            else
-                this._currentBans.value = emptyList()
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
+            this._currentBansPage.value = this._currentBansPage.value.copy(size = it.page.size,totalElements = it.page.totalElements, totalPages = it.page.totalPages,number = it.page.number)
         })
     }
 
     fun updateCurrentPage() {
-        if(this._currentPage.value + 1 >= this._currentTotalPages.value)
+        if(this._currentBansPage.value.number + 1 >= this._currentBansPage.value.totalPages)
             return;
-        this._currentPage.value = this._currentPage.value + 1;
+        this._currentBansPage.value = this._currentBansPage.value.copy(size = this._currentBansPage.value.size, totalElements = this._currentBansPage.value.totalElements,totalPages = this._currentBansPage.value.totalPages,number = this._currentBansPage.value.number + 1)
         this.updateCurrentBans(true);
     }
     fun resetSearch() {
-        this.makeRequest(this.retrofitConfig.banController.getBans(null,
-            null,null,null,null,null,
-            null,0,20),{
-            if(it._embedded != null)
-                 this._currentBans.value = it._embedded!!.content
-            this._currentPage.value = it.page.number
-            this._currentTotalPages.value = it.page.totalPages
-            this._currentTotalElements.value = it.page.totalElements
-        })
+        this._currentBansPage.value = this._currentBansPage.value.copy(size = this._currentBansPage.value.size,totalElements = this._currentBansPage.value.totalElements, totalPages = this._currentBansPage.value.totalPages,number = 0)
+        this.updateCurrentBans(false)
     }
 
     val bannerEmail: FormControl<String?> = _bannerEmail
@@ -80,7 +73,5 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
 
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow()
     val currentBans: StateFlow<List<Ban>> = _currentBans.asStateFlow()
-    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
-    val currentTotalPages: StateFlow<Int> = _currentTotalPages.asStateFlow()
-    val currentTotalElements: StateFlow<Int> = _currentTotalElements.asStateFlow()
+    val currentBansPage: StateFlow<Page> = _currentBansPage.asStateFlow()
 }

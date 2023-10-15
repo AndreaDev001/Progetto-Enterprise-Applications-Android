@@ -21,65 +21,73 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
 
     fun initialize() {
         if(userID != null) {
-            this.updateFollowers(page = false,first = true)
-            this.updateFollows(page = false,first = true)
+            this.updateFollowers(page = false)
+            this.updateFollows(page = false)
         }
     }
 
-    fun updateFollowers(page: Boolean,first: Boolean = false) {
-        if(this.userID == null)
-            return;
-        if(page && !first)
-        {
-            if(this._currentFollowersPage.value.number + 1 >= this._currentFollowersPage.value.totalPages)
-                return;
-        }
+    private fun updateFollowers(page: Boolean) {
         this.makeRequest(this.retrofitConfig.followController.getFollowers(this.userID!!,this._currentFollowersPage.value.number,20),{
             if(it._embedded != null) {
-                if(page) {
+                if(!page)
+                    this._currentFollowers.value = it._embedded.content
+                else
+                {
                     val mutableList: MutableList<Follow> = mutableListOf()
                     mutableList.addAll(this._currentFollowers.value)
                     mutableList.addAll(it._embedded.content)
                     this._currentFollowers.value = mutableList
                 }
-                else
-                    this._currentFollowers.value = it._embedded.content
             }
             this._currentFollowersPage.value = this._currentFollowersPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
     }
-    fun updateFollows(page: Boolean,first: Boolean = false) {
-        if(page && !first) {
-            if(this._currentFollowsPage.value.number + 1 >= this._currentFollowsPage.value.totalPages)
-                return;
-        }
+    private fun updateFollows(page: Boolean) {
         this.makeRequest(this.retrofitConfig.followController.getFollowed(this.userID!!,this._currentFollowsPage.value.number,20),{
             if(it._embedded != null) {
-                if(page) {
+                if(!page)
+                    this._currentFollows.value = it._embedded.content
+                else
+                {
                     val mutableList: MutableList<Follow> = mutableListOf()
                     mutableList.addAll(this._currentFollows.value)
                     mutableList.addAll(it._embedded.content)
                     this._currentFollows.value = mutableList
                 }
-                else
-                    this._currentFollows.value = it._embedded.content
             }
             this._currentFollowsPage.value = this._currentFollowsPage.value.copy(size = it.page.size,number = it.page.number,totalPages = it.page.totalPages,totalElements = it.page.totalElements)
         })
     }
     fun updateCurrentSelectedTab(index: Int) {
         this._currentSelectedTab.value = index
+        val currentFollows: MutableStateFlow<Page> = if(index == 0) _currentFollowersPage else _currentFollowsPage
+        currentFollows.value = currentFollows.value.copy(size = 20,0,0,0)
+        when(index) {
+            0 -> this.updateFollowers(false)
+            1 -> this.updateFollows(false)
+        }
+    }
+    fun resetTab(index: Int) {
+        when(index) {
+            0 -> this._currentFollowers.value = emptyList()
+            1 -> this._currentFollows.value = emptyList()
+        }
     }
     fun updateCurrentPage(index: Int) {
+        val currentPage: MutableStateFlow<Page> = if(index == 0) _currentFollowersPage else _currentFollowsPage
+        if(currentPage.value.number + 1 >= currentPage.value.totalPages)
+            return;
         when(index) {
-            0 -> this.updateFollowers(page = true,first = false)
-            1 -> this.updateFollows(page = true,first = false)
+            0 -> this.updateFollowers(page = true)
+            1 -> this.updateFollows(page = true)
         }
     }
     fun resetSearch(index: Int) {
+        val currentPage: MutableStateFlow<Page> = if(index == 0) _currentFollowersPage else _currentFollowsPage
+        currentPage.value = currentPage.value.copy(size = 20,totalElements = 0,totalPages = 0,number = 0)
         when(index) {
-            0 -> this.updateFollowers(page = false,first = true)
-            1 -> this.updateFollows(page = true,first = false)
+            0 -> this.updateFollowers(page = false)
+            1 -> this.updateFollows(page = true)
         }
     }
 

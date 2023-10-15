@@ -21,42 +21,40 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
 
     fun initialize() {
         if(this.userID != null) {
-            this.updateWrittenReviews(page = false,first = true)
-            this.updateReceivedReviews(page = false,first = true)
+            this.updateWrittenReviews(page = false)
+            this.updateReceivedReviews(page = false)
         }
     }
 
-    private fun updateWrittenReviews(page: Boolean,first: Boolean = false) {
-        if(page && !first && this._writtenReviewsPage.value.number + 1 >= this._writtenReviewsPage.value.totalPages)
-            return;
+    private fun updateWrittenReviews(page: Boolean) {
         this.makeRequest(this.retrofitConfig.reviewController.getWrittenReviews(this.userID!!,this._writtenReviewsPage.value.number,20),{
             if(it._embedded != null) {
-                if(page) {
+                if(!page)
+                    this._writtenReviews.value = it._embedded.content
+                else
+                {
                     val mutableList: MutableList<Review> = mutableListOf()
                     mutableList.addAll(this._writtenReviews.value)
                     mutableList.addAll(it._embedded.content)
                     this._writtenReviews.value = mutableList
                 }
-                else
-                    this._writtenReviews.value = it._embedded.content
             }
             this._writtenReviewsPage.value = this._writtenReviewsPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
     }
 
-    private fun updateReceivedReviews(page: Boolean,first: Boolean = false) {
-        if(page && !first && this._receivedReviewsPage.value.number + 1 >= this._receivedReviewsPage.value.totalPages)
-            return;
+    private fun updateReceivedReviews(page: Boolean) {
         this.makeRequest(this.retrofitConfig.reviewController.getReceivedReviews(this.userID!!,this._receivedReviewsPage.value.number,20),{
             if(it._embedded != null) {
-                if(page) {
+                if(!page)
+                    this._receivedReviews.value = it._embedded.content
+                else
+                {
                     val mutableList: MutableList<Review> = mutableListOf()
                     mutableList.addAll(this._receivedReviews.value)
                     mutableList.addAll(it._embedded.content)
                     this._receivedReviews.value = mutableList
                 }
-                else
-                    this._receivedReviews.value = it._embedded.content
             }
             this._receivedReviewsPage.value = this._receivedReviewsPage.value.copy(size = it.page.size,number = it.page.number,totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
@@ -64,28 +62,29 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
 
     fun updateSelectedTab(index: Int) {
         this._currentSelectedTab.value = index
+        val currentReviewsPage: MutableStateFlow<Page> = if(index == 0) this._writtenReviewsPage else this._receivedReviewsPage
+        currentReviewsPage.value = currentReviewsPage.value.copy(size = 20, totalElements = 0,totalPages = 0, number = 0)
         when(index) {
-            0 -> this.updateWrittenReviews(page = false,first = true)
-            1 -> this.updateReceivedReviews(page = false,first = true)
+            0 -> this.updateWrittenReviews(false)
+            1 -> this.updateReceivedReviews(false)
+        }
+    }
+    fun resetTab(index: Int) {
+        val currentReviewsPage: MutableStateFlow<Page> = if(index == 0) this._writtenReviewsPage else this._receivedReviewsPage
+        currentReviewsPage.value = currentReviewsPage.value.copy(size = 20, totalElements = 0,totalPages = 0, number = 0)
+        when(index) {
+            0 -> this._writtenReviews.value = emptyList()
+            1 -> this._receivedReviews.value = emptyList()
         }
     }
 
-    fun resetTab(index: Int) {
-        when(index) {
-            0 -> {
-                this._writtenReviews.value = emptyList()
-                this._writtenReviewsPage.value = Page(20,0,0,0)
-            }
-            1 -> {
-                this._receivedReviews.value = emptyList()
-                this._receivedReviewsPage.value = Page(20,0,0,0);
-            }
-        }
-    }
     fun updateCurrentPage(index: Int) {
+        val currentReviewsPage: MutableStateFlow<Page> = if(index == 0) this._writtenReviewsPage else this._receivedReviewsPage
+        if(currentReviewsPage.value.number + 1 >= currentReviewsPage.value.totalPages)
+            return;
         when(index) {
-            0 -> this.updateWrittenReviews(page = true,first = false)
-            1 -> this.updateReceivedReviews(page = true,first = false)
+            0 -> this.updateWrittenReviews(page = true)
+            1 -> this.updateReceivedReviews(page = true)
         }
     }
 

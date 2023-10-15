@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.isScrolledToEnd
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.search.SearchUsersViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
@@ -123,10 +124,8 @@ private fun FilterOptions(viewModel: SearchUsersViewModel) {
 
 @Composable
 private fun ItemList(viewModel: SearchUsersViewModel) {
-    val currentPage: State<Int> = viewModel.currentPage.collectAsState()
-    val currentTotalPages: State<Int> = viewModel.currentTotalPages.collectAsState()
-    val currentTotalElements: State<Int> = viewModel.currentTotalElements.collectAsState()
     val currentUsers: State<List<UserDetails>> = viewModel.currentUsers.collectAsState()
+    val currentPage: State<Page> = viewModel.currentUsersPage.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -138,12 +137,12 @@ private fun ItemList(viewModel: SearchUsersViewModel) {
     }
     Column(modifier = Modifier.padding(5.dp)) {
         Text(text = "Use the available filters to find the desired users", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentPage.value + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalPages.value} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        Text(text = "${currentTotalElements.value} total elements",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentPage.value.totalPages} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        Text(text = "${currentPage.value.totalElements} total elements",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
     }
     Column(modifier = Modifier.padding(5.dp)) {
-        if(currentTotalElements.value > 0) {
+        if(currentPage.value.totalElements > 0) {
            LazyVerticalGrid(state = lazyGridState, modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                 itemsIndexed(items = currentUsers.value) { _, item ->
                     Box(modifier = Modifier.padding(5.dp)) {
