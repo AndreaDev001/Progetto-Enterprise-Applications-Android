@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(application)
 {
-    private var _reporterEmail: FormControl<String?> = FormControl("",Validators.required())
-    private var _reportedEmail: FormControl<String?> = FormControl("",Validators.required())
-    private var _reporterUsername: FormControl<String?> = FormControl("",Validators.required())
-    private var _reportedUsername: FormControl<String?> = FormControl("",Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _reason: FormControl<String?> = FormControl("",Validators.required())
-    private var _type: FormControl<String?> = FormControl("",Validators.required())
+    private var _reporterEmail: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reportedEmail: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reporterUsername: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reportedUsername: FormControl<String?> = FormControl(null,Validators.required())
+    private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reason: FormControl<String?> = FormControl(null,Validators.required())
+    private var _type: FormControl<String?> = FormControl(null,Validators.required())
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())

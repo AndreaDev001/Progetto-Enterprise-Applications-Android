@@ -14,14 +14,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(application)
 {
-    private var _emailControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
-    private var _surnameControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _usernameControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _genderControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl("", Validators.required())
-    private var _minRatingControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _maxRatingControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _emailControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _nameControl: FormControl<String?> = FormControl(null, Validators.required())
+    private var _surnameControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _usernameControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _genderControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _descriptionControl: FormControl<String?> = FormControl(null, Validators.required())
+    private var _minRatingControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _maxRatingControl: FormControl<String?> = FormControl(null,Validators.required())
 
     private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
@@ -37,7 +37,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
 
     fun updateCurrentUsers(page: Boolean) {
         this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
-            _nameControl.currentValue.value,_surnameControl.currentValue.value,genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
+            _nameControl.currentValue.value,_surnameControl.currentValue.value,_genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
             _currentUsersPage.value.number,20),{
             if(it._embedded != null)
             {
@@ -55,7 +55,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
         })
     }
     fun resetSearch() {
-        this._currentUsersPage.value = this._currentUsersPage.value.copy(20,0,0,0)
+        this._currentUsersPage.value = this._currentUsersPage.value.copy(size =20,totalElements = 0,totalPages = 0,number = 0)
         this.updateCurrentUsers(false)
     }
 

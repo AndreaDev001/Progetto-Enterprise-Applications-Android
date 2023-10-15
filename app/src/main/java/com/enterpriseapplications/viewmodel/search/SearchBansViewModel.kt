@@ -14,12 +14,12 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
-    private var _bannerEmail: FormControl<String?> = FormControl("", Validators.required())
-    private var _bannedEmail: FormControl<String?> = FormControl("", Validators.required())
-    private var _bannerUsername: FormControl<String?> = FormControl("", Validators.required())
-    private var _bannedUsername: FormControl<String?> = FormControl("", Validators.required())
-    private var _description: FormControl<String?> = FormControl("",Validators.required())
-    private var _reason: FormControl<String?> = FormControl("", Validators.required())
+    private var _bannerEmail: FormControl<String?> = FormControl(null, Validators.required())
+    private var _bannedEmail: FormControl<String?> = FormControl(null, Validators.required())
+    private var _bannerUsername: FormControl<String?> = FormControl(null, Validators.required())
+    private var _bannedUsername: FormControl<String?> = FormControl(null, Validators.required())
+    private var _description: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reason: FormControl<String?> = FormControl(null, Validators.required())
     private var _expired: FormControl<Boolean> = FormControl(false)
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())

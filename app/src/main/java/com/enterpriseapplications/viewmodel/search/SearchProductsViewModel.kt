@@ -17,18 +17,18 @@ import retrofit2.Response
 
 class SearchProductsViewModel(val application: CustomApplication) : BaseViewModel(application) {
 
-    private var _nameControl: FormControl<String?> = FormControl("", Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _brandControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _conditionControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _minPriceControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _maxPriceControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _minLikesControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _maxLikesControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _nameControl: FormControl<String?> = FormControl(null, Validators.required())
+    private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _brandControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _conditionControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _minPriceControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _maxPriceControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _minLikesControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _maxLikesControl: FormControl<String?> = FormControl(null,Validators.required())
 
-    private var _primaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _secondaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _tertiaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _primaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _secondaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _tertiaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
 
     private var _conditions: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _primaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
@@ -52,7 +52,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
-            0,100,this._currentProductsPage.value.number,20),{
+            null,null,0,20),{
             if(it._embedded != null) {
                 if(!page)
                     this._currentProducts.value = it._embedded.content;
@@ -96,7 +96,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         }
     }
     fun resetSearch() {
-        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = 20,0,0,0);
+        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = 20,totalElements = 0,totalPages = 0,number = 0);
         this.updateCurrentProducts(false)
     }
 
