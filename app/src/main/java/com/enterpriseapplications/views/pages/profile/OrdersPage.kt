@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +38,7 @@ import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.profile.OrderPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
+import com.enterpriseapplications.views.OrderCard
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
 import java.util.UUID
@@ -61,6 +63,7 @@ fun OrdersPage(navController: NavHostController) {
         Column(modifier = Modifier
             .padding(10.dp)
             .fillMaxWidth()) {
+            Text(text = "Here you can see all of the orders you have created", fontSize = 15.sp, fontWeight = FontWeight.Normal)
             ItemList(viewModel = viewModel)
         }
     }
@@ -88,7 +91,7 @@ private fun ItemList(viewModel: OrderPageViewModel) {
             LazyColumn(state = lazyState,modifier = Modifier.padding(vertical = 2.dp), verticalArrangement = Arrangement.Top,content = {
                 itemsIndexed(items = currentOrders.value) {index,item ->
                     Box(modifier = Modifier.padding(2.dp)) {
-
+                        OrderCard(order = item)
                     }
                 }
             })

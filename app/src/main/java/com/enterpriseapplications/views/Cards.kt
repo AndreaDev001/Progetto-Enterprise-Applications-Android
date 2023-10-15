@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.Offer
+import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
 import com.enterpriseapplications.model.UserDetails
@@ -69,11 +70,21 @@ fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,valu
                 .fillMaxWidth()
                 .padding(1.dp)) {
                 values.forEach {value ->
-                    Text(text = value.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
-                    Text(text = value.value, fontSize = 12.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
+                    Text(text = value.description, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
+                    Text(text = value.value, fontSize = 15.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+fun DescriptionItem(descriptionItem: DescriptionItem) {
+    Column(modifier = Modifier
+        .padding(2.dp)
+        .fillMaxWidth()) {
+        Text(text = descriptionItem.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
+        Text(text = descriptionItem.value, fontSize = 12.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
     }
 }
 @Composable
@@ -200,7 +211,9 @@ fun BanCard(ban: Ban,clickCallback: () -> Unit = {}) {
 }
 @Composable
 fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
+    Button(modifier = Modifier
+        .padding(vertical = 2.dp)
+        .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp)) {
@@ -222,6 +235,43 @@ fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
     }
 }
 @Composable
+fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
+    Button(modifier = Modifier
+        .padding(5.dp)
+        .fillMaxWidth(), shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(2.dp)) {
+            Column(modifier = Modifier
+                .padding(2.dp)
+                .weight(1f)) {
+                Column(modifier = Modifier.padding(2.dp)) {
+                    AsyncImage(model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,
+                        modifier = Modifier.fillMaxWidth())
+                }
+                Text(text = order.product.name, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
+                Text(text = order.product.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
+            }
+            Column(modifier = Modifier
+                .padding(2.dp)
+                .weight(1f)) {
+                Text(text = "Seller", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(5.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(60))
+                            .size(40.dp))
+                    Text(text = order.product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
+                }
+                val priceItem: DescriptionItem = DescriptionItem("Price",order.price.toString())
+                val createdDate: DescriptionItem = DescriptionItem("Created Date",order.createdDate.toString());
+                DescriptionItem(descriptionItem = priceItem)
+                DescriptionItem(descriptionItem = createdDate)
+            }
+        }
+    }
+}
+@Composable
 fun OfferCard(offer: Offer,clickCallback: () -> Unit = {}) {
     Button(modifier = Modifier
         .padding(5.dp)
@@ -229,7 +279,7 @@ fun OfferCard(offer: Offer,clickCallback: () -> Unit = {}) {
         Row(modifier = Modifier
             .fillMaxWidth()
             .padding(2.dp)) {
-
+            
         }
     }
 }

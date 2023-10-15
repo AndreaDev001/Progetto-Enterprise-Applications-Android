@@ -17,8 +17,8 @@ class OrderPageViewModel(val application: CustomApplication): BaseViewModel(appl
         if(this.userID != null)
              this.updateOrders(page = false)
     }
-    fun updateOrders(page: Boolean) {
-        this.makeRequest(this.retrofitConfig.orderController.getOrders(userID!!,_ordersPage.value.number,_ordersPage.value.totalPages),{
+    private fun updateOrders(page: Boolean) {
+        this.makeRequest(this.retrofitConfig.orderController.getOrders(userID!!,_ordersPage.value.number,20),{
             if(it._embedded != null)
             {
                 if(!page)

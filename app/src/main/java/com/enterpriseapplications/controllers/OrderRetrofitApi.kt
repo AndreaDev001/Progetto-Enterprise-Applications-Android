@@ -9,6 +9,6 @@ import retrofit2.http.Query
 import java.util.UUID
 
 interface OrderRetrofitApi {
-    @GET("orders/public/{userID}/orders")
+    @GET("orders/public/buyer/{userID}")
     fun getOrders(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int): Call<PagedModel<Order>>;
 }
