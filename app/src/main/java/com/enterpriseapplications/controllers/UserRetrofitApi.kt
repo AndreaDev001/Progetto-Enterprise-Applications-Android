@@ -2,12 +2,18 @@ package com.enterpriseapplications.controllers
 
 import com.enterpriseapplications.model.PagedModel
 import com.enterpriseapplications.model.UserDetails
+import com.enterpriseapplications.model.create.UpdateUser
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface UserRetrofitApi
 {
+
+    @PUT("users/public")
+    fun updateUser(@Body updateUser: UpdateUser): Call<UserDetails>;
 
     @GET("users/public/genders")
     fun getGenders(): Call<List<String>>;
