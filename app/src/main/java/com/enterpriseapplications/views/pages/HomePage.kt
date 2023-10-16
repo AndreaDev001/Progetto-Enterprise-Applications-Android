@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,10 +43,14 @@ import com.enterpriseapplications.viewmodel.HomePageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(navController: NavHostController) {
+    val swipeRefreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
     val viewModel: HomePageViewModel = viewModel(factory = viewModelFactory);
     Column(modifier = Modifier.padding(vertical = 5.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
@@ -56,15 +61,17 @@ fun HomePage(navController: NavHostController) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                 }
         })
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()
-            .verticalScroll(ScrollState(0))) {
-            Text(modifier = Modifier.padding(horizontal = 2.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, text = "In this page you can find the most recently created products and the most liked ones, if you want to make an accurate search use the available search pages")
-            Column(modifier = Modifier.padding(vertical = 10.dp)) {
-                RecentlyCreated(viewModel = viewModel)
-                MostLiked(viewModel = viewModel)
-                MostExpensive(viewModel = viewModel)
+        SwipeRefresh(state = swipeRefreshState, onRefresh = {viewModel.initialize()}) {
+            Column(modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()
+                .verticalScroll(ScrollState(0))) {
+                Text(modifier = Modifier.padding(horizontal = 2.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, text = "In this page you can find the most recently created products and the most liked ones, if you want to make an accurate search use the available search pages")
+                Column(modifier = Modifier.padding(vertical = 10.dp)) {
+                    RecentlyCreated(viewModel = viewModel)
+                    MostLiked(viewModel = viewModel)
+                    MostExpensive(viewModel = viewModel)
+                }
             }
         }
     }
@@ -79,6 +86,7 @@ private fun RecentlyCreated(viewModel: HomePageViewModel) {
         }
         Text(modifier = Modifier.padding(2.dp),text = "Here you can see the product that have been just created", fontSize = 15.sp, fontWeight = FontWeight.Thin)
     }
+    val isSearching: State<Boolean> = viewModel.currentRecentProductsSearching.collectAsState()
     val currentRecentlyCreatedProducts: State<List<Product>> = viewModel.currentRecentProducts.collectAsState();
     Column(modifier = Modifier
         .padding(5.dp)
@@ -90,21 +98,26 @@ private fun RecentlyCreated(viewModel: HomePageViewModel) {
             }
         }
         LaunchedEffect(endReached) {
-            viewModel.updateRecentProducts(true);
+            viewModel.updateCurrentPage(0)
         }
-        if(currentRecentlyCreatedProducts.value.isNotEmpty()) {
-            LazyRow(state = lazyListState,modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp)) {
-                itemsIndexed(currentRecentlyCreatedProducts.value) {index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        ProductCard(product = item)
+        if(isSearching.value)
+            ProgressIndicator()
+        else
+        {
+            if(currentRecentlyCreatedProducts.value.isNotEmpty()) {
+                LazyRow(state = lazyListState,modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp)) {
+                    itemsIndexed(currentRecentlyCreatedProducts.value) {index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            ProductCard(product = item)
+                        }
                     }
                 }
             }
+            else
+                MissingItems(callback = {viewModel.resetPage(0)})
         }
-        else
-            MissingItems(callback = {viewModel.updateRecentProducts(page = false,first = true)})
     }
 }
 @Composable
@@ -118,32 +131,38 @@ private fun MostLiked(viewModel: HomePageViewModel) {
         }
         Text(modifier = Modifier.padding(2.dp),text = "Here you can see the most liked products", fontSize = 15.sp, fontWeight = FontWeight.Thin)
     }
+    val isSearching: State<Boolean> = viewModel.currentRecentProductsSearching.collectAsState()
     val currentMostLikedProducts: State<List<Product>> = viewModel.currentMostLikedProducts.collectAsState()
-    Column(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth()) {
-        val lazyListState: LazyListState = rememberLazyListState()
-        val endReached by remember {
-            derivedStateOf {
-                lazyListState.isScrolledToEnd()
+    if(isSearching.value)
+        ProgressIndicator()
+    else
+    {
+        Column(modifier = Modifier
+            .padding(5.dp)
+            .fillMaxWidth()) {
+            val lazyListState: LazyListState = rememberLazyListState()
+            val endReached by remember {
+                derivedStateOf {
+                    lazyListState.isScrolledToEnd()
+                }
             }
-        }
-        LaunchedEffect(endReached) {
-            viewModel.updateMostLikedProducts(true);
-        }
-        if(currentMostLikedProducts.value.isNotEmpty()) {
-            LazyRow(state = lazyListState,modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp)) {
-                itemsIndexed(items = currentMostLikedProducts.value) { index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        ProductCard(product = item)
+            LaunchedEffect(endReached) {
+                viewModel.updateCurrentPage(1)
+            }
+            if(currentMostLikedProducts.value.isNotEmpty()) {
+                LazyRow(state = lazyListState,modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp)) {
+                    itemsIndexed(items = currentMostLikedProducts.value) { index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            ProductCard(product = item)
+                        }
                     }
                 }
             }
+            else
+                MissingItems(callback = {viewModel.resetPage(1)})
         }
-        else
-            MissingItems(callback = {viewModel.updateMostLikedProducts(page = false,first = true)})
     }
 }
 @Composable
@@ -157,31 +176,37 @@ private fun MostExpensive(viewModel: HomePageViewModel) {
         }
         Text(modifier = Modifier.padding(2.dp),text = "Here you can see the most expensive products", fontSize = 15.sp, fontWeight = FontWeight.Thin)
     }
+    val isSearching: State<Boolean> = viewModel.currentMostExpensiveProductsSearching.collectAsState()
     val currentMostExpensiveProducts: State<List<Product>> = viewModel.currentMostExpensiveProducts.collectAsState()
-    Column(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth()) {
-        val lazyListState: LazyListState = rememberLazyListState()
-        val endReached by remember {
-            derivedStateOf {
-                lazyListState.isScrolledToEnd()
+    if(isSearching.value)
+        ProgressIndicator()
+    else
+    {
+        Column(modifier = Modifier
+            .padding(5.dp)
+            .fillMaxWidth()) {
+            val lazyListState: LazyListState = rememberLazyListState()
+            val endReached by remember {
+                derivedStateOf {
+                    lazyListState.isScrolledToEnd()
+                }
             }
-        }
-        LaunchedEffect(endReached) {
-            viewModel.updateMostLikedProducts(true);
-        }
-        if(currentMostExpensiveProducts.value.isNotEmpty()) {
-            LazyRow(state = lazyListState,modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp)) {
-                itemsIndexed(items = currentMostExpensiveProducts.value) { index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        ProductCard(product = item)
+            LaunchedEffect(endReached) {
+                viewModel.updateCurrentPage(2);
+            }
+            if(currentMostExpensiveProducts.value.isNotEmpty()) {
+                LazyRow(state = lazyListState,modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp)) {
+                    itemsIndexed(items = currentMostExpensiveProducts.value) { index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            ProductCard(product = item)
+                        }
                     }
                 }
             }
+            else
+                MissingItems(callback = {viewModel.resetPage(2)})
         }
-        else
-            MissingItems(callback = {viewModel.updateMostExpensiveProducts(page = false,first = true)})
     }
 }

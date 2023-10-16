@@ -33,6 +33,11 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
 
     init
     {
+        this.initialize()
+    }
+
+
+    fun initialize() {
         this.makeRequest(this.retrofitConfig.productController.getConditions(),{
             this._conditions.value = it
         })

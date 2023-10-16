@@ -56,6 +56,9 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.ReportCard
 import com.enterpriseapplications.views.lists.MenuItem
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -76,32 +79,57 @@ fun SearchReports(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
+        val initializing: State<Boolean> = viewModel.initializing.collectAsState()
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
-        ModalNavigationDrawer(gesturesEnabled = false, drawerState = drawerState, drawerContent = {
-            ModalDrawerSheet(drawerShape = RectangleShape) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)) {
-                    MenuItem(callback = {scope.launch {
-                        controller?.hide();
-                        drawerState.close()
-                    }}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    FilterOptions(viewModel = viewModel)
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+        if (initializing.value)
+            SearchingDialog()
+        else {
+            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+                ModalNavigationDrawer(
+                    gesturesEnabled = false,
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(drawerShape = RectangleShape) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                            ) {
+                                MenuItem(
+                                    callback = {
+                                        scope.launch {
+                                            controller?.hide();
+                                            drawerState.close()
+                                        }
+                                    },
+                                    trailingIcon = Icons.Filled.Close,
+                                    headerText = "Filters",
+                                    supportingText = "Use the following filters to find the desired products",
+                                    leadingIcon = null
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                FilterOptions(viewModel = viewModel)
+                            }
+                        }
+                    }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(
+                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(text = "Filters", fontSize = 16.sp)
+                        }
+                        ItemList(viewModel = viewModel)
+                    }
                 }
-            }
-        }) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = {scope.launch {drawerState.open()}}, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(text = "Filters", fontSize = 16.sp)
-                }
-                ItemList(viewModel = viewModel)
             }
         }
     }
@@ -127,6 +155,7 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
 private fun ItemList(viewModel: SearchReportsViewModel) {
     val currentReports: State<List<Report>> = viewModel.currentReports.collectAsState()
     val currentPage: State<Page> = viewModel.currentReportsPage.collectAsState()
+    val currentReportsSearching: State<Boolean> = viewModel.currentReportsSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -136,23 +165,28 @@ private fun ItemList(viewModel: SearchReportsViewModel) {
     LaunchedEffect(bottomReached) {
         viewModel.updateCurrentPage()
     }
-    Column(modifier = Modifier.padding(5.dp)) {
+    if(currentReportsSearching.value)
+        ProgressIndicator()
+    else
+    {
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
-        if(currentPage.value.totalElements > 0) {
-            LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
-                itemsIndexed(items = currentReports.value) { _, item ->
-                    Box(modifier = Modifier.padding(5.dp)) {
-                        ReportCard(report = item)
+            Column(modifier = Modifier.padding(5.dp)) {
+                Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            }
+            if(currentPage.value.totalElements > 0) {
+                LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+                    itemsIndexed(items = currentReports.value) { _, item ->
+                        Box(modifier = Modifier.padding(5.dp)) {
+                            ReportCard(report = item)
+                        }
                     }
-                }
-            })
+                })
+            }
+            else
+                MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
         }
-        else
-            MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
     }
 }

@@ -6,18 +6,21 @@ import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 class OrderPageViewModel(val application: CustomApplication): BaseViewModel(application) {
     var userID: UUID? = null;
     private var _orders: MutableStateFlow<List<Order>> = MutableStateFlow(emptyList())
     private var _ordersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
+    private var _ordersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     fun initialize() {
         if(this.userID != null)
              this.updateOrders(page = false)
     }
     private fun updateOrders(page: Boolean) {
+        this._ordersSearching.value = !page;
         this.makeRequest(this.retrofitConfig.orderController.getOrders(userID!!,_ordersPage.value.number,20),{
             if(it._embedded != null)
             {
@@ -31,6 +34,7 @@ class OrderPageViewModel(val application: CustomApplication): BaseViewModel(appl
                     this._orders.value = mutableList
                 }
             }
+            this._ordersSearching.value = false;
             this._ordersPage.value = this._ordersPage.value.copy(size = it.page.size,totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
         })
     }
@@ -48,4 +52,5 @@ class OrderPageViewModel(val application: CustomApplication): BaseViewModel(appl
 
     val orders: StateFlow<List<Order>> = _orders
     val ordersPage: StateFlow<Page> = _ordersPage
+    val ordersSearching: StateFlow<Boolean> = _ordersSearching.asStateFlow()
 }

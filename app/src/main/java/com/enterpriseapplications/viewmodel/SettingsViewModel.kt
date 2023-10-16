@@ -28,6 +28,10 @@ class SettingsViewModel(val application: CustomApplication) : BaseViewModel(appl
 
     init
     {
+        this.initialize()
+    }
+
+    fun initialize() {
         this.makeRequest(this.retrofitConfig.userController.getGenders(),{
             this._genders.value = it
         })

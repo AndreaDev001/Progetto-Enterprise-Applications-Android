@@ -53,11 +53,12 @@ import androidx.navigation.NavHostController
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
-import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.search.SearchProductsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.lists.MenuItem
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -65,6 +66,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchProducts(navController: NavHostController) {
     val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
+    val initializing: State<Boolean> = viewModel.initializing.collectAsState()
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
     Column(modifier = Modifier
@@ -73,34 +75,60 @@ fun SearchProducts(navController: NavHostController) {
         TopAppBar(title = {
             Text(text = "Search Products", fontSize = 20.sp)
         }, navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
-        },modifier = Modifier.fillMaxWidth())
+        }, modifier = Modifier.fillMaxWidth())
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
-        ModalNavigationDrawer(gesturesEnabled = false, drawerState = drawerState, drawerContent = {
-            ModalDrawerSheet(drawerShape = RectangleShape){
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)) {
-                    MenuItem(callback = {scope.launch {
-                        controller?.hide()
-                        drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    FilterOptions(viewModel = viewModel)
+        val refreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
+        if (initializing.value)
+            SearchingDialog()
+        else {
+            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+                ModalNavigationDrawer(
+                    gesturesEnabled = false,
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(drawerShape = RectangleShape) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                            ) {
+                                MenuItem(
+                                    callback = {
+                                        scope.launch {
+                                            controller?.hide()
+                                            drawerState.close()
+                                        }
+                                    },
+                                    trailingIcon = Icons.Filled.Close,
+                                    headerText = "Filters",
+                                    supportingText = "Use the following filters to find the desired products",
+                                    leadingIcon = null
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                FilterOptions(viewModel = viewModel)
+                            }
+                        }
+                    }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(
+                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(text = "Filters", fontSize = 16.sp)
+                        }
+                        ItemsList(viewModel = viewModel)
+                    }
                 }
-            }
-        }) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = {scope.launch {drawerState.open()}}, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),shape = RoundedCornerShape(10.dp)) {
-                    Text(text = "Filters", fontSize = 16.sp)
-                }
-                ItemsList(viewModel = viewModel)
             }
         }
     }
@@ -159,6 +187,7 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 private fun ItemsList(viewModel: SearchProductsViewModel){
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentPage: State<Page> = viewModel.currentProductsPage.collectAsState()
+    val isSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -168,23 +197,28 @@ private fun ItemsList(viewModel: SearchProductsViewModel){
     LaunchedEffect(bottomReached) {
         viewModel.updateCurrentPage();
     }
-    Column(modifier = Modifier.padding(5.dp)) {
+    if(isSearching.value)
+        ProgressIndicator()
+    else
+    {
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
-        if(currentPage.value.totalElements > 0) {
-            LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
-                itemsIndexed(items = currentProducts.value) { _, item ->
-                    Box(modifier = Modifier.padding(5.dp)) {
-                        ProductCard(product = item)
+            Column(modifier = Modifier.padding(5.dp)) {
+                Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            }
+            if(currentPage.value.totalElements > 0) {
+                LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+                    itemsIndexed(items = currentProducts.value) { _, item ->
+                        Box(modifier = Modifier.padding(5.dp)) {
+                            ProductCard(product = item)
+                        }
                     }
-                }
-            })
+                })
+            }
+            else
+                MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
         }
-        else
-            MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
     }
 }

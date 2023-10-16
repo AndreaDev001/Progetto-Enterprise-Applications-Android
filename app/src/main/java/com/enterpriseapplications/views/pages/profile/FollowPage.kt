@@ -50,6 +50,10 @@ import com.enterpriseapplications.viewmodel.profile.FollowPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,27 +76,32 @@ fun FollowPage(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
-        TabRow(selectedTabIndex = currentSelectedTab.value, modifier = Modifier.fillMaxWidth()) {
-            Tab(icon = {
-               Icon(imageVector = Icons.Filled.Person, contentDescription = null)
-            }, selected = currentSelectedTab.value == 0, onClick = { viewModel.updateCurrentSelectedTab(0);viewModel.resetTab(1)}, text = {
-                Text(text = "Followers", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
-            })
-            Tab(icon = {
-                Icon(imageVector = Icons.Filled.Person,contentDescription = null)
-            },selected = currentSelectedTab.value == 1, onClick = { viewModel.updateCurrentSelectedTab(1);viewModel.resetTab(0)}, text = {
-                Text(text = "Followed", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
-            })
-        }
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)) {
-            if(currentSelectedTab.value == 0) {
-                FollowersList(viewModel = viewModel)
-            }
-            else
-            {
-                FollowedList(viewModel = viewModel)
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+        SwipeRefresh(state = refreshState , onRefresh = {viewModel.initialize()}) {
+            Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+                TabRow(selectedTabIndex = currentSelectedTab.value, modifier = Modifier.fillMaxWidth()) {
+                    Tab(icon = {
+                        Icon(imageVector = Icons.Filled.Person, contentDescription = null)
+                    }, selected = currentSelectedTab.value == 0, onClick = { viewModel.updateCurrentSelectedTab(0);viewModel.resetTab(1)}, text = {
+                        Text(text = "Followers", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
+                    })
+                    Tab(icon = {
+                        Icon(imageVector = Icons.Filled.Person,contentDescription = null)
+                    },selected = currentSelectedTab.value == 1, onClick = { viewModel.updateCurrentSelectedTab(1);viewModel.resetTab(0)}, text = {
+                        Text(text = "Followed", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(10.dp))
+                    })
+                }
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)) {
+                    if(currentSelectedTab.value == 0) {
+                        FollowersList(viewModel = viewModel)
+                    }
+                    else
+                    {
+                        FollowedList(viewModel = viewModel)
+                    }
+                }
             }
         }
     }
@@ -101,6 +110,7 @@ fun FollowPage(navController: NavHostController) {
 private fun FollowersList(viewModel: FollowPageViewModel) {
     val currentFollowers: State<List<Follow>> = viewModel.currentFollowers.collectAsState()
     val currentFollowersPage: State<Page> = viewModel.currentFollowersPage.collectAsState()
+    val currentFollowersSearching: State<Boolean> = viewModel.currentFollowersSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -118,19 +128,24 @@ private fun FollowersList(viewModel: FollowPageViewModel) {
             Text(text = "${currentFollowersPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentFollowersPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
-        if(currentFollowersPage.value.totalElements > 0) {
-            LazyVerticalGrid(modifier = Modifier
-                .padding(vertical = 2.dp)
-                .fillMaxWidth(),state = lazyGridState, columns = GridCells.Fixed(2)) {
-                itemsIndexed(items = currentFollowers.value) {index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        UserCard(user = item.follower)
+        if(currentFollowersSearching.value)
+            ProgressIndicator()
+        else
+        {
+            if(currentFollowersPage.value.totalElements > 0) {
+                LazyVerticalGrid(modifier = Modifier
+                    .padding(vertical = 2.dp)
+                    .fillMaxWidth(),state = lazyGridState, columns = GridCells.Fixed(2)) {
+                    itemsIndexed(items = currentFollowers.value) {index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            UserCard(user = item.follower)
+                        }
                     }
                 }
             }
+            else
+                MissingItems(callback = {}, missingText = "No followers found, set is empty")
         }
-        else
-            MissingItems(callback = {}, missingText = "No followers found, set is empty")
     }
 }
 @Composable
@@ -138,6 +153,7 @@ private fun FollowedList(viewModel: FollowPageViewModel) {
 
     val currentFollowed: State<List<Follow>> = viewModel.currentFollows.collectAsState()
     val currentFollowedPage: State<Page> = viewModel.currentFollowsPage.collectAsState()
+    val currentFollowedSearching: State<Boolean> = viewModel.currentFollowsSearching.collectAsState()
     val lazyListState: LazyListState = rememberLazyListState()
     val bottomReached by remember {
         derivedStateOf {
@@ -155,18 +171,23 @@ private fun FollowedList(viewModel: FollowPageViewModel) {
             Text(text = "${currentFollowedPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentFollowedPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
-        if(currentFollowedPage.value.totalElements > 0) {
-            LazyColumn(modifier = Modifier
-                .padding(vertical = 2.dp)
-                .fillMaxWidth(),state = lazyListState, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
-                itemsIndexed(items = currentFollowed.value) {index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        UserCard(user = item.followed)
+        if(currentFollowedSearching.value)
+            ProgressIndicator()
+        else
+        {
+            if(currentFollowedPage.value.totalElements > 0) {
+                LazyColumn(modifier = Modifier
+                    .padding(vertical = 2.dp)
+                    .fillMaxWidth(),state = lazyListState, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+                    itemsIndexed(items = currentFollowed.value) {index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            UserCard(user = item.followed)
+                        }
                     }
                 }
             }
+            else
+                MissingItems(callback = {viewModel.resetSearch(1)})
         }
-        else
-            MissingItems(callback = {viewModel.resetSearch(1)})
     }
 }

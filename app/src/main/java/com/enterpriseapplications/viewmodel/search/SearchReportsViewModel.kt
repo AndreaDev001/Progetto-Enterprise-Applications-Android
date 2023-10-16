@@ -20,15 +20,22 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
     private var _reason: FormControl<String?> = FormControl(null,Validators.required())
     private var _type: FormControl<String?> = FormControl(null,Validators.required())
+    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
     private var _currentReports: MutableStateFlow<List<Report>> = MutableStateFlow(emptyList())
     private var _currentReportsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _currentReportsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     init
     {
+        _initializing.value = true;
+        this.initialize()
+    }
+
+    fun initialize() {
         this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
             this._reasons.value = it
         })
@@ -37,7 +44,9 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
         })
         this.resetSearch();
     }
+
     fun updateCurrentReports(page: Boolean) {
+        this._currentReportsSearching.value = !page
         this.makeRequest(this.retrofitConfig.reportController.getReports(_reporterEmail.currentValue.value,
             _reportedEmail.currentValue.value,_reporterUsername.currentValue.value,_reportedUsername.currentValue.value,
             _descriptionControl.currentValue.value,_reason.currentValue.value,_type.currentValue.value,_currentReportsPage.value.number,20),{
@@ -53,6 +62,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
                     this._currentReports.value = mutableList
                 }
             }
+            this._currentReportsSearching.value = false
             this._currentReportsPage.value = this._currentReportsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
         })
     }
@@ -80,4 +90,6 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val types: StateFlow<List<String>> = _types.asStateFlow();
     val currentReports: StateFlow<List<Report>> = _currentReports.asStateFlow()
     val currentReportsPage: StateFlow<Page> = _currentReportsPage.asStateFlow()
+    val currentReportsSearching: StateFlow<Boolean> = _currentReportsSearching.asStateFlow()
+    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

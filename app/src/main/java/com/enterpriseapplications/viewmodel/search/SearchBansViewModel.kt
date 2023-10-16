@@ -25,15 +25,24 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
     private var _currentBansPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _currentBansSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     init
     {
+        _initializing.value = true;
+        this.initialize()
+    }
+
+    fun initialize() {
         this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
             this._reasons.value = it
         })
         this.resetSearch();
     }
+
     fun updateCurrentBans(page: Boolean) {
+        this._currentBansSearching.value = !page;
         this.makeRequest(this.retrofitConfig.banController.getBans(_bannerEmail.currentValue.value,
             _bannedEmail.currentValue.value,_bannerUsername.currentValue.value,_bannedUsername.currentValue.value,_description.currentValue.value,_reason.currentValue.value,
             this._expired.currentValue.value,this._currentBansPage.value.number,20),{
@@ -49,6 +58,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
                     this._currentBans.value = mutableList
                 }
             }
+            this._currentBansSearching.value = false;
             this._currentBansPage.value = this._currentBansPage.value.copy(size = it.page.size,totalElements = it.page.totalElements, totalPages = it.page.totalPages,number = it.page.number)
         })
     }
@@ -74,4 +84,6 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow()
     val currentBans: StateFlow<List<Ban>> = _currentBans.asStateFlow()
     val currentBansPage: StateFlow<Page> = _currentBansPage.asStateFlow()
+    val currentBansSearching: StateFlow<Boolean> = _currentBansSearching.asStateFlow()
+    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

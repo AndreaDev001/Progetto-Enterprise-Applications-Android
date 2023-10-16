@@ -15,12 +15,14 @@ class LikedProductsViewModel(val application: CustomApplication): BaseViewModel(
     var userID: UUID? = null;
     private var _currentLikedProducts: MutableStateFlow<List<Like>> = MutableStateFlow(emptyList())
     private var _currentLikedProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(size = 20,0,0,0));
+    private var _currentLikedProductsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     fun initialize() {
         if(userID != null)
             this.updateLikedProducts(page = false)
     }
     private fun updateLikedProducts(page: Boolean) {
+        this._currentLikedProductsSearching.value = !page;
         this.makeRequest(this.retrofitConfig.likeController.getLikedProducts(userID!!,this._currentLikedProductsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
@@ -33,6 +35,7 @@ class LikedProductsViewModel(val application: CustomApplication): BaseViewModel(
                     this._currentLikedProducts.value = mutableList
                 }
             }
+            this._currentLikedProductsSearching.value = false;
             this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements =  it.page.totalElements)
         })
     }
@@ -47,4 +50,5 @@ class LikedProductsViewModel(val application: CustomApplication): BaseViewModel(
     }
     val currentLikedProducts: StateFlow<List<Like>> = _currentLikedProducts.asStateFlow();
     val currentLikedProductsPage: StateFlow<Page> = _currentLikedProductsPage.asStateFlow()
+    val currentLikedProductsSearching: StateFlow<Boolean> = _currentLikedProductsSearching.asStateFlow()
 }

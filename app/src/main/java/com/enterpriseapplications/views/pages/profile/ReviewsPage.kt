@@ -46,6 +46,10 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ReviewCard
 import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,26 +70,35 @@ fun ReviewsPage(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
-        TabRow(selectedTabIndex = currentSelectedTab.value,modifier = Modifier.fillMaxWidth()) {
-            Tab(icon = {
-                Icon(imageVector = Icons.Filled.Person, contentDescription = null)
-            }, selected = currentSelectedTab.value == 0, onClick = {
-                viewModel.updateSelectedTab(0);viewModel.resetTab(1)}, text = {
-                Text(text = "Written Reviews", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            })
-            Tab(icon = {
-                Icon(imageVector = Icons.Filled.Person,contentDescription = null)
-            }, selected = currentSelectedTab.value == 1, onClick = {viewModel.updateSelectedTab(1);viewModel.resetTab(0)},text = {
-                Text(text = "Received Reviews", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            })
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+        Column() {
+
         }
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()) {
-            if(currentSelectedTab.value == 0)
-                WrittenReviews(viewModel = viewModel)
-            else
-                ReceivedReviews(viewModel = viewModel)
+        SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
+            Column(modifier = Modifier.fillMaxWidth().padding(5.dp))
+            {
+                TabRow(selectedTabIndex = currentSelectedTab.value,modifier = Modifier.fillMaxWidth()) {
+                    Tab(icon = {
+                        Icon(imageVector = Icons.Filled.Person, contentDescription = null)
+                    }, selected = currentSelectedTab.value == 0, onClick = {
+                        viewModel.updateSelectedTab(0);viewModel.resetTab(1)}, text = {
+                        Text(text = "Written Reviews", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    })
+                    Tab(icon = {
+                        Icon(imageVector = Icons.Filled.Person,contentDescription = null)
+                    }, selected = currentSelectedTab.value == 1, onClick = {viewModel.updateSelectedTab(1);viewModel.resetTab(0)},text = {
+                        Text(text = "Received Reviews", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    })
+                }
+                Column(modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth()) {
+                    if(currentSelectedTab.value == 0)
+                        WrittenReviews(viewModel = viewModel)
+                    else
+                        ReceivedReviews(viewModel = viewModel)
+                }
+            }
         }
     }
 }
@@ -93,6 +106,7 @@ fun ReviewsPage(navController: NavHostController) {
 private fun WrittenReviews(viewModel: ReviewPageViewModel) {
     val currentWrittenReviews: State<List<Review>> = viewModel.writtenReviews.collectAsState()
     val currentWrittenReviewsPage: State<Page> = viewModel.writtenReviewsPage.collectAsState()
+    val currentWrittenReviewsSearching: State<Boolean> = viewModel.writtenReviewsSearching.collectAsState()
     val lazyListState: LazyListState = rememberLazyListState()
     val bottomReached by remember {
         derivedStateOf {
@@ -100,7 +114,7 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel) {
         }
     }
     LaunchedEffect(bottomReached) {
-
+        viewModel.updateCurrentPage(0)
     }
     Column(modifier = Modifier
         .padding(5.dp)
@@ -110,25 +124,31 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel) {
             Text(text = "${currentWrittenReviewsPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentWrittenReviewsPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
-        if(currentWrittenReviewsPage.value.totalElements > 0) {
-            LazyColumn(
-                state = lazyListState, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
-            ) {
-                itemsIndexed(items = currentWrittenReviews.value) { index, item ->
-                    ReviewCard(review = item)
+        if(currentWrittenReviewsSearching.value)
+            ProgressIndicator()
+        else
+        {
+            if(currentWrittenReviewsPage.value.totalElements > 0) {
+                LazyColumn(
+                    state = lazyListState, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    itemsIndexed(items = currentWrittenReviews.value) { index, item ->
+                        ReviewCard(review = item)
+                    }
                 }
             }
+            else
+                MissingItems(callback = {}, missingText = "No followers found, set is empty")
         }
-        else
-            MissingItems(callback = {}, missingText = "No followers found, set is empty")
     }
 }
 @Composable
 private fun ReceivedReviews(viewModel: ReviewPageViewModel) {
     val currentReceivedReviews: State<List<Review>> = viewModel.receivedReviews.collectAsState()
     val currentReceivedReviewsPage: State<Page> = viewModel.receivedReviewsPage.collectAsState()
+    val currentReceivedReviewsSearching: State<Boolean> = viewModel.receivedReviewsSearching.collectAsState()
     val lazyListState: LazyListState = rememberLazyListState()
     val bottomReached by remember {
         derivedStateOf {
@@ -136,7 +156,7 @@ private fun ReceivedReviews(viewModel: ReviewPageViewModel) {
         }
     }
     LaunchedEffect(bottomReached) {
-
+        viewModel.updateCurrentPage(1)
     }
     Column(modifier = Modifier
         .padding(5.dp)
@@ -146,18 +166,23 @@ private fun ReceivedReviews(viewModel: ReviewPageViewModel) {
             Text(text = "${currentReceivedReviewsPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${currentReceivedReviewsPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
-        if(currentReceivedReviewsPage.value.totalElements > 0) {
-            LazyColumn(
-                state = lazyListState, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)
-            ) {
-                itemsIndexed(items = currentReceivedReviews.value) { index, item ->
-                    ReviewCard(review = item)
+        if(currentReceivedReviewsSearching.value)
+            ProgressIndicator()
+        else
+        {
+            if(currentReceivedReviewsPage.value.totalElements > 0) {
+                LazyColumn(
+                    state = lazyListState, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(5.dp)
+                ) {
+                    itemsIndexed(items = currentReceivedReviews.value) { index, item ->
+                        ReviewCard(review = item)
+                    }
                 }
             }
+            else
+                MissingItems(callback = {}, missingText = "No followers found, set is empty")
         }
-        else
-            MissingItems(callback = {}, missingText = "No followers found, set is empty")
     }
 }

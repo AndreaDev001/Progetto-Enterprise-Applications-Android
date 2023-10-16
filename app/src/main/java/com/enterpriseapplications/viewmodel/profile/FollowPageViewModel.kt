@@ -18,6 +18,8 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
     private var _currentFollows: MutableStateFlow<List<Follow>> = MutableStateFlow(emptyList())
     private var _currentFollowersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
     private var _currentFollowsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
+    private var _currentFollowersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+    private var _currentFollowsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     fun initialize() {
         if(userID != null) {
@@ -27,6 +29,7 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
     }
 
     private fun updateFollowers(page: Boolean) {
+        this._currentFollowersSearching.value = !page;
         this.makeRequest(this.retrofitConfig.followController.getFollowers(this.userID!!,this._currentFollowersPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
@@ -39,10 +42,12 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
                     this._currentFollowers.value = mutableList
                 }
             }
+            this._currentFollowersSearching.value = false;
             this._currentFollowersPage.value = this._currentFollowersPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
     }
     private fun updateFollows(page: Boolean) {
+        this._currentFollowsSearching.value = !page;
         this.makeRequest(this.retrofitConfig.followController.getFollowed(this.userID!!,this._currentFollowsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
@@ -55,6 +60,7 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
                     this._currentFollows.value = mutableList
                 }
             }
+            this._currentFollowsSearching.value = false;
             this._currentFollowsPage.value = this._currentFollowsPage.value.copy(size = it.page.size,number = it.page.number,totalPages = it.page.totalPages,totalElements = it.page.totalElements)
         })
     }
@@ -96,4 +102,6 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
     val currentFollows: StateFlow<List<Follow>> = _currentFollows.asStateFlow()
     val currentFollowersPage: StateFlow<Page> = _currentFollowersPage.asStateFlow()
     val currentFollowsPage: StateFlow<Page> = _currentFollowsPage.asStateFlow()
+    val currentFollowersSearching: StateFlow<Boolean> = _currentFollowersSearching.asStateFlow()
+    val currentFollowsSearching: StateFlow<Boolean> = _currentFollowsSearching.asStateFlow()
 }

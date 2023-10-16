@@ -58,7 +58,12 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.BanCard
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.lists.MenuItem
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -67,9 +72,11 @@ fun SearchBans(navController: NavHostController) {
     val viewModel: SearchBansViewModel = viewModel(factory = viewModelFactory)
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(vertical = 2.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 2.dp)
+    ) {
         TopAppBar(title = {
             Text(text = "Search Bans", fontSize = 20.sp)
         }, navigationIcon = {
@@ -77,31 +84,58 @@ fun SearchBans(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
+        val initializing: State<Boolean> = viewModel.initializing.collectAsState()
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
-        ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = false,drawerContent = {
-            ModalDrawerSheet(drawerShape = RectangleShape) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp)) {
-                    MenuItem(callback = {scope.launch {
-                        controller?.hide();
-                        drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters" , supportingText = "Use the following filters to find the desired products", leadingIcon = null)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    FilterOptions(viewModel = viewModel)
+        if(initializing.value)
+            SearchingDialog()
+        else
+        {
+            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    gesturesEnabled = false,
+                    drawerContent = {
+                        ModalDrawerSheet(drawerShape = RectangleShape) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                            ) {
+                                MenuItem(
+                                    callback = {
+                                        scope.launch {
+                                            controller?.hide();
+                                            drawerState.close()
+                                        }
+                                    },
+                                    trailingIcon = Icons.Filled.Close,
+                                    headerText = "Filters",
+                                    supportingText = "Use the following filters to find the desired products",
+                                    leadingIcon = null
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                FilterOptions(viewModel = viewModel)
+                            }
+                        }
+                    }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(
+                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(text = "Filters", fontSize = 16.sp)
+                        }
+                        ItemList(viewModel = viewModel)
+                    }
                 }
-            }
-        }) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = {scope.launch {drawerState.open()}}, modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(text = "Filters", fontSize = 16.sp)
-                }
-                ItemList(viewModel = viewModel)
             }
         }
     }
@@ -127,6 +161,7 @@ private fun ItemList(viewModel: SearchBansViewModel) {
     val currentBans: State<List<Ban>> = viewModel.currentBans.collectAsState()
     val currentPage: State<Page> = viewModel.currentBansPage.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
+    val isSearching: State<Boolean> = viewModel.currentBansSearching.collectAsState()
     val bottomReached by remember {
         derivedStateOf {
             lazyGridState.isScrolledToEnd()
@@ -135,23 +170,28 @@ private fun ItemList(viewModel: SearchBansViewModel) {
     LaunchedEffect(bottomReached) {
         viewModel.updateCurrentPage();
     }
-    Column(modifier = Modifier.padding(5.dp)) {
+    if(isSearching.value)
+        ProgressIndicator()
+    else
+    {
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "Use the available filters to find the desired bans", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalPages} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
-        if(currentPage.value.totalElements > 0) {
-            LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
-                itemsIndexed(items = currentBans.value) { _, item ->
-                    Box(modifier = Modifier.padding(5.dp)) {
-                        BanCard(ban = item)
+            Column(modifier = Modifier.padding(5.dp)) {
+                Text(text = "Use the available filters to find the desired bans", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalPages} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            }
+            if(currentPage.value.totalElements > 0) {
+                LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
+                    itemsIndexed(items = currentBans.value) { _, item ->
+                        Box(modifier = Modifier.padding(5.dp)) {
+                            BanCard(ban = item)
+                        }
                     }
-                }
-            })
+                })
+            }
+            else
+                MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
         }
-        else
-            MissingItems(buttonText = "Reset search", callback = {viewModel.resetSearch()})
     }
 }

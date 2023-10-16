@@ -37,8 +37,16 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
 
     private var _currentProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     private var _currentProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _currentProductsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     init
     {
+        _initializing.value = true;
+        this.initialize()
+    }
+
+    fun initialize() {
         this.makeRequest(this.retrofitConfig.productController.getConditions(),{
             this._conditions.value = it
         })
@@ -49,6 +57,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     }
 
     fun updateCurrentProducts(page: Boolean) {
+        this._currentProductsSearching.value = !page;
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
@@ -64,6 +73,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
                     this._currentProducts.value = mutableList
                 }
             }
+            this._currentProductsSearching.value = false;
             this._currentProductsPage.value = this._currentProductsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements, totalPages = it.page.totalPages, number = it.page.number)
         })
     }
@@ -116,6 +126,8 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
 
     val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
     val currentProductsPage: StateFlow<Page> = _currentProductsPage.asStateFlow()
+    val currentProductsSearching: StateFlow<Boolean> = _currentProductsSearching.asStateFlow()
+    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 
     val primaryCategoryControl: FormControl<String?> = _primaryCategoryControl
     val secondaryCategoryControl: FormControl<String?> = _secondaryCategoryControl

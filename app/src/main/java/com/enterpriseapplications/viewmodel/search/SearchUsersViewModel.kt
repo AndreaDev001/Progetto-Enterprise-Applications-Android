@@ -1,6 +1,7 @@
 package com.enterpriseapplications.viewmodel.search
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
@@ -26,16 +27,24 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
     private var _currentUsersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _currentUsersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     init
     {
-       this.makeRequest(this.retrofitConfig.userController.getGenders(),{
+        _initializing.value = true;
+        this.initialize()
+    }
+
+    fun initialize() {
+        this.makeRequest(this.retrofitConfig.userController.getGenders(),{
             this._genders.value = it
         });
-       this.resetSearch();
+        this.resetSearch();
     }
 
     fun updateCurrentUsers(page: Boolean) {
+        this._currentUsersSearching.value = !page;
         this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
             _nameControl.currentValue.value,_surnameControl.currentValue.value,_genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
             _currentUsersPage.value.number,20),{
@@ -51,6 +60,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
                     this._currentUsers.value = mutableList
                 }
             }
+            this._currentUsersSearching.value = false;
             this._currentUsersPage.value = this._currentUsersPage.value.copy(size = it.page.size,totalElements = it.page.totalElements,totalPages = it.page.totalPages,number = it.page.number)
         })
     }
@@ -78,4 +88,6 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     val genders: StateFlow<List<String>> = _genders.asStateFlow()
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()
     val currentUsersPage: StateFlow<Page> = _currentUsersPage.asStateFlow()
+    val currentUsersSearching: StateFlow<Boolean> = _currentUsersSearching.asStateFlow()
+    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

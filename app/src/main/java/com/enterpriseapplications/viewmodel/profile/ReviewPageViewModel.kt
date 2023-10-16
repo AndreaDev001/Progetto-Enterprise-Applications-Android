@@ -18,6 +18,8 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
     private var _receivedReviews: MutableStateFlow<List<Review>> = MutableStateFlow(emptyList())
     private var _writtenReviewsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
     private var _receivedReviewsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _writtenReviewsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+    private var _receivedReviewsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     fun initialize() {
         if(this.userID != null) {
@@ -27,6 +29,7 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
     }
 
     private fun updateWrittenReviews(page: Boolean) {
+        this._writtenReviewsSearching.value = !page;
         this.makeRequest(this.retrofitConfig.reviewController.getWrittenReviews(this.userID!!,this._writtenReviewsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
@@ -39,11 +42,13 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
                     this._writtenReviews.value = mutableList
                 }
             }
+            this._writtenReviewsSearching.value = false;
             this._writtenReviewsPage.value = this._writtenReviewsPage.value.copy(size = it.page.size,number = it.page.number, totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
     }
 
     private fun updateReceivedReviews(page: Boolean) {
+        this._receivedReviewsSearching.value = false;
         this.makeRequest(this.retrofitConfig.reviewController.getReceivedReviews(this.userID!!,this._receivedReviewsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
@@ -56,6 +61,7 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
                     this._receivedReviews.value = mutableList
                 }
             }
+            this._receivedReviewsSearching.value = false;
             this._receivedReviewsPage.value = this._receivedReviewsPage.value.copy(size = it.page.size,number = it.page.number,totalPages = it.page.totalPages, totalElements = it.page.totalElements)
         })
     }
@@ -93,4 +99,6 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
     val receivedReviews: StateFlow<List<Review>> = _receivedReviews.asStateFlow()
     val writtenReviewsPage: StateFlow<Page> = _writtenReviewsPage.asStateFlow()
     val receivedReviewsPage: StateFlow<Page> = _receivedReviewsPage.asStateFlow()
+    val writtenReviewsSearching: StateFlow<Boolean> = _writtenReviewsSearching.asStateFlow()
+    val receivedReviewsSearching: StateFlow<Boolean> = _receivedReviewsSearching.asStateFlow()
 }

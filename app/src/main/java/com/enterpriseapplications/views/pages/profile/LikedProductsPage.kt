@@ -50,6 +50,10 @@ import com.enterpriseapplications.viewmodel.profile.LikedProductsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.UUID
 
 
@@ -71,16 +75,19 @@ fun LikedProductsPage(navController: NavHostController)
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
-        Column(modifier = Modifier.padding(5.dp)) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                Text(text = "Liked Products", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+        SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
+            Column(modifier = Modifier.padding(5.dp)) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    Text(text = "Liked Products", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
+                }
+                Text(text = "Here you can see all the products you have liked", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp), fontWeight = FontWeight.Thin)
+                LikedProductsLists(viewModel = viewModel)
             }
-            Text(text = "Here you can see all the products you have liked", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp), fontWeight = FontWeight.Thin)
-            LikedProductsLists(viewModel = viewModel)
         }
     }
 }
@@ -88,6 +95,8 @@ fun LikedProductsPage(navController: NavHostController)
 private fun LikedProductsLists(viewModel: LikedProductsViewModel) {
     val currentLikes: State<List<Like>> = viewModel.currentLikedProducts.collectAsState()
     val currentLikesPage: State<Page> = viewModel.currentLikedProductsPage.collectAsState()
+    val currentLikesSearching: State<Boolean> =
+        viewModel.currentLikedProductsSearching.collectAsState()
     val lazyState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
         derivedStateOf {
@@ -99,20 +108,43 @@ private fun LikedProductsLists(viewModel: LikedProductsViewModel) {
     }
     Column(modifier = Modifier.padding(2.dp)) {
         Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentLikesPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentLikesPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentLikesPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(
+                text = "${currentLikesPage.value.number + 1} page",
+                fontSize = 15.sp,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+            Text(
+                text = "${currentLikesPage.value.totalPages} total pages",
+                fontSize = 15.sp,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+            Text(
+                text = "${currentLikesPage.value.totalElements} total elements",
+                fontSize = 15.sp,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
         }
-        if(currentLikesPage.value.totalElements > 0) {
-            LazyVerticalGrid(columns = GridCells.Fixed(2), state = lazyState,modifier = Modifier.padding(vertical = 2.dp), verticalArrangement = Arrangement.Top,content = {
-                itemsIndexed(items = currentLikes.value) {index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        ProductCard(product = item.product)
-                    }
-                }
-            })
+        if (currentLikesSearching.value)
+            ProgressIndicator()
+        else {
+            if (currentLikesPage.value.totalElements > 0) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    state = lazyState,
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    verticalArrangement = Arrangement.Top,
+                    content = {
+                        itemsIndexed(items = currentLikes.value) { index, item ->
+                            Box(modifier = Modifier.padding(2.dp)) {
+                                ProductCard(product = item.product)
+                            }
+                        }
+                    })
+            } else
+                MissingItems(
+                    buttonText = "Reload",
+                    missingText = "No products have been liked, set is empty",
+                    callback = { viewModel.resetSearch() })
         }
-        else
-            MissingItems(buttonText = "Reload", missingText = "No products have been liked, set is empty", callback = {viewModel.resetSearch()})
     }
 }

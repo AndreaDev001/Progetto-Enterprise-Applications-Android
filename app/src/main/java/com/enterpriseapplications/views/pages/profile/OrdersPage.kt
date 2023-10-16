@@ -41,6 +41,10 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.OrderCard
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,11 +64,14 @@ fun OrdersPage(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .fillMaxWidth()) {
-            Text(text = "Here you can see all of the orders you have created", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-            ItemList(viewModel = viewModel)
+        val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+        SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
+            Column(modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()) {
+                Text(text = "Here you can see all of the orders you have created", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                ItemList(viewModel = viewModel)
+            }
         }
     }
 }
@@ -72,6 +79,7 @@ fun OrdersPage(navController: NavHostController) {
 private fun ItemList(viewModel: OrderPageViewModel) {
     val currentOrders: State<List<Order>> = viewModel.orders.collectAsState()
     val currentOrdersPage: State<Page> = viewModel.ordersPage.collectAsState()
+    val currentOrdersSearching: State<Boolean> = viewModel.ordersSearching.collectAsState()
     val lazyState: LazyListState = rememberLazyListState()
     val bottomReached by remember {
         derivedStateOf {
@@ -81,22 +89,27 @@ private fun ItemList(viewModel: OrderPageViewModel) {
     LaunchedEffect(bottomReached) {
         viewModel.updateCurrentPage()
     }
-    Column(modifier = Modifier.padding(2.dp)) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentOrdersPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentOrdersPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentOrdersPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
-        if(currentOrdersPage.value.totalElements > 0) {
-            LazyColumn(state = lazyState,modifier = Modifier.padding(vertical = 2.dp), verticalArrangement = Arrangement.Top,content = {
-                itemsIndexed(items = currentOrders.value) {index,item ->
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        OrderCard(order = item)
+    if(currentOrdersSearching.value)
+        ProgressIndicator()
+    else
+    {
+        Column(modifier = Modifier.padding(2.dp)) {
+            Column(modifier = Modifier.padding(5.dp)) {
+                Text(text = "${currentOrdersPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentOrdersPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                Text(text = "${currentOrdersPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            }
+            if(currentOrdersPage.value.totalElements > 0) {
+                LazyColumn(state = lazyState,modifier = Modifier.padding(vertical = 2.dp), verticalArrangement = Arrangement.Top,content = {
+                    itemsIndexed(items = currentOrders.value) {index,item ->
+                        Box(modifier = Modifier.padding(2.dp)) {
+                            OrderCard(order = item)
+                        }
                     }
-                }
-            })
+                })
+            }
+            else
+                MissingItems(buttonText = "Reload", missingText = "No orders created, set is empty", callback = {viewModel.resetSearch()})
         }
-        else
-            MissingItems(buttonText = "Reload", missingText = "No orders created, set is empty", callback = {viewModel.resetSearch()})
     }
 }
