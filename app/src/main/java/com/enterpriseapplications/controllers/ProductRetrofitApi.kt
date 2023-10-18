@@ -6,6 +6,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.UUID
 
 interface ProductRetrofitApi {
 
@@ -23,14 +24,17 @@ interface ProductRetrofitApi {
         @Query("pageSize") pageSize: Int = 20) : Call<PagedModel<Product>>
 
 
+    @GET("products/public/seller/{userID}")
+    fun getSellerProducts(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int = 20): Call<PagedModel<Product>>;
+
     @GET("products/public/created")
     fun getRecentlyCreated(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
     @GET("products/public/liked")
     fun getMostLiked(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
     @GET("products/public/expensive")
     fun getMostExpensive(@Query("page") page: Int,@Query("pageSize") pageSize: Int): Call<PagedModel<Product>>;
-    @GET("products/public/{productID}")
-    fun getDetails(@Path("productID") id: Long): Call<Product>
+    @GET("products/public/{productID}/details")
+    fun getDetails(@Path("productID") productID: UUID): Call<Product>
     @GET("products/public/conditions")
     fun getConditions(): Call<List<String>>;
     @GET("products/public/visibilities")

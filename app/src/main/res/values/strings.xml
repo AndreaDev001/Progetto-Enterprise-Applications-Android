@@ -16,4 +16,5 @@
     <string name = "offers">Offers</string>
     <string name= "likedProducts">Liked Products</string>
     <string name = "follows">Follows</string>
+    <string name = "productPage">Product</string>
 </resources>

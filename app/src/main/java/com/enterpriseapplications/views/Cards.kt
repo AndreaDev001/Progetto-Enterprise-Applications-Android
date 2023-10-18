@@ -30,6 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -79,16 +81,14 @@ fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,valu
 }
 
 @Composable
-fun DescriptionItem(descriptionItem: DescriptionItem) {
-    Column(modifier = Modifier
-        .padding(2.dp)
-        .fillMaxWidth()) {
-        Text(text = descriptionItem.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
-        Text(text = descriptionItem.value, fontSize = 12.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
+fun DescriptionItem(modifier: Modifier = Modifier,descriptionItem: DescriptionItem, headerFontSize: TextUnit = 12.sp,contentTextSize: TextUnit = 12.sp) {
+    Column(modifier = modifier.padding(2.dp)) {
+        Text(text = descriptionItem.description, fontSize = headerFontSize, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 1.dp))
+        Text(text = descriptionItem.value, fontSize = contentTextSize, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 1.dp))
     }
 }
 @Composable
-fun RatingComponent(rating: Int) {
+fun RatingComponent(modifier: Modifier = Modifier,rating: Int,iconSize: Dp = 20.dp) {
     val fullStars: Number = rating / 2;
     val ratingAsString = fullStars.toString();
     var amountOfFullStars: Int = 0;
@@ -106,12 +106,12 @@ fun RatingComponent(rating: Int) {
     amountOfEmptyStars = 5 - amountOfFullStars - amountOfHalfStars;
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         for(i in 0 until amountOfFullStars) {
-            Icon(imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.Star,contentDescription = null, tint = Color.Yellow,modifier = Modifier.size(iconSize))
         }
         if(amountOfHalfStars == 1)
-            Icon(imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.StarHalf,contentDescription = null,tint = Color.Yellow,modifier = Modifier.size(iconSize))
         for(i in 0 until amountOfEmptyStars) {
-            Icon(imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow)
+            Icon(imageVector = Icons.Default.StarBorder,contentDescription = null,tint = Color.Yellow,modifier = Modifier.size(iconSize))
         }
     }
 }

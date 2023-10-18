@@ -1,5 +1,6 @@
 package com.enterpriseapplications.views.pages.search
 
+import android.graphics.pdf.PdfDocument.Page
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +9,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -22,9 +33,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,6 +53,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.isScrolledToEnd
+import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.views.ProductCard
 
 @Composable
 fun MissingItems(missingText: String = "No results found, set is empty", missingIcon: ImageVector = Icons.Filled.Search,callback: () -> Unit, buttonText: String = "Retry", button: @Composable () ->  Unit = {
@@ -147,6 +164,65 @@ fun SearchingDialog(dismissCallback: () -> Unit = {}) {
             Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 CircularProgressIndicator()
                 Text(text = "Please Wait...", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
+            }
+        }
+    }
+}
+@Composable
+fun ProductList(scrolledCallback: () -> Unit = {},currentPage: com.enterpriseapplications.model.Page? = null,currentItems: List<Product>,searching: Boolean = false,vertical: Boolean = true) {
+    Column(modifier = Modifier.padding(vertical = 3.dp)) {
+        if(searching)
+            ProgressIndicator()
+        else
+        {
+            Column(modifier = Modifier.padding(5.dp)) {
+                if(currentPage != null) {
+                    Column(modifier = Modifier.padding(5.dp)) {
+                        Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
+                        Text(text = "${currentPage.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                        Text(text = "${currentPage.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                        Text(text = "${currentPage.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                    }
+                }
+                if(currentItems.isNotEmpty()) {
+                    if(vertical) {
+                        val lazyGridState: LazyGridState = rememberLazyGridState()
+                        val bottomReached by remember {
+                            derivedStateOf {
+                                lazyGridState.isScrolledToEnd()
+                            }
+                        }
+                        LaunchedEffect(bottomReached) {
+                            scrolledCallback()
+                        }
+                        LazyVerticalGrid(columns = GridCells.Fixed(2),state = lazyGridState) {
+                            itemsIndexed(currentItems) {index,item ->
+                                Box(modifier = Modifier.padding(2.dp)) {
+                                    ProductCard(product = item)
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        val lazyRowState = rememberLazyListState()
+                        val endReached by remember {
+                            derivedStateOf {
+                                lazyRowState.isScrolledToEnd()
+                            }
+                        }
+                        LaunchedEffect(endReached) {
+                            scrolledCallback()
+                        }
+                        LazyRow(state = lazyRowState) {
+                            itemsIndexed(currentItems) { index, item ->
+                                Box(modifier = Modifier.padding(2.dp)) {
+                                    ProductCard(product = item)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

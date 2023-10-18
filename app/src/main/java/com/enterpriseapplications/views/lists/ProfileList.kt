@@ -33,7 +33,9 @@ import com.enterpriseapplications.navigation.icons
 @Composable
 fun ProfileList(navController: NavHostController)
 {
-    Column(modifier = Modifier.padding(vertical = 2.dp).verticalScroll(ScrollState(0))) {
+    Column(modifier = Modifier
+        .padding(vertical = 2.dp)
+        .verticalScroll(ScrollState(0))) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
             Text(text = "Profile", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }, navigationIcon = {
@@ -42,6 +44,7 @@ fun ProfileList(navController: NavHostController)
             }
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
+            MenuItem(callback = {navController.navigate("productPage")}, headerText = "Product", supportingText = "Test", leadingIcon = Icons.Filled.ShoppingCart)
             MenuItem(callback = {navController.navigate("profilePage")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
             MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
             MenuItem(callback = {navController.navigate("follows")},leadingIcon = Icons.Filled.Person,headerText = "Follows", supportingText = "View who you follow and who is following you")

@@ -7,13 +7,18 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.UUID
 
 interface UserRetrofitApi
 {
 
     @PUT("users/public")
     fun updateUser(@Body updateUser: UpdateUser): Call<UserDetails>;
+
+    @GET("users/public/{userID}/details")
+    fun getUserDetails(@Path("userID") userID: UUID): Call<UserDetails>;
 
     @GET("users/public/genders")
     fun getGenders(): Call<List<String>>;

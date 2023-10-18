@@ -34,6 +34,8 @@ import com.enterpriseapplications.views.lists.ProfileList
 import com.enterpriseapplications.views.lists.SearchList
 import com.enterpriseapplications.views.pages.SettingsPage
 import com.enterpriseapplications.views.pages.AddProduct
+import com.enterpriseapplications.views.pages.ProductPageDetails
+import com.enterpriseapplications.views.pages.UserPageDetails
 import com.enterpriseapplications.views.pages.profile.AddressesPage
 import com.enterpriseapplications.views.pages.profile.FollowPage
 import com.enterpriseapplications.views.pages.profile.LikedProductsPage
@@ -105,11 +107,12 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Search.SearchReports.route) { SearchReports(navController = navController)}
             composable(Screen.Search.SearchBans.route) { SearchBans(navController = navController)}
 
+            composable(Screen.Profile.Product.route) { ProductPageDetails(navController = navController)}
             composable(Screen.Profile.LikedProducts.route) { LikedProductsPage(navController = navController)}
             composable(Screen.Profile.Reviews.route) {ReviewsPage(navController = navController)}
             composable(Screen.Profile.Orders.route) { OrdersPage(navController = navController)}
             composable(Screen.Profile.Follows.route) { FollowPage(navController = navController)}
-            composable(Screen.Profile.ProfilePage.route) {ProfilePage(navController = navController)}
+            composable(Screen.Profile.ProfilePage.route) { UserPageDetails(navController = navController) }
             composable(Screen.Profile.Offers.route) { OffersPage(navController = navController)}
             composable(Screen.Profile.Addresses.route) { AddressesPage(navController = navController)}
         }
@@ -117,6 +120,7 @@ fun NavigationBarController(navController: NavHostController) {
 }
 sealed class Screen(val route: String, @StringRes resourceID: Int) {
     object Profile: Screen("profile", R.string.profile) {
+        object Product: Screen("productPage",R.string.productPage)
         object ProfilePage: Screen("profilePage",R.string.profilePage)
         object LikedProducts: Screen("likedProducts",R.string.likedProducts)
         object Orders: Screen("orders",R.string.orders)
