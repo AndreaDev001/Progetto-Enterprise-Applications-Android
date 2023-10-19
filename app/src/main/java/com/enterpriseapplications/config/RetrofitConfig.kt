@@ -5,6 +5,7 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.config.authentication.AuthorizationInterceptor
 import com.enterpriseapplications.controllers.BanRetrofitApi
 import com.enterpriseapplications.controllers.CategoryRetrofitApi
+import com.enterpriseapplications.controllers.ConversationRetrofitApi
 import com.enterpriseapplications.controllers.FollowRetrofitApi
 import com.enterpriseapplications.controllers.LikeRetrofitApi
 import com.enterpriseapplications.controllers.MessageRetrofitApi
@@ -50,6 +51,7 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
     val paymentMethodController: PaymentMethodRetrofitApi = retrofit.create(PaymentMethodRetrofitApi::class.java)
     val likeController: LikeRetrofitApi  = retrofit.create(LikeRetrofitApi::class.java)
     val reviewController: ReviewRetrofitApi = retrofit.create(ReviewRetrofitApi::class.java)
+    val conversationController: ConversationRetrofitApi = retrofit.create(ConversationRetrofitApi::class.java)
     val replyController: ReplyRetrofitApi = retrofit.create(ReplyRetrofitApi::class.java)
     val imageController: ImageRetrofitApi = retrofit.create(ImageRetrofitApi::class.java)
     val productImageController: ProductImageRetrofitApi = retrofit.create(ProductImageRetrofitApi::class.java)
