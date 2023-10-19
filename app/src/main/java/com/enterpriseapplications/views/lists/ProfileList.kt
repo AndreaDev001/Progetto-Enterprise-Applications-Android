@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
@@ -44,6 +45,7 @@ fun ProfileList(navController: NavHostController)
             }
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
+            MenuItem(callback = {navController.navigate("conversationPage")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
             MenuItem(callback = {navController.navigate("productPage")}, headerText = "Product", supportingText = "Test", leadingIcon = Icons.Filled.ShoppingCart)
             MenuItem(callback = {navController.navigate("profilePage")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
             MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")

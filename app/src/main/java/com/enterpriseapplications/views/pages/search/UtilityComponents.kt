@@ -227,3 +227,13 @@ fun ProductList(scrolledCallback: () -> Unit = {},currentPage: com.enterpriseapp
         }
     }
 }
+@Composable
+fun PageShower(modifier: Modifier = Modifier,page: com.enterpriseapplications.model.Page?) {
+    if(page != null) {
+        Column(modifier = modifier.fillMaxWidth()) {
+            Text(text = "${page.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${page.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "${page.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+        }
+    }
+}

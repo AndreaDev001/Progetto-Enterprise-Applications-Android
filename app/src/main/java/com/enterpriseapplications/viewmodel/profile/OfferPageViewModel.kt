@@ -11,7 +11,8 @@ import java.util.UUID
 
 class OfferPageViewModel(val application: CustomApplication): BaseViewModel(application) {
 
-    val userID: UUID? = null;
+    var userID: UUID? = null;
+    private var _currentSelectedTab: MutableStateFlow<Int> = MutableStateFlow(0)
     private var _currentCreatedOffers: MutableStateFlow<List<Offer>> = MutableStateFlow(emptyList())
     private var _currentReceivedOffers: MutableStateFlow<List<Offer>> = MutableStateFlow(emptyList())
     private var _currentCreatedOffersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
@@ -21,8 +22,8 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
 
     fun initialize() {
         if(this.userID != null) {
-            this.updateCreatedOffers(true)
-            this.updateReceivedOffers(true)
+            this.updateCreatedOffers(false)
+            this.updateReceivedOffers(false)
         }
     }
 
@@ -30,7 +31,7 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
         this._currentCreatedOffersSearching.value = true
         this.makeRequest(this.retrofitConfig.offerController.getCreatedOffers(userID!!,this._currentCreatedOffersPage.value.number,20),{
             if(it._embedded != null) {
-                if(page)
+                if(!page)
                     this._currentCreatedOffers.value = it._embedded.content;
                 else
                 {
@@ -48,7 +49,7 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
         this._currentReceivedOffersSearching.value = true
         this.makeRequest(this.retrofitConfig.offerController.getReceivedOffers(userID!!,this._currentReceivedOffersPage.value.number,20),{
             if(it._embedded != null) {
-                if(page)
+                if(!page)
                     this._currentReceivedOffers.value = it._embedded.content;
                 else
                 {
@@ -72,7 +73,13 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
 
     fun resetTab(index: Int) {
         val currentPage: MutableStateFlow<Page> = if(index == 0) _currentCreatedOffersPage else _currentReceivedOffersPage
+        val currentItems: MutableStateFlow<List<Offer>> = if(index == 0) _currentCreatedOffers else _currentReceivedOffers
+        currentItems.value = emptyList()
         currentPage.value = Page(20,0,0,0)
+    }
+
+    fun updateCurrentSelectedTab(index: Int) {
+        this._currentSelectedTab.value = index
         this.handlePage(index,false)
     }
 
@@ -83,7 +90,7 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
         }
     }
 
-
+    val currentSelectedTab: StateFlow<Int> = _currentSelectedTab.asStateFlow()
     val currentCreatedOffers: StateFlow<List<Offer>> = _currentCreatedOffers.asStateFlow()
     val currentReceivedOffers: StateFlow<List<Offer>> = _currentReceivedOffers.asStateFlow()
     val currentCreatedOffersPage: StateFlow<Page> = _currentCreatedOffersPage.asStateFlow()

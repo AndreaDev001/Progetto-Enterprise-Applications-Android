@@ -22,7 +22,7 @@ class ConversationPageViewModel(val application: CustomApplication) : BaseViewMo
         }
     }
 
-    fun updateCurrentConversations() {
+    private fun updateCurrentConversations() {
         this._currentConversationsSearching.value = true
         this.makeRequest(this.retrofitConfig.conversationController.getConversations(userID!!),{
             this._currentConversations.value = it

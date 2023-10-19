@@ -1,7 +1,9 @@
 package com.enterpriseapplications.views
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.enterpriseapplications.model.Ban
+import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.Product
@@ -116,7 +119,9 @@ fun RatingComponent(modifier: Modifier = Modifier,rating: Int,iconSize: Dp = 20.
     }
 }
 @Composable
-fun ProductCard(product: Product,clickCallback: () -> Unit = {}) {
+fun ProductCard(product: Product? ,clickCallback: () -> Unit = {}) {
+    if(product == null)
+        return;
     Card(shape = RoundedCornerShape(5.dp),modifier = Modifier
         .fillMaxWidth()
     ) {
@@ -271,15 +276,73 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferCard(offer: Offer,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
-        .padding(5.dp)
+fun OfferCard(offer: Offer,clickCallback: () -> Unit = {},receiver: Boolean = false) {
+    Card(shape = RoundedCornerShape(5.dp), modifier = Modifier
+        .padding(2.dp)
         .fillMaxWidth(), onClick = {clickCallback()}) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp)) {
-            
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f)) {
+                ProductCard(product = offer.product)
+            }
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 2.dp)) {
+                val offerStatus: DescriptionItem = DescriptionItem("Status",offer.status)
+                val price: DescriptionItem = DescriptionItem("Price",offer.price.toString())
+                val createdDate: DescriptionItem = DescriptionItem("Created Date",offer.createdDate)
+                val expirationDate: DescriptionItem = DescriptionItem("Expiration Date",offer.expirationDate)
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp)) {
+                    DescriptionItem(descriptionItem = offerStatus, headerFontSize = 13.sp, contentTextSize = 13.sp)
+                    DescriptionItem(descriptionItem = price, headerFontSize = 13.sp, contentTextSize = 13.sp)
+                    DescriptionItem(descriptionItem = createdDate, headerFontSize = 13.sp, contentTextSize = 13.sp)
+                    DescriptionItem(descriptionItem = expirationDate, headerFontSize = 13.sp, contentTextSize = 13.sp)
+                }
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp).horizontalScroll(ScrollState(0))) {
+                    if(receiver) {
+                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
+                            Text(text = "Accept", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                        }
+                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
+                            Text(text = "Reject", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                        }
+                    }
+                    else
+                    {
+                        if(offer.status == "ACCEPTED") {
+                            Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
+                                Text(text = "Pay", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                            }
+                        }
+                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
+                            Text(text = "Delete", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                        }
+                    }
+                }
+            }
         }
     }
+}
+@Composable
+fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback: () -> Unit = {}) {
+     Button(contentPadding = PaddingValues(5.dp),modifier = Modifier.fillMaxWidth().padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
+         Row(modifier = Modifier.fillMaxWidth()) {
+              Column(modifier = Modifier.weight(0.25f)) {
+                  AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
+                      modifier = Modifier
+                          .clip(RoundedCornerShape(60))
+                          .size(80.dp))
+              }
+             Column(modifier = Modifier.weight(0.75f).padding(horizontal = 2.dp)) {
+                 val username: String = if(receiver) conversation.second.username else conversation.first.username
+                 Text(text = username, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                 Text(text = "Last message here",fontSize = 15.sp, fontWeight = FontWeight.Normal)
+             }
+         }
+     }
 }
