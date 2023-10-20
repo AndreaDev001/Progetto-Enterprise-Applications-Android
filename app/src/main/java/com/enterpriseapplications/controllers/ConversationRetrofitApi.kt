@@ -12,4 +12,6 @@ interface ConversationRetrofitApi
 {
     @GET("conversations/public/{userID}")
     fun getConversations(@Path("userID") userID: UUID): Call<List<Conversation>>;
+    @GET("conversations/public/conversation/{conversationID}")
+    fun getConversationById(@Path("conversationID") conversationID: UUID): Call<Conversation>;
 }

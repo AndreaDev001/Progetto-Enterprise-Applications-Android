@@ -40,6 +40,7 @@ import com.enterpriseapplications.views.pages.profile.AddressesPage
 import com.enterpriseapplications.views.pages.profile.ConversationPage
 import com.enterpriseapplications.views.pages.profile.FollowPage
 import com.enterpriseapplications.views.pages.profile.LikedProductsPage
+import com.enterpriseapplications.views.pages.profile.MessagePage
 import com.enterpriseapplications.views.pages.profile.OffersPage
 import com.enterpriseapplications.views.pages.profile.OrdersPage
 import com.enterpriseapplications.views.pages.profile.ProfilePage
@@ -108,6 +109,7 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Search.SearchReports.route) { SearchReports(navController = navController)}
             composable(Screen.Search.SearchBans.route) { SearchBans(navController = navController)}
 
+            composable(Screen.Profile.Message.route) { MessagePage(navController = navController)}
             composable(Screen.Profile.Conversation.route) { ConversationPage(navController = navController)}
             composable(Screen.Profile.Product.route) { ProductPageDetails(navController = navController)}
             composable(Screen.Profile.LikedProducts.route) { LikedProductsPage(navController = navController)}
@@ -122,6 +124,7 @@ fun NavigationBarController(navController: NavHostController) {
 }
 sealed class Screen(val route: String, @StringRes resourceID: Int) {
     object Profile: Screen("profile", R.string.profile) {
+        object Message: Screen("messagePage",R.string.messagePage)
         object Conversation: Screen("conversationPage",R.string.conversationPage)
         object Product: Screen("productPage",R.string.productPage)
         object ProfilePage: Screen("profilePage",R.string.profilePage)
