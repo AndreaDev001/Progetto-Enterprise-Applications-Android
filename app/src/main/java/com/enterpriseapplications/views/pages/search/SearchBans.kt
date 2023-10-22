@@ -84,63 +84,56 @@ fun SearchBans(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
-        val initializing: State<Boolean> = viewModel.initializing.collectAsState()
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
-        if(initializing.value)
-            SearchingDialog()
-        else
-        {
-            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    gesturesEnabled = false,
-                    drawerContent = {
-                        ModalDrawerSheet(drawerShape = RectangleShape) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp)
-                            ) {
-                                MenuItem(
-                                    callback = {
-                                        scope.launch {
-                                            controller?.hide();
-                                            drawerState.close()
-                                        }
-                                    },
-                                    trailingIcon = Icons.Filled.Close,
-                                    headerText = "Filters",
-                                    supportingText = "Use the following filters to find the desired products",
-                                    leadingIcon = null
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                                FilterOptions(viewModel = viewModel)
-                            }
-                        }
-                    }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(
-                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+        SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                gesturesEnabled = false,
+                drawerContent = {
+                    ModalDrawerSheet(drawerShape = RectangleShape) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Column(
+                            modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                                .padding(5.dp)
                         ) {
-                            Text(text = "Filters", fontSize = 16.sp)
+                            MenuItem(
+                                callback = {
+                                    scope.launch {
+                                        controller?.hide();
+                                        drawerState.close()
+                                    }
+                                },
+                                trailingIcon = Icons.Filled.Close,
+                                headerText = "Filters",
+                                supportingText = "Use the following filters to find the desired products",
+                                leadingIcon = null
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            FilterOptions(viewModel = viewModel)
                         }
-                        ItemList(viewModel = viewModel)
                     }
+                }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "Filters", fontSize = 16.sp)
+                    }
+                    ItemList(viewModel = viewModel)
                 }
             }
         }
     }
 }
-
 @Composable
 private fun FilterOptions(viewModel: SearchBansViewModel) {
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
@@ -175,12 +168,7 @@ private fun ItemList(viewModel: SearchBansViewModel) {
     else
     {
         Column(modifier = Modifier.padding(5.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(text = "Use the available filters to find the desired bans", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalPages} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            }
+            PageShower(page = currentPage.value)
             if(currentPage.value.totalElements > 0) {
                 LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                     itemsIndexed(items = currentBans.value) { _, item ->

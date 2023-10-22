@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.HomePageViewModel
@@ -51,6 +53,7 @@ import com.google.accompanist.swiperefresh.SwipeRefreshState
 @Composable
 fun HomePage(navController: NavHostController) {
     val swipeRefreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val viewModel: HomePageViewModel = viewModel(factory = viewModelFactory);
     Column(modifier = Modifier.padding(vertical = 5.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
@@ -66,11 +69,12 @@ fun HomePage(navController: NavHostController) {
                 .padding(10.dp)
                 .fillMaxWidth()
                 .verticalScroll(ScrollState(0))) {
+                Text(modifier = Modifier.padding(2.dp), fontSize = 25.sp, fontWeight = FontWeight.Bold,text = "Welcome" + " " + authenticatedUser.value!!.username)
                 Text(modifier = Modifier.padding(horizontal = 2.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, text = "In this page you can find the most recently created products and the most liked ones, if you want to make an accurate search use the available search pages")
                 Column(modifier = Modifier.padding(vertical = 10.dp)) {
-                    RecentlyCreated(viewModel = viewModel)
-                    MostLiked(viewModel = viewModel)
-                    MostExpensive(viewModel = viewModel)
+                    RecentlyCreated(navController = navController,viewModel = viewModel)
+                    MostLiked(navController = navController,viewModel = viewModel)
+                    MostExpensive(navController = navController,viewModel = viewModel)
                 }
             }
         }
@@ -78,7 +82,7 @@ fun HomePage(navController: NavHostController) {
 }
 
 @Composable
-private fun RecentlyCreated(viewModel: HomePageViewModel) {
+private fun RecentlyCreated(navController: NavHostController,viewModel: HomePageViewModel) {
     Column(modifier = Modifier.padding(2.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(text = "Recently Created", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -110,7 +114,7 @@ private fun RecentlyCreated(viewModel: HomePageViewModel) {
                     .padding(vertical = 5.dp)) {
                     itemsIndexed(currentRecentlyCreatedProducts.value) {index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
-                            ProductCard(product = item)
+                            ProductCard(navController,product = item)
                         }
                     }
                 }
@@ -121,7 +125,7 @@ private fun RecentlyCreated(viewModel: HomePageViewModel) {
     }
 }
 @Composable
-private fun MostLiked(viewModel: HomePageViewModel) {
+private fun MostLiked(navController: NavHostController,viewModel: HomePageViewModel) {
     Column(modifier = Modifier.padding(2.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(text = "Most Liked Products", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -155,7 +159,7 @@ private fun MostLiked(viewModel: HomePageViewModel) {
                     .padding(vertical = 5.dp)) {
                     itemsIndexed(items = currentMostLikedProducts.value) { index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
-                            ProductCard(product = item)
+                            ProductCard(navController,product = item)
                         }
                     }
                 }
@@ -166,7 +170,7 @@ private fun MostLiked(viewModel: HomePageViewModel) {
     }
 }
 @Composable
-private fun MostExpensive(viewModel: HomePageViewModel) {
+private fun MostExpensive(navController: NavHostController,viewModel: HomePageViewModel) {
     Column(modifier = Modifier.padding(2.dp)) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(text = "Most Expensive Products", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -200,7 +204,7 @@ private fun MostExpensive(viewModel: HomePageViewModel) {
                     .padding(vertical = 5.dp)) {
                     itemsIndexed(items = currentMostExpensiveProducts.value) { index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
-                            ProductCard(product = item)
+                            ProductCard(navController,product = item)
                         }
                     }
                 }

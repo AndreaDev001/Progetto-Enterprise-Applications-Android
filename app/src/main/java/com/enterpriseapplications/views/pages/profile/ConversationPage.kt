@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Page
@@ -46,11 +48,10 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationPage(navController: NavHostController) {
+fun ConversationPage(navController: NavHostController,userID: String?) {
     val viewModel: ConversationPageViewModel = viewModel(factory = viewModelFactory)
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-    val userID: UUID = UUID.fromString("196967df-d0ec-44db-9042-39abffdf3fa2")
-    viewModel.userID = userID
+    viewModel.userID = UUID.fromString(userID)
     viewModel.initialize()
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -63,7 +64,9 @@ fun ConversationPage(navController: NavHostController) {
             }
         },modifier = Modifier.fillMaxWidth())
         SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
-            Column(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)) {
                 Text(text = "Here you can see all of your conversations, click on them to continue to chat", fontSize = 17.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 2.dp))
                 ConversationList(viewModel = viewModel)
             }

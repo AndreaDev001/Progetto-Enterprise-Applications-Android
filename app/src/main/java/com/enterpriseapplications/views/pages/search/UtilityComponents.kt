@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Product
@@ -169,7 +170,7 @@ fun SearchingDialog(dismissCallback: () -> Unit = {}) {
     }
 }
 @Composable
-fun ProductList(scrolledCallback: () -> Unit = {},currentPage: com.enterpriseapplications.model.Page? = null,currentItems: List<Product>,searching: Boolean = false,vertical: Boolean = true) {
+fun ProductList(navController: NavHostController, scrolledCallback: () -> Unit = {}, currentPage: com.enterpriseapplications.model.Page? = null, currentItems: List<Product>, searching: Boolean = false, vertical: Boolean = true) {
     Column(modifier = Modifier.padding(vertical = 3.dp)) {
         if(searching)
             ProgressIndicator()
@@ -198,7 +199,7 @@ fun ProductList(scrolledCallback: () -> Unit = {},currentPage: com.enterpriseapp
                         LazyVerticalGrid(columns = GridCells.Fixed(2),state = lazyGridState) {
                             itemsIndexed(currentItems) {index,item ->
                                 Box(modifier = Modifier.padding(2.dp)) {
-                                    ProductCard(product = item)
+                                    ProductCard(navController,item)
                                 }
                             }
                         }
@@ -217,7 +218,7 @@ fun ProductList(scrolledCallback: () -> Unit = {},currentPage: com.enterpriseapp
                         LazyRow(state = lazyRowState) {
                             itemsIndexed(currentItems) { index, item ->
                                 Box(modifier = Modifier.padding(2.dp)) {
-                                    ProductCard(product = item)
+                                    ProductCard(navController,item)
                                 }
                             }
                         }

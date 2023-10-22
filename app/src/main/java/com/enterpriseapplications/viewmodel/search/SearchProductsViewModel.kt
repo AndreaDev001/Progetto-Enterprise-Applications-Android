@@ -38,11 +38,9 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     private var _currentProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     private var _currentProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _currentProductsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
-    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init
     {
-        _initializing.value = true;
         this.initialize()
     }
 
@@ -127,7 +125,6 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
     val currentProductsPage: StateFlow<Page> = _currentProductsPage.asStateFlow()
     val currentProductsSearching: StateFlow<Boolean> = _currentProductsSearching.asStateFlow()
-    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 
     val primaryCategoryControl: FormControl<String?> = _primaryCategoryControl
     val secondaryCategoryControl: FormControl<String?> = _secondaryCategoryControl

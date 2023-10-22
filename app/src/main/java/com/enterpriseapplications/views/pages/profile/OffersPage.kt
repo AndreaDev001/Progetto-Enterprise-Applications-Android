@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Page
@@ -56,11 +58,10 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OffersPage(navController: NavHostController)
+fun OffersPage(navController: NavHostController,userID: String?)
 {
     val viewModel: OfferPageViewModel = viewModel(factory = viewModelFactory)
-    var userID: UUID = UUID.fromString("196967df-d0ec-44db-9042-39abffdf3fa2")
-    viewModel.userID = userID
+    viewModel.userID = UUID.fromString(userID)
     viewModel.initialize()
     val refreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
     val currentSelectedTab: State<Int> = viewModel.currentSelectedTab.collectAsState()
@@ -93,15 +94,15 @@ fun OffersPage(navController: NavHostController)
                     })
                 }
                 if(currentSelectedTab.value == 0)
-                    CreatedOffers(viewModel)
+                    CreatedOffers(navController,viewModel)
                 else
-                    ReceivedOffers(viewModel)
+                    ReceivedOffers(navController,viewModel)
             }
         }
     }
 }
 @Composable
-private fun CreatedOffers(viewModel: OfferPageViewModel) {
+private fun CreatedOffers(navController: NavHostController,viewModel: OfferPageViewModel) {
     val currentOffers: State<List<Offer>> = viewModel.currentCreatedOffers.collectAsState()
     val currentOffersPage: State<Page> = viewModel.currentCreatedOffersPage.collectAsState()
     val currentOffersSearching: State<Boolean> = viewModel.currentCreatedOffersSearching.collectAsState()
@@ -127,7 +128,7 @@ private fun CreatedOffers(viewModel: OfferPageViewModel) {
                     content = {
                         itemsIndexed(items = currentOffers.value) { index, item ->
                             Box(modifier = Modifier.padding(2.dp)) {
-                                OfferCard(offer = item, receiver = false)
+                                OfferCard(navController,item, receiver = false)
                             }
                         }
                     })
@@ -140,7 +141,7 @@ private fun CreatedOffers(viewModel: OfferPageViewModel) {
     }
 }
 @Composable
-private fun ReceivedOffers(viewModel: OfferPageViewModel) {
+private fun ReceivedOffers(navController: NavHostController,viewModel: OfferPageViewModel) {
     val currentOffers: State<List<Offer>> = viewModel.currentReceivedOffers.collectAsState()
     val currentOffersPage: State<Page> = viewModel.currentReceivedOffersPage.collectAsState()
     val currentOffersSearching: State<Boolean> = viewModel.currentReceivedOffersSearching.collectAsState()
@@ -166,7 +167,7 @@ private fun ReceivedOffers(viewModel: OfferPageViewModel) {
                     content = {
                         itemsIndexed(items = currentOffers.value) { index, item ->
                             Box(modifier = Modifier.padding(2.dp)) {
-                                OfferCard(offer = item, receiver = true)
+                                OfferCard(navController,item, receiver = true)
                             }
                         }
                     })

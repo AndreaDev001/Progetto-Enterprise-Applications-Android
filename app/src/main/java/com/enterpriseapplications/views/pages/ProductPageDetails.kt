@@ -37,12 +37,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.enterpriseapplications.config.RetrofitConfig
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.ProductDetailsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.DescriptionItem
+import com.enterpriseapplications.views.ProductImage
 import com.enterpriseapplications.views.UserCard
+import com.enterpriseapplications.views.UserImage
 import com.enterpriseapplications.views.pages.search.ProductList
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -51,12 +54,12 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductPageDetails(navController: NavHostController) {
+fun ProductPageDetails(navController: NavHostController,productID: String?) {
     val viewModel: ProductDetailsViewModel = viewModel(factory = viewModelFactory)
-    val productID: UUID = UUID.fromString("196967df-d0ec-44db-9042-39abffdf3fa2");
+    val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+    val productID: UUID = UUID.fromString(productID)
     viewModel.productID = productID
     viewModel.initialize()
-    val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +73,7 @@ fun ProductPageDetails(navController: NavHostController) {
             }
         }, modifier = Modifier.fillMaxWidth())
         val currentSellerProducts: State<List<Product>> = viewModel.sellerProducts.collectAsState()
-        val currentSellerProductsSearching: State<Boolean> = viewModel.sellerProductsSearching.collectAsState()
+        val currentSimilarProducts: State<List<Product>> = viewModel.similarProducts.collectAsState()
         SwipeRefresh(state = refreshState, onRefresh = {}) {
             Column(modifier = Modifier
                 .padding(vertical = 5.dp)
@@ -79,15 +82,15 @@ fun ProductPageDetails(navController: NavHostController) {
                 ProductDescription(viewModel = viewModel)
                 ProductDetailsButton(viewModel = viewModel)
                 Column(modifier = Modifier.padding(horizontal = 5.dp)) {
-                    ProductRow(searching = currentSellerProductsSearching.value, items = currentSellerProducts.value, icon = Icons.Filled.Person, headerText = "Seller's products", supportingText = "Here you can see some other products from the same seller")
-                    ProductRow(searching = currentSellerProductsSearching.value, items = currentSellerProducts.value, icon = Icons.Filled.ShoppingCart, headerText = "Similar Products", supportingText = "Here you can see some similar products")
+                    ProductRow(navController = navController, items = currentSellerProducts.value, icon = Icons.Filled.Person, headerText = "Seller's products", supportingText = "Here you can see some other products from the same seller")
+                    ProductRow(navController = navController, items = currentSimilarProducts.value, icon = Icons.Filled.ShoppingCart, headerText = "Similar Products", supportingText = "Here you can see some similar products")
                 }
             }
         }
     }
 }
 @Composable
-private fun ProductRow(items: List<Product>,searching: Boolean = false,icon: ImageVector,headerText: String,supportingText: String) {
+private fun ProductRow(navController: NavHostController,items: List<Product>,searching: Boolean = false,icon: ImageVector,headerText: String,supportingText: String) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 2.dp)) {
@@ -96,12 +99,13 @@ private fun ProductRow(items: List<Product>,searching: Boolean = false,icon: Ima
             Icon(modifier = Modifier.padding(horizontal = 2.dp),imageVector = icon, contentDescription = null)
         }
         Text(text = supportingText, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
-        ProductList(currentItems = items, searching = searching, vertical = false)
+        ProductList(navController = navController, currentItems = items, searching = searching, vertical = false)
     }
 }
 @Composable
 private fun ProductDetails(viewModel: ProductDetailsViewModel) {
     val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
+    val currentImagesAmount: State<Int> = viewModel.currentProductImagesAmount.collectAsState()
     if(productDetails.value != null) {
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -113,40 +117,24 @@ private fun ProductDetails(viewModel: ProductDetailsViewModel) {
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(60))
-                            .size(50.dp)
-                    )
+                    UserImage(userID = productDetails.value!!.seller.id,size = 50.dp)
                     Text(text = productDetails.value!!.seller.username, fontSize = 15.sp, fontWeight = FontWeight.Thin);
                 }
             }
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(2.dp)) {
-                AsyncImage(contentScale = ContentScale.Crop,model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null, modifier = Modifier.fillMaxWidth())
+                val currentIndex: State<Int> = viewModel.currentSelectedIndex.collectAsState()
+                AsyncImage(model = "http//${RetrofitConfig.resourceServerIpAddress}/productImages/public/${productDetails.value!!.id}/${currentIndex.value}", contentDescription = null)
             }
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
                 .horizontalScroll(ScrollState(0)), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                Button(contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(5.dp),onClick = {},modifier = Modifier.size(80.dp)) {
-                    AsyncImage(contentScale = ContentScale.Crop, model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,modifier = Modifier.fillMaxSize())
-                }
-                Button(modifier = Modifier
-                    .padding(horizontal = 2.dp)
-                    .size(80.dp),contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(5.dp),onClick = {}) {
-                    AsyncImage(contentScale = ContentScale.Crop,model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,modifier = Modifier.fillMaxSize())
-                }
-                Button(modifier = Modifier
-                    .padding(horizontal = 2.dp)
-                    .size(80.dp),contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(5.dp),onClick = {}) {
-                    AsyncImage(contentScale = ContentScale.Crop,model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,modifier = Modifier.fillMaxSize())
-                }
-                Button(modifier = Modifier
-                    .padding(horizontal = 2.dp)
-                    .size(80.dp),contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(5.dp),onClick = {}) {
-                    AsyncImage(contentScale = ContentScale.Crop,model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,modifier = Modifier.fillMaxSize())
+                for(i in 0 until currentImagesAmount.value) {
+                    Button(onClick = {viewModel.updateCurrentIndex(i)},modifier = Modifier.padding(horizontal = 2.dp)) {
+                        ProductImage(productID = productDetails.value!!.id, contentScale = ContentScale.Crop,modifier = Modifier.fillMaxWidth())
+                    }
                 }
             }
         }

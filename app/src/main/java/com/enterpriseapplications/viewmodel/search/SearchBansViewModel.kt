@@ -26,11 +26,9 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
     private var _currentBansPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _currentBansSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
-    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     init
     {
-        _initializing.value = true;
         this.initialize()
     }
 
@@ -85,5 +83,4 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
     val currentBans: StateFlow<List<Ban>> = _currentBans.asStateFlow()
     val currentBansPage: StateFlow<Page> = _currentBansPage.asStateFlow()
     val currentBansSearching: StateFlow<Boolean> = _currentBansSearching.asStateFlow()
-    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

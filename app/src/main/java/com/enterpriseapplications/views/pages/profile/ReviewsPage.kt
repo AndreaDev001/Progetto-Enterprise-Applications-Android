@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Review
@@ -50,14 +52,15 @@ import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import java.net.Authenticator
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewsPage(navController: NavHostController) {
     val viewModel: ReviewPageViewModel = viewModel(factory = viewModelFactory)
-    val userID: String = "064a18ac-3fd9-40d5-9ed9-ac9d682852c6";
-    viewModel.userID = UUID.fromString(userID);
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    viewModel.userID = authenticatedUser.value!!.userID;
     viewModel.initialize()
     val currentSelectedTab: State<Int> = viewModel.currentSelectedTab.collectAsState()
     Column(modifier = Modifier
@@ -71,11 +74,10 @@ fun ReviewsPage(navController: NavHostController) {
             }
         },modifier = Modifier.fillMaxWidth())
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-        Column() {
-
-        }
         SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
-            Column(modifier = Modifier.fillMaxWidth().padding(5.dp))
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp))
             {
                 TabRow(selectedTabIndex = currentSelectedTab.value,modifier = Modifier.fillMaxWidth()) {
                     Tab(icon = {

@@ -35,12 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.enterpriseapplications.config.RetrofitConfig
 import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Message
@@ -71,10 +74,7 @@ fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,valu
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(60))
-                        .size(80.dp))
+                UserImage(userID = userID,size = 80.dp)
             }
             Column(modifier = Modifier
                 .fillMaxWidth()
@@ -123,11 +123,14 @@ fun RatingComponent(modifier: Modifier = Modifier,rating: Int,iconSize: Dp = 20.
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductCard(product: Product? ,clickCallback: () -> Unit = {}) {
-    if(product == null)
-        return;
-    Card(shape = RoundedCornerShape(5.dp),modifier = Modifier
+fun ProductCard(navHostController: NavHostController,product: Product ,clickCallback: () -> Unit = {}) {
+    Card(onClick = {
+      val path: String = "productPage/" + product.id
+      navHostController.navigate(path)
+      clickCallback()
+    }, shape = RoundedCornerShape(5.dp),modifier = Modifier
         .fillMaxWidth()
     ) {
         Column(modifier = Modifier
@@ -135,16 +138,11 @@ fun ProductCard(product: Product? ,clickCallback: () -> Unit = {}) {
             .padding(5.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(60))
-                            .size(40.dp))
                     Text(text = product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
-                AsyncImage(model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,
-                modifier = Modifier.fillMaxWidth())
+                ProductImage(productID = product.id, modifier = Modifier.fillMaxWidth())
             }
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = product.price.toString(),modifier = Modifier.fillMaxWidth(), fontSize = 15.sp, fontWeight = FontWeight.Normal)
@@ -159,20 +157,24 @@ fun ProductCard(product: Product? ,clickCallback: () -> Unit = {}) {
     }
 }
 @Composable
-fun UserCard(user: UserRef,clickCallback: () -> Unit = {}) {
+fun UserCard(navHostController: NavHostController,user: UserRef,clickCallback: () -> Unit = {}) {
     val userDetails: UserDetails = UserDetails(id = user.id, gender = user.gender,username = user.username, name = user.name, surname = user.surname, rating = user.rating)
-    UserCard(user = userDetails,clickCallback)
+    UserCard(navHostController,userDetails)
 }
 @Composable
-fun ProductCard(product: ProductRef,clickCallback: () -> Unit = {}) {
+fun ProductCard(navHostController: NavHostController,product: ProductRef,clickCallback: () -> Unit = {}) {
     val productDetails: Product = Product(id = product.id,name = product.name, description = product.description, amountOfLikes = product.likes, price = product.price,seller = product.seller);
-    ProductCard(product = productDetails)
+    ProductCard(navHostController = navHostController,product = productDetails,clickCallback)
 }
 @Composable
-fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
+fun UserCard(navHostController: NavHostController, user: UserDetails, clickCallback: () -> Unit = {}) {
     Button(modifier = Modifier
         .padding(2.dp)
-        .fillMaxWidth(),shape = RoundedCornerShape(10.dp),onClick = {clickCallback()})
+        .fillMaxWidth(),shape = RoundedCornerShape(10.dp),onClick = {
+            val path: String = "profilePage/" + user.id;
+            navHostController.navigate(path)
+            clickCallback()
+    })
     {
         Column(modifier = Modifier
             .padding(vertical = 2.dp)
@@ -180,10 +182,7 @@ fun UserCard(user: UserDetails,clickCallback: () -> Unit = {}) {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(60))
-                        .size(80.dp))
+                UserImage(userID = user.id, size = 80.dp)
             }
             Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             if(user.name != null && user.surname != null) {
@@ -229,10 +228,7 @@ fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
             .padding(2.dp)) {
             Column(modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = review.writer.username, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
-                AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(60))
-                        .size(80.dp))
+                UserImage(userID = review.writer.id, size = 80.dp)
             }
             Column(modifier = Modifier
                 .padding(10.dp), verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally)
@@ -256,8 +252,7 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
                 .padding(2.dp)
                 .weight(1f)) {
                 Column(modifier = Modifier.padding(2.dp)) {
-                    AsyncImage(model = "https://t3.ftcdn.net/jpg/02/10/85/26/360_F_210852662_KWN4O1tjxIQt8axc2r82afdSwRSLVy7g.jpg", contentDescription = null,
-                        modifier = Modifier.fillMaxWidth())
+                    ProductImage(productID = order.product.id,modifier = Modifier.fillMaxWidth())
                 }
                 Text(text = order.product.name, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
                 Text(text = order.product.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
@@ -267,10 +262,7 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
                 .weight(1f)) {
                 Text(text = "Seller", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(5.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(60))
-                            .size(40.dp))
+                    UserImage(userID = order.product.seller.id)
                     Text(text = order.product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
                 val priceItem: DescriptionItem = DescriptionItem("Price",order.price.toString())
@@ -283,13 +275,13 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferCard(offer: Offer,clickCallback: () -> Unit = {},receiver: Boolean = false) {
+fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () -> Unit = {},receiver: Boolean = false) {
     Card(shape = RoundedCornerShape(5.dp), modifier = Modifier
         .padding(2.dp)
         .fillMaxWidth(), onClick = {clickCallback()}) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
-                ProductCard(product = offer.product)
+                ProductCard(navHostController = navController, product = offer.product,clickCallback)
             }
             Column(modifier = Modifier
                 .weight(1f)
@@ -341,13 +333,18 @@ fun MessageCard(message: Message,received: Boolean = false,clickCallback: () -> 
         .padding(vertical = 2.dp)) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = if(received) Alignment.Start else Alignment.End) {
             Column(modifier = Modifier.padding(2.dp)) {
-                Row(modifier = Modifier.padding(vertical = 2.dp).background(Color.Green).clip(RoundedCornerShape(10.dp)), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                Row(modifier = Modifier
+                    .padding(vertical = 2.dp)
+                    .background(Color.Green)
+                    .clip(RoundedCornerShape(10.dp)), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                     Text(text = message.text,modifier = Modifier.padding(horizontal = 20.dp),fontSize = 15.sp, fontWeight = FontWeight.Normal)
                     IconButton(onClick = {clickCallback()}) {
                         Icon(imageVector = Icons.Filled.Send,contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
                     }
                 }
-                Text(text = message.createdDate, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.fillMaxWidth().padding(vertical = 1.dp))
+                Text(text = message.createdDate, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 1.dp))
             }
         }
     }
@@ -359,10 +356,8 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
          .padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
          Row(modifier = Modifier.fillMaxWidth()) {
               Column(modifier = Modifier.weight(0.25f)) {
-                  AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                      modifier = Modifier
-                          .clip(RoundedCornerShape(60))
-                          .size(80.dp))
+                  val userID: String = if(receiver) conversation.second.id else conversation.first.id;
+                  UserImage(userID = userID,size = 80.dp)
               }
              Column(modifier = Modifier
                  .weight(0.75f)
@@ -373,4 +368,16 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
              }
          }
      }
+}
+@Composable
+fun UserImage(modifier: Modifier = Modifier,size: Dp = 40.dp,userID: String) {
+    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/userImages/public/$userID";
+    AsyncImage(modifier = modifier
+        .clip(RoundedCornerShape(60))
+        .size(size), model = path, contentDescription = null)
+}
+@Composable
+fun ProductImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier = Modifier,productID: String) {
+    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/productImages/public/$productID/first";
+    AsyncImage(contentScale = contentScale,modifier = modifier,model = path, contentDescription = null)
 }

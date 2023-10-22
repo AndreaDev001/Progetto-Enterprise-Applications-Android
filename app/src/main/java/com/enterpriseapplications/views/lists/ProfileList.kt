@@ -23,18 +23,25 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.navigation.icons
+import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileList(navController: NavHostController)
 {
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    val userID: UUID = authenticatedUser.value!!.userID
     Column(modifier = Modifier
         .padding(vertical = 2.dp)
         .verticalScroll(ScrollState(0))) {
@@ -47,15 +54,15 @@ fun ProfileList(navController: NavHostController)
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             MenuItem(callback = {navController.navigate("messagePage")},headerText = "Messages", supportingText = "Text", leadingIcon = Icons.Filled.Message)
-            MenuItem(callback = {navController.navigate("conversationPage")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
-            MenuItem(callback = {navController.navigate("productPage")}, headerText = "Product", supportingText = "Test", leadingIcon = Icons.Filled.ShoppingCart)
-            MenuItem(callback = {navController.navigate("profilePage")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
-            MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
-            MenuItem(callback = {navController.navigate("follows")},leadingIcon = Icons.Filled.Person,headerText = "Follows", supportingText = "View who you follow and who is following you")
-            MenuItem(callback = {navController.navigate("orders")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
-            MenuItem(callback = {navController.navigate("offers")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
-            MenuItem(callback = {navController.navigate("reviews")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
-            MenuItem(callback = {navController.navigate("addresses")}, leadingIcon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
+            MenuItem(callback = {navController.navigate("conversationPage/$userID")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
+            MenuItem(callback = {navController.navigate("productPage/$userID")}, headerText = "Product", supportingText = "Test", leadingIcon = Icons.Filled.ShoppingCart)
+            MenuItem(callback = {navController.navigate("profilePage/$userID")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
+            MenuItem(callback = {navController.navigate("likedProducts/$userID")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
+            MenuItem(callback = {navController.navigate("follows/$userID")},leadingIcon = Icons.Filled.Person,headerText = "Follows", supportingText = "View who you follow and who is following you")
+            MenuItem(callback = {navController.navigate("orders/$userID")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
+            MenuItem(callback = {navController.navigate("offers/$userID")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
+            MenuItem(callback = {navController.navigate("reviews/$userID")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
+            MenuItem(callback = {navController.navigate("addresses/$userID")}, leadingIcon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
         }
     }
 }

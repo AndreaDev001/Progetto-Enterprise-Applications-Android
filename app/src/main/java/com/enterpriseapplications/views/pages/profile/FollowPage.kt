@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Follow
 import com.enterpriseapplications.model.Page
@@ -50,6 +52,7 @@ import com.enterpriseapplications.viewmodel.profile.FollowPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -60,9 +63,9 @@ import java.util.UUID
 @Composable
 fun FollowPage(navController: NavHostController) {
     val viewModel: FollowPageViewModel = viewModel(factory = viewModelFactory)
-    val userID: UUID = UUID.fromString("064a18ac-3fd9-40d5-9ed9-ac9d682852c6");
-    val currentSelectedTab: State<Int> = viewModel.currentSelectedTab.collectAsState();
-    viewModel.userID = userID
+    val currentSelectedTab: State<Int> = viewModel.currentSelectedTab.collectAsState()
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    viewModel.userID = authenticatedUser.value!!.userID;
     viewModel.initialize()
     Column(
         modifier = Modifier
@@ -78,7 +81,9 @@ fun FollowPage(navController: NavHostController) {
         }, modifier = Modifier.fillMaxWidth())
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
         SwipeRefresh(state = refreshState , onRefresh = {viewModel.initialize()}) {
-            Column(modifier = Modifier.fillMaxWidth().padding(5.dp)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(5.dp)) {
                 TabRow(selectedTabIndex = currentSelectedTab.value, modifier = Modifier.fillMaxWidth()) {
                     Tab(icon = {
                         Icon(imageVector = Icons.Filled.Person, contentDescription = null)
@@ -94,20 +99,17 @@ fun FollowPage(navController: NavHostController) {
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)) {
-                    if(currentSelectedTab.value == 0) {
-                        FollowersList(viewModel = viewModel)
-                    }
+                    if(currentSelectedTab.value == 0)
+                        FollowersList(navController = navController,viewModel = viewModel)
                     else
-                    {
-                        FollowedList(viewModel = viewModel)
-                    }
+                        FollowedList(navController = navController,viewModel = viewModel)
                 }
             }
         }
     }
 }
 @Composable
-private fun FollowersList(viewModel: FollowPageViewModel) {
+private fun FollowersList(navController: NavHostController,viewModel: FollowPageViewModel) {
     val currentFollowers: State<List<Follow>> = viewModel.currentFollowers.collectAsState()
     val currentFollowersPage: State<Page> = viewModel.currentFollowersPage.collectAsState()
     val currentFollowersSearching: State<Boolean> = viewModel.currentFollowersSearching.collectAsState()
@@ -123,11 +125,7 @@ private fun FollowersList(viewModel: FollowPageViewModel) {
     Column(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth()) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentFollowersPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentFollowersPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentFollowersPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
+        PageShower(page = currentFollowersPage.value)
         if(currentFollowersSearching.value)
             ProgressIndicator()
         else
@@ -138,7 +136,7 @@ private fun FollowersList(viewModel: FollowPageViewModel) {
                     .fillMaxWidth(),state = lazyGridState, columns = GridCells.Fixed(2)) {
                     itemsIndexed(items = currentFollowers.value) {index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
-                            UserCard(user = item.follower)
+                            UserCard(navHostController = navController,item.follower)
                         }
                     }
                 }
@@ -149,7 +147,7 @@ private fun FollowersList(viewModel: FollowPageViewModel) {
     }
 }
 @Composable
-private fun FollowedList(viewModel: FollowPageViewModel) {
+private fun FollowedList(navController: NavHostController,viewModel: FollowPageViewModel) {
 
     val currentFollowed: State<List<Follow>> = viewModel.currentFollows.collectAsState()
     val currentFollowedPage: State<Page> = viewModel.currentFollowsPage.collectAsState()
@@ -166,11 +164,7 @@ private fun FollowedList(viewModel: FollowPageViewModel) {
     Column(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth()) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentFollowedPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentFollowedPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentFollowedPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
+        PageShower(page = currentFollowedPage.value)
         if(currentFollowedSearching.value)
             ProgressIndicator()
         else
@@ -181,7 +175,7 @@ private fun FollowedList(viewModel: FollowPageViewModel) {
                     .fillMaxWidth(),state = lazyListState, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
                     itemsIndexed(items = currentFollowed.value) {index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
-                            UserCard(user = item.followed)
+                            UserCard(navHostController = navController, user = item.followed)
                         }
                     }
                 }

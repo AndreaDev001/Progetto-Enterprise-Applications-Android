@@ -20,13 +20,16 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,9 +54,11 @@ fun MenuItem(callback: () -> Unit, leadingIcon: ImageVector? = null,trailingIcon
 @Composable
 fun SearchList(navController: NavHostController)
 {
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(vertical = 2.dp).verticalScroll(ScrollState(0))) {
+        .padding(vertical = 2.dp)
+        .verticalScroll(ScrollState(0))) {
         TopAppBar(title = {
             Text(text = "Search", fontSize = 20.sp)
         }, navigationIcon = {
@@ -65,8 +70,10 @@ fun SearchList(navController: NavHostController)
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             MenuItem(callback = {navController.navigate("searchProducts")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Products", supportingText = "Search for products")
             MenuItem(callback = {navController.navigate("searchUsers")}, leadingIcon = Icons.Filled.Person, headerText = "Users", supportingText = "Search for users")
-            MenuItem(callback = {navController.navigate("searchReports")},leadingIcon = Icons.Filled.Report,headerText = "Reports", supportingText = "Search for reports")
-            MenuItem(callback = {navController.navigate("searchBans")},leadingIcon = Icons.Filled.Warning, headerText = "Bans", supportingText = "Search for bans")
+            if(authenticatedUser.value!!.roles.contains("ROLE_ADMIN")) {
+                MenuItem(callback = {navController.navigate("searchReports")},leadingIcon = Icons.Filled.Report,headerText = "Reports", supportingText = "Search for reports")
+                MenuItem(callback = {navController.navigate("searchBans")},leadingIcon = Icons.Filled.Warning, headerText = "Bans", supportingText = "Search for bans")
+            }
         }
     }
 }

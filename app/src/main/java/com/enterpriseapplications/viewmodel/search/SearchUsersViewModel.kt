@@ -28,11 +28,9 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
     private var _currentUsersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _currentUsersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
-    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     init
     {
-        _initializing.value = true;
         this.initialize()
     }
 
@@ -89,5 +87,4 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()
     val currentUsersPage: StateFlow<Page> = _currentUsersPage.asStateFlow()
     val currentUsersSearching: StateFlow<Boolean> = _currentUsersSearching.asStateFlow()
-    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

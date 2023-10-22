@@ -28,7 +28,11 @@ import retrofit2.create
 
 class RetrofitConfig(val application: Application,authenticationManager: AuthenticationManager)
 {
-    var baseURL: String = "http://192.168.1.74:8080/api/v1/"
+    companion object
+    {
+        var resourceServerIpAddress: String = "192.168.1.74:8080";
+        var baseURL: String = "http://$resourceServerIpAddress/api/v1/"
+    }
     private val httpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor(AuthorizationInterceptor(authenticationManager)).build()
     private val retrofit: Retrofit = Retrofit.
             Builder()

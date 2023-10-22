@@ -15,5 +15,4 @@ class AuthorizationInterceptor(private val authenticationManager: Authentication
         }
         return chain.proceed(request);
     }
-
 }

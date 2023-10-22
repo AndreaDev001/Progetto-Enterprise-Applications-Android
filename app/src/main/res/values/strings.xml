@@ -18,4 +18,6 @@
     <string name = "follows">Follows</string>
     <string name = "productPage">Product</string>
     <string name = "conversationPage">Conversations</string>
+    <string name = "messagePage">Messages</string>
+    <string name = "loginPage">Login</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.enterpriseapplications.views.pages
 
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +64,7 @@ import com.enterpriseapplications.views.DescriptionItem
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.RatingComponent
 import com.enterpriseapplications.views.ReviewCard
+import com.enterpriseapplications.views.UserImage
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -74,11 +76,10 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserPageDetails(navController: NavHostController) {
-    val userID: UUID = UUID.fromString("196967df-d0ec-44db-9042-39abffdf3fa2");
+fun UserPageDetails(navController: NavHostController,userID: String?) {
     val viewModel: UserDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentUsersDetails: State<UserDetails?> = viewModel.currentUserDetails.collectAsState()
-    viewModel.userID = userID
+    viewModel.userID = UUID.fromString(userID)
     viewModel.initialize()
     Column(
         modifier = Modifier
@@ -109,13 +110,7 @@ fun UserPageDetails(navController: NavHostController) {
                     ) {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                AsyncImage(
-                                    model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg",
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(60))
-                                        .size(140.dp)
-                                )
+                                UserImage(userID = userID!!,size = 180.dp)
                                 Column(modifier = Modifier.padding(2.dp)) {
                                     Row(
                                         modifier = Modifier
@@ -156,7 +151,9 @@ fun UserPageDetails(navController: NavHostController) {
                                     }
                                 }
                             }
-                            Column(modifier = Modifier.weight(1f).padding(vertical = 10.dp)) {
+                            Column(modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 10.dp)) {
                                 Column(modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp)) {
@@ -205,7 +202,7 @@ fun UserPageDetails(navController: NavHostController) {
                 if(currentSelectedTab.value == 0)
                     ReviewList(viewModel = viewModel)
                 else
-                    ProductList(viewModel = viewModel)
+                    ProductList(navController = navController,viewModel = viewModel)
             }
         }
     }
@@ -262,7 +259,7 @@ private fun ReviewList(viewModel: UserDetailsViewModel) {
     }
 }
 @Composable
-private fun ProductList(viewModel: UserDetailsViewModel) {
+private fun ProductList(navController: NavHostController,viewModel: UserDetailsViewModel) {
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentProductsPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val currentProductsSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()
@@ -306,7 +303,7 @@ private fun ProductList(viewModel: UserDetailsViewModel) {
                     content = {
                         itemsIndexed(items = currentProducts.value) { _, item ->
                             Box(modifier = Modifier.padding(5.dp)) {
-                                ProductCard(product = item)
+                                ProductCard(navController,item)
                             }
                         }
                     })

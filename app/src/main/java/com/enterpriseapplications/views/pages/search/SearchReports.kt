@@ -69,9 +69,11 @@ fun SearchReports(navController: NavHostController) {
     val viewModel: SearchReportsViewModel = viewModel(factory = viewModelFactory)
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(vertical = 2.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 2.dp)
+    ) {
         TopAppBar(title = {
             Text(text = "Search Reports", fontSize = 20.sp)
         }, navigationIcon = {
@@ -79,56 +81,51 @@ fun SearchReports(navController: NavHostController) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
-        val initializing: State<Boolean> = viewModel.initializing.collectAsState()
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-        if (initializing.value)
-            SearchingDialog()
-        else {
-            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
-                ModalNavigationDrawer(
-                    gesturesEnabled = false,
-                    drawerState = drawerState,
-                    drawerContent = {
-                        ModalDrawerSheet(drawerShape = RectangleShape) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp)
-                            ) {
-                                MenuItem(
-                                    callback = {
-                                        scope.launch {
-                                            controller?.hide();
-                                            drawerState.close()
-                                        }
-                                    },
-                                    trailingIcon = Icons.Filled.Close,
-                                    headerText = "Filters",
-                                    supportingText = "Use the following filters to find the desired products",
-                                    leadingIcon = null
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                                FilterOptions(viewModel = viewModel)
-                            }
-                        }
-                    }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(
-                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+        SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+            ModalNavigationDrawer(
+                gesturesEnabled = false,
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet(drawerShape = RectangleShape) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Column(
+                            modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                                .padding(5.dp)
                         ) {
-                            Text(text = "Filters", fontSize = 16.sp)
+                            MenuItem(
+                                callback = {
+                                    scope.launch {
+                                        controller?.hide();
+                                        drawerState.close()
+                                    }
+                                },
+                                trailingIcon = Icons.Filled.Close,
+                                headerText = "Filters",
+                                supportingText = "Use the following filters to find the desired products",
+                                leadingIcon = null
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            FilterOptions(viewModel = viewModel)
                         }
-                        ItemList(viewModel = viewModel)
                     }
+                }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "Filters", fontSize = 16.sp)
+                    }
+                    ItemList(viewModel = viewModel)
                 }
             }
         }

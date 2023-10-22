@@ -66,12 +66,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchProducts(navController: NavHostController) {
     val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
-    val initializing: State<Boolean> = viewModel.initializing.collectAsState()
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(vertical = 2.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 2.dp)
+    ) {
         TopAppBar(title = {
             Text(text = "Search Products", fontSize = 20.sp)
         }, navigationIcon = {
@@ -81,58 +82,55 @@ fun SearchProducts(navController: NavHostController) {
         }, modifier = Modifier.fillMaxWidth())
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
         val refreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
-        if (initializing.value)
-            SearchingDialog()
-        else {
-            SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
-                ModalNavigationDrawer(
-                    gesturesEnabled = false,
-                    drawerState = drawerState,
-                    drawerContent = {
-                        ModalDrawerSheet(drawerShape = RectangleShape) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(5.dp)
-                            ) {
-                                MenuItem(
-                                    callback = {
-                                        scope.launch {
-                                            controller?.hide()
-                                            drawerState.close()
-                                        }
-                                    },
-                                    trailingIcon = Icons.Filled.Close,
-                                    headerText = "Filters",
-                                    supportingText = "Use the following filters to find the desired products",
-                                    leadingIcon = null
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
-                                FilterOptions(viewModel = viewModel)
-                            }
-                        }
-                    }) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(
-                            onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+        SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+            ModalNavigationDrawer(
+                gesturesEnabled = false,
+                drawerState = drawerState,
+                drawerContent = {
+                    ModalDrawerSheet(drawerShape = RectangleShape) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Column(
+                            modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                                .padding(5.dp)
                         ) {
-                            Text(text = "Filters", fontSize = 16.sp)
+                            MenuItem(
+                                callback = {
+                                    scope.launch {
+                                        controller?.hide()
+                                        drawerState.close()
+                                    }
+                                },
+                                trailingIcon = Icons.Filled.Close,
+                                headerText = "Filters",
+                                supportingText = "Use the following filters to find the desired products",
+                                leadingIcon = null
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            FilterOptions(viewModel = viewModel)
                         }
-                        ItemsList(viewModel = viewModel)
                     }
+                }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "Filters", fontSize = 16.sp)
+                    }
+                    ItemsList(viewModel = viewModel, navController = navController)
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun FilterOptions(viewModel: SearchProductsViewModel)
@@ -184,7 +182,7 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 }
 
 @Composable
-private fun ItemsList(viewModel: SearchProductsViewModel){
+private fun ItemsList(navController: NavHostController,viewModel: SearchProductsViewModel){
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val isSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()
@@ -202,17 +200,12 @@ private fun ItemsList(viewModel: SearchProductsViewModel){
     else
     {
         Column(modifier = Modifier.padding(5.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            }
+            PageShower(page = currentPage.value)
             if(currentPage.value.totalElements > 0) {
                 LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                     itemsIndexed(items = currentProducts.value) { _, item ->
                         Box(modifier = Modifier.padding(5.dp)) {
-                            ProductCard(product = item)
+                            ProductCard(navController,product = item)
                         }
                     }
                 })

@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Message
@@ -58,17 +60,17 @@ import java.util.UUID
 @Composable
 fun MessagePage(navController: NavHostController) {
     val conversationID: UUID? = UUID.fromString("e1aaa4c3-b372-4de9-83a4-ae262e312e1e")
-    val userID: UUID? = UUID.fromString("196967df-d0ec-44db-9042-39abffdf3fa2")
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
     val viewModel: MessagePageViewModel = viewModel(factory = viewModelFactory);
     viewModel.conversationID = conversationID;
-    viewModel.userID = userID;
+    viewModel.userID = authenticatedUser.value!!.userID
     viewModel.initialize()
     Column(modifier = Modifier.fillMaxWidth()) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
             val currentConversation: State<Conversation?> = viewModel.currentConversation.collectAsState()
             if(currentConversation.value != null) {
-                val username: String = if(currentConversation.value!!.first.id == userID.toString()) currentConversation.value!!.first.username else currentConversation.value!!.second.username;
+                val username: String = if(currentConversation.value!!.first.id == authenticatedUser.value!!.userID.toString()) currentConversation.value!!.first.username else currentConversation.value!!.second.username;
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,

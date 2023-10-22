@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.viewmodel.SettingsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomTextField
@@ -38,7 +40,8 @@ import java.util.UUID
 @Composable
 fun SettingsPage(navController: NavHostController) {
     val viewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
-    viewModel.userID = UUID.fromString("064a18ac-3fd9-40d5-9ed9-ac9d682852c6")
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    viewModel.userID = authenticatedUser.value!!.userID
     Column(modifier = Modifier.padding(vertical = 2.dp, horizontal = 20.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(),
             title = {
@@ -48,7 +51,9 @@ fun SettingsPage(navController: NavHostController) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                 }
             })
-        Column(modifier = Modifier.fillMaxWidth().verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = "Edit Profile", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(modifier = Modifier.padding(vertical = 2.dp),text = "Here you can modify your profile, more information can help your profile to be more visible in searches")
             Spacer(modifier = Modifier.height(2.dp))

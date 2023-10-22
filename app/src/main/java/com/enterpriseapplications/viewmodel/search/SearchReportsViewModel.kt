@@ -20,7 +20,6 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
     private var _reason: FormControl<String?> = FormControl(null,Validators.required())
     private var _type: FormControl<String?> = FormControl(null,Validators.required())
-    private var _initializing: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
@@ -31,7 +30,6 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
 
     init
     {
-        _initializing.value = true;
         this.initialize()
     }
 
@@ -91,5 +89,4 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val currentReports: StateFlow<List<Report>> = _currentReports.asStateFlow()
     val currentReportsPage: StateFlow<Page> = _currentReportsPage.asStateFlow()
     val currentReportsSearching: StateFlow<Boolean> = _currentReportsSearching.asStateFlow()
-    val initializing: StateFlow<Boolean> = _initializing.asStateFlow()
 }

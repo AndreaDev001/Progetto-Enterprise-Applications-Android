@@ -10,6 +10,7 @@ import android.view.Display.Mode
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.navigation.NavHostController
 import com.enterpriseapplications.ConnectionBuilderForTesting
 import com.enterpriseapplications.CustomApplication
 import com.google.gson.Gson
@@ -31,6 +32,7 @@ import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Base64;
 import java.util.UUID
@@ -43,15 +45,17 @@ class AuthenticationManager(val application: CustomApplication)
 
     companion object
     {
+
         private var _currentUser: MutableStateFlow<AuthenticatedUser?> = MutableStateFlow(null);
         private var _currentToken: MutableStateFlow<TokenData?> = MutableStateFlow(null)
         val currentUser: StateFlow<AuthenticatedUser?> = _currentUser.asStateFlow()
         val currentToken: StateFlow<TokenData?> = _currentToken.asStateFlow()
-        val authorizeURI: String = "http://192.168.1.74:9000/oauth2/authorize"
-        val tokenURI: String = "http://192.168.1.74:9000/oauth2/token"
-        val redirectURI: String = "clowning://moose.ac"
-        val clientID: String = "client"
-        val clientSecret: String = "secret"
+        private const val authorizationServerIpAddress: String = "192.168.1.74:9000";
+        const val authorizeURI: String = "http://$authorizationServerIpAddress/oauth2/authorize"
+        const val tokenURI: String = "http://$authorizationServerIpAddress/oauth2/token"
+        const val redirectURI: String = "clowning://moose.ac"
+        const val clientID: String = "client"
+        const val clientSecret: String = "secret"
     }
 
     init
@@ -62,6 +66,12 @@ class AuthenticationManager(val application: CustomApplication)
         authorizationServiceConfiguration = AuthorizationServiceConfiguration(authorize,token)
         authorizationService = AuthorizationService(application.getContext()!!,appAuthConfiguration);
     }
+
+    private fun isExpired(exp: Long): Boolean {
+        val time = System.currentTimeMillis() / 1000;
+        return time >= exp;
+    }
+
     fun createLoginRequest(launcher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
         val redirect = Uri.parse(redirectURI)
         val authorizationRequest: AuthorizationRequest = AuthorizationRequest.Builder(authorizationServiceConfiguration,
@@ -88,13 +98,15 @@ class AuthenticationManager(val application: CustomApplication)
                     Log.d("ID_TOKEN",idToken!!)
                     val tokenData: TokenData = TokenData(accessToken,refreshToken,idToken);
                     val authenticatedUser: AuthenticatedUser = this.readFromClaims(accessToken);
-                    this.updatePreferences(tokenData,authenticatedUser);
+                    this.updatePreferences(tokenData,authenticatedUser)
                 }
             }
         }
     }
     @Synchronized
     fun updatePreferences(requiredTokenData: TokenData?,requiredUserData: AuthenticatedUser?) {
+        _currentUser.value = requiredUserData
+        _currentToken.value = requiredTokenData
         val preferences: SharedPreferences = application.getContext()!!.getSharedPreferences("auth", Context.MODE_PRIVATE)
         if(requiredTokenData != null && requiredUserData != null) {
             preferences.edit().putString("token_data", Gson().toJson(_currentToken.value)).apply();
@@ -105,10 +117,8 @@ class AuthenticationManager(val application: CustomApplication)
             preferences.edit().remove("token-data").apply();
             preferences.edit().remove("authenticated_user").apply();
         }
-        _currentToken.value = requiredTokenData
-        _currentUser.value = requiredUserData
     }
-    private fun readPreferences(): Pair<TokenData,AuthenticatedUser>? {
+    private fun readPreferences(): Pair<TokenData?,AuthenticatedUser>? {
         val preferences: SharedPreferences = application.getContext()!!.getSharedPreferences("auth",Context.MODE_PRIVATE)
         val tokenData: String? = preferences.getString("token_data",null)
         val authenticatedUser: String? = preferences.getString("authenticated_user",null)
@@ -121,10 +131,8 @@ class AuthenticationManager(val application: CustomApplication)
     @Synchronized
     fun refreshToken(): Pair<TokenData,AuthenticatedUser>? {
         if(currentUser.value != null && currentToken.value != null) {
-            val expired = (System.currentTimeMillis() / 1000) >= currentUser.value!!.tokenExpiration;
-            if(!expired) {
+            if(!isExpired(_currentUser.value!!.tokenExpiration))
                 return Pair(currentToken.value!!, currentUser.value!!)
-            }
             val requestBody: RequestBody = FormBody.Builder().add("grant_type",GrantTypeValues.REFRESH_TOKEN).add("refresh_token", currentToken.value!!.refreshToken).build();
             val request: Request = Request.Builder().url(tokenURI).post(requestBody).addHeader("Authorization", "Basic ${Base64.getEncoder().encodeToString("secret".toByteArray())}").build()
             try
@@ -147,7 +155,11 @@ class AuthenticationManager(val application: CustomApplication)
     }
     private fun readFromClaims(accessToken: String): AuthenticatedUser {
         val accessTokenClaims = JSONObject(String(Base64.getDecoder().decode(accessToken.split(".")[1])));
-        return AuthenticatedUser(UUID.fromString(accessTokenClaims.getString("sub")),accessTokenClaims.getString("email"),accessTokenClaims.getString("username"),accessTokenClaims.getString("name"),accessTokenClaims.getString("surname"),accessTokenClaims.getLong("exp"));
+        val roles: JSONArray = accessTokenClaims.getJSONArray("roles");
+        val values: MutableList<String> = mutableListOf()
+        for(i in 0 until roles.length())
+            values.add(roles.getString(i));
+        return AuthenticatedUser(UUID.fromString(accessTokenClaims.getString("sub")),accessTokenClaims.getString("email"),accessTokenClaims.getString("username"),accessTokenClaims.getLong("exp"),values);
     }
     fun dispose() {
         this.authorizationService.dispose();

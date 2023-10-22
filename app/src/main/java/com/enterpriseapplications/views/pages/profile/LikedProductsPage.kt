@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Like
 import com.enterpriseapplications.model.Page
@@ -61,9 +63,9 @@ import java.util.UUID
 @Composable
 fun LikedProductsPage(navController: NavHostController)
 {
-    val userID: UUID = UUID.fromString("064a18ac-3fd9-40d5-9ed9-ac9d682852c6");
     val viewModel: LikedProductsViewModel = viewModel(factory = viewModelFactory)
-    viewModel.userID = userID
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    viewModel.userID = authenticatedUser.value!!.userID;
     viewModel.initialize()
     Column(modifier = Modifier
         .fillMaxSize()
@@ -86,13 +88,13 @@ fun LikedProductsPage(navController: NavHostController)
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
                 }
                 Text(text = "Here you can see all the products you have liked", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp), fontWeight = FontWeight.Thin)
-                LikedProductsLists(viewModel = viewModel)
+                LikedProductsLists(navController,viewModel)
             }
         }
     }
 }
 @Composable
-private fun LikedProductsLists(viewModel: LikedProductsViewModel) {
+private fun LikedProductsLists(navController: NavHostController,viewModel: LikedProductsViewModel) {
     val currentLikes: State<List<Like>> = viewModel.currentLikedProducts.collectAsState()
     val currentLikesPage: State<Page> = viewModel.currentLikedProductsPage.collectAsState()
     val currentLikesSearching: State<Boolean> =
@@ -136,7 +138,7 @@ private fun LikedProductsLists(viewModel: LikedProductsViewModel) {
                     content = {
                         itemsIndexed(items = currentLikes.value) { index, item ->
                             Box(modifier = Modifier.padding(2.dp)) {
-                                ProductCard(product = item.product)
+                                ProductCard(navController,item.product)
                             }
                         }
                     })

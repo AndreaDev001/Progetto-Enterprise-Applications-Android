@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.Page
@@ -49,13 +51,13 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrdersPage(navController: NavHostController) {
+fun OrdersPage(navController: NavHostController,userID: String?) {
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp)) {
-        val userID: UUID = UUID.fromString("064a18ac-3fd9-40d5-9ed9-ac9d682852c6");
         val viewModel: OrderPageViewModel = viewModel(factory = viewModelFactory)
-        viewModel.userID = userID
+        val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+        viewModel.userID = UUID.fromString(userID)
         viewModel.initialize()
         TopAppBar(title = {
             Text(text = "Orders", fontSize = 20.sp)

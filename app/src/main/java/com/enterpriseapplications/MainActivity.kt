@@ -30,6 +30,7 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.navigation.NavigationBarController
 import com.enterpriseapplications.ui.theme.EnterpriseApplicationsAndroidTheme
 import com.enterpriseapplications.views.pages.HomePage
+import com.enterpriseapplications.views.pages.LoginPage
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
@@ -108,7 +109,7 @@ class MainActivity : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         val navController: NavHostController = rememberNavController()
-                        NavigationBarController(navController = navController)
+                        LoginPage(navController)
                     }
                 }
             }

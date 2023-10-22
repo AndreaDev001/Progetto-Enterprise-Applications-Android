@@ -71,50 +71,60 @@ fun SearchUsers(navController: NavHostController) {
     val drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
     val viewModel: SearchUsersViewModel = viewModel(factory = viewModelFactory)
-    val initializing: State<Boolean> = viewModel.initializing.collectAsState()
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(vertical = 2.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 2.dp)
+    ) {
         TopAppBar(title = {
             Text(text = "Search Users", fontSize = 20.sp)
         }, navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
-        },modifier = Modifier.fillMaxWidth())
+        }, modifier = Modifier.fillMaxWidth())
         val controller: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current;
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-        if(initializing.value)
-            SearchingDialog()
-        else
-        {
-            SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
-                ModalNavigationDrawer(gesturesEnabled = false, drawerState = drawerState, drawerContent = {
+        SwipeRefresh(state = refreshState, onRefresh = { viewModel.initialize() }) {
+            ModalNavigationDrawer(
+                gesturesEnabled = false,
+                drawerState = drawerState,
+                drawerContent = {
                     ModalDrawerSheet(drawerShape = RectangleShape) {
-                        MenuItem(callback = {scope.launch {
-                            controller?.hide();
-                            drawerState.close()}}, trailingIcon = Icons.Filled.Close, headerText = "Filters", supportingText = "Use the filters to find the desired users")
+                        MenuItem(
+                            callback = {
+                                scope.launch {
+                                    controller?.hide();
+                                    drawerState.close()
+                                }
+                            },
+                            trailingIcon = Icons.Filled.Close,
+                            headerText = "Filters",
+                            supportingText = "Use the filters to find the desired users"
+                        )
                         Spacer(modifier = Modifier.height(10.dp))
                         FilterOptions(viewModel = viewModel)
                     }
                 }) {
-                    Column(modifier = Modifier
+                Column(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 5.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Button(onClick = {scope.launch {drawerState.open()}}, modifier = Modifier
+                        .padding(vertical = 5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { scope.launch { drawerState.open() } }, modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Text(text = "Filters", fontSize = 16.sp)
-                        }
-                        ItemList(viewModel = viewModel)
+                            .padding(10.dp), shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(text = "Filters", fontSize = 16.sp)
                     }
+                    ItemList(viewModel = viewModel, navController = navController)
                 }
             }
         }
     }
 }
-
 @Composable
 private fun FilterOptions(viewModel: SearchUsersViewModel) {
     val genders: State<List<String>> = viewModel.genders.collectAsState();
@@ -134,7 +144,7 @@ private fun FilterOptions(viewModel: SearchUsersViewModel) {
 }
 
 @Composable
-private fun ItemList(viewModel: SearchUsersViewModel) {
+private fun ItemList(viewModel: SearchUsersViewModel,navController: NavHostController) {
     val currentUsers: State<List<UserDetails>> = viewModel.currentUsers.collectAsState()
     val currentPage: State<Page> = viewModel.currentUsersPage.collectAsState()
     val isSearching: State<Boolean> = viewModel.currentUsersSearching.collectAsState()
@@ -151,18 +161,13 @@ private fun ItemList(viewModel: SearchUsersViewModel) {
         ProgressIndicator()
     else
     {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "Use the available filters to find the desired users", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalPages} total pages",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentPage.value.totalElements} total elements",fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
+        PageShower(page = currentPage.value)
         Column(modifier = Modifier.padding(5.dp)) {
             if(currentPage.value.totalElements > 0) {
                 LazyVerticalGrid(state = lazyGridState, modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                     itemsIndexed(items = currentUsers.value) { _, item ->
                         Box(modifier = Modifier.padding(5.dp)) {
-                            UserCard(user = item)
+                            UserCard(navController,item)
                         }
                     }
                 })
