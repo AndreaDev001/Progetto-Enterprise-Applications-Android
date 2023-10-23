@@ -25,6 +25,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,18 +40,25 @@ import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.enterpriseapplications.config.RetrofitConfig
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
+import com.enterpriseapplications.model.Like
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.viewmodel.ProductDetailsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.DescriptionItem
 import com.enterpriseapplications.views.ProductImage
 import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.UserImage
+import com.enterpriseapplications.views.alerts.create.CreateOffer
+import com.enterpriseapplications.views.alerts.create.CreateReport
 import com.enterpriseapplications.views.pages.search.ProductList
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,13 +83,16 @@ fun ProductPageDetails(navController: NavHostController,productID: String?) {
         }, modifier = Modifier.fillMaxWidth())
         val currentSellerProducts: State<List<Product>> = viewModel.sellerProducts.collectAsState()
         val currentSimilarProducts: State<List<Product>> = viewModel.similarProducts.collectAsState()
+        val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
         SwipeRefresh(state = refreshState, onRefresh = {}) {
             Column(modifier = Modifier
                 .padding(vertical = 5.dp)
                 .verticalScroll(ScrollState(0))) {
-                ProductDetails(viewModel = viewModel)
-                ProductDescription(viewModel = viewModel)
-                ProductDetailsButton(viewModel = viewModel)
+                if(productDetails.value != null) {
+                    ProductDetails(productDetails = productDetails.value!!,viewModel = viewModel)
+                    ProductDescription(productDetails = productDetails.value!!)
+                    ProductDetailsButton(productDetails = productDetails.value!!, viewModel = viewModel)
+                }
                 Column(modifier = Modifier.padding(horizontal = 5.dp)) {
                     ProductRow(navController = navController, items = currentSellerProducts.value, icon = Icons.Filled.Person, headerText = "Seller's products", supportingText = "Here you can see some other products from the same seller")
                     ProductRow(navController = navController, items = currentSimilarProducts.value, icon = Icons.Filled.ShoppingCart, headerText = "Similar Products", supportingText = "Here you can see some similar products")
@@ -103,84 +115,158 @@ private fun ProductRow(navController: NavHostController,items: List<Product>,sea
     }
 }
 @Composable
-private fun ProductDetails(viewModel: ProductDetailsViewModel) {
-    val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
+private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsViewModel) {
     val currentImagesAmount: State<Int> = viewModel.currentProductImagesAmount.collectAsState()
-    if(productDetails.value != null) {
-        Column(modifier = Modifier
+    Column(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp)) {
-            Column(modifier = Modifier
+            .padding(5.dp)
+    ) {
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(2.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Text(text = productDetails.value!!.name,fontSize = 25.sp, fontWeight = FontWeight.Bold)
-                Row(modifier = Modifier
+                .padding(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = productDetails.name, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                    UserImage(userID = productDetails.value!!.seller.id,size = 50.dp)
-                    Text(text = productDetails.value!!.seller.username, fontSize = 15.sp, fontWeight = FontWeight.Thin);
-                }
+                    .padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
+                UserImage(userID = productDetails.seller.id, size = 50.dp)
+                Text(
+                    modifier = Modifier.padding(horizontal = 2.dp),
+                    text = productDetails.seller.username,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Thin
+                );
             }
-            Row(modifier = Modifier
+        }
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(2.dp)) {
-                val currentIndex: State<Int> = viewModel.currentSelectedIndex.collectAsState()
-                AsyncImage(model = "http//${RetrofitConfig.resourceServerIpAddress}/productImages/public/${productDetails.value!!.id}/${currentIndex.value}", contentDescription = null)
-            }
-            Row(modifier = Modifier
+                .padding(2.dp)
+        ) {
+            val currentIndex: State<Int> = viewModel.currentSelectedIndex.collectAsState()
+            AsyncImage(
+                modifier = Modifier.fillMaxWidth(),
+                contentScale = ContentScale.Crop,
+                model = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${currentIndex.value}",
+                contentDescription = null
+            )
+        }
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 10.dp)
-                .horizontalScroll(ScrollState(0)), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                for(i in 0 until currentImagesAmount.value) {
-                    Button(onClick = {viewModel.updateCurrentIndex(i)},modifier = Modifier.padding(horizontal = 2.dp)) {
-                        ProductImage(productID = productDetails.value!!.id, contentScale = ContentScale.Crop,modifier = Modifier.fillMaxWidth())
-                    }
+                .horizontalScroll(ScrollState(0)),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 0 until currentImagesAmount.value) {
+                Button(
+                    contentPadding = PaddingValues(0.dp),
+                    onClick = { viewModel.updateCurrentIndex(i) },
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
+                        .size(60.dp)
+                ) {
+                    AsyncImage(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.Crop,
+                        model = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${i}",
+                        contentDescription = null
+                    )
                 }
             }
         }
     }
 }
 @Composable
-private fun ProductDescription(viewModel: ProductDetailsViewModel) {
-    val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
-    if(productDetails.value != null) {
-        val priceDescription: DescriptionItem = DescriptionItem("Price",productDetails.value!!.price.toString())
-        val minPriceDescription: DescriptionItem = DescriptionItem("Minimum Offer Price",productDetails.value!!.minPrice.toString())
-        val brand: DescriptionItem = DescriptionItem("Brand",productDetails.value!!.brand.toString())
-        val condition: DescriptionItem = DescriptionItem("Condition",productDetails.value!!.condition.toString())
-        Column(modifier = Modifier.padding(2.dp)) {
-            Text(text = productDetails.value!!.description, fontSize = 18.sp, fontWeight = FontWeight.Normal,modifier = Modifier
+private fun ProductDescription(productDetails: Product) {
+    val priceDescription: DescriptionItem =
+        DescriptionItem("Price", productDetails.price.toString())
+    val minPriceDescription: DescriptionItem =
+        DescriptionItem("Minimum Offer Price", productDetails.minPrice.toString())
+    val brand: DescriptionItem = DescriptionItem("Brand", productDetails.brand.toString())
+    val condition: DescriptionItem =
+        DescriptionItem("Condition", productDetails.condition.toString())
+    Column(modifier = Modifier.padding(2.dp)) {
+        Text(
+            text = productDetails.description,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier
                 .padding(2.dp)
-                .fillMaxWidth())
-            Row(modifier = Modifier.fillMaxWidth()) {
-                DescriptionItem(modifier = Modifier.weight(1f),priceDescription,headerFontSize = 15.sp, contentTextSize = 15.sp)
-                DescriptionItem(modifier = Modifier.weight(1f),minPriceDescription,headerFontSize = 15.sp, contentTextSize = 15.sp)
-                DescriptionItem(modifier = Modifier.weight(1f),descriptionItem = brand,headerFontSize = 15.sp, contentTextSize = 15.sp)
-                DescriptionItem(modifier = Modifier.weight(1f),descriptionItem = condition, headerFontSize = 15.sp, contentTextSize = 15.sp)
-            }
+                .fillMaxWidth()
+        )
+        Row(modifier = Modifier.fillMaxWidth()) {
+            DescriptionItem(
+                modifier = Modifier.weight(1f),
+                priceDescription,
+                headerFontSize = 15.sp,
+                contentTextSize = 15.sp
+            )
+            DescriptionItem(
+                modifier = Modifier.weight(1f),
+                minPriceDescription,
+                headerFontSize = 15.sp,
+                contentTextSize = 15.sp
+            )
+            DescriptionItem(
+                modifier = Modifier.weight(1f),
+                descriptionItem = brand,
+                headerFontSize = 15.sp,
+                contentTextSize = 15.sp
+            )
+            DescriptionItem(
+                modifier = Modifier.weight(1f),
+                descriptionItem = condition,
+                headerFontSize = 15.sp,
+                contentTextSize = 15.sp
+            )
         }
     }
 }
 @Composable
-private fun ProductDetailsButton(viewModel: ProductDetailsViewModel) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(2.dp)
-        .horizontalScroll(ScrollState(0))) {
-        Button(onClick = {}) {
-            Text(text = "Buy", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-        }
-        Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
-            Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-        }
-        Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
-            Text(text = "Add Like", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-        }
-        Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
-            Text(text = "Make an offer", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-        }
-        Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
-            Text(text = "Start conversation", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+private fun ProductDetailsButton(productDetails: Product,viewModel: ProductDetailsViewModel) {
+    val hasLike: State<Boolean> = viewModel.hasLike.collectAsState()
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
+    val currentText: String = if(hasLike.value) "Remove Like" else "Add Like"
+    val offerVisible = remember { mutableStateOf(false) }
+    val reportVisible = remember { mutableStateOf(false) }
+    if(offerVisible.value)
+        CreateOffer(productID = viewModel.productID!!, update = false, confirmCallback = {offerVisible.value = false}, cancelCallback = {offerVisible.value = false})
+    if(reportVisible.value)
+        CreateReport(productID = viewModel.productID!!, update = false, confirmCallback = {reportVisible.value = false}, cancelCallback = {reportVisible.value = false})
+    if(authenticatedUser.value!!.userID.toString() != productDetails.seller.id)
+    {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(2.dp)
+            .horizontalScroll(ScrollState(0))) {
+            Button(onClick = {}) {
+                Text(text = "Buy", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            }
+            Button(onClick = {reportVisible.value = true},modifier = Modifier.padding(horizontal = 2.dp)) {
+                Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            }
+            Button(onClick = {
+                if(hasLike.value)
+                    viewModel.removeLike();
+                else
+                    viewModel.addLike()
+            },modifier = Modifier.padding(horizontal = 2.dp)) {
+                Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            }
+            Button(onClick = {offerVisible.value = true},modifier = Modifier.padding(horizontal = 2.dp)) {
+                Text(text = "Make an offer", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            }
+            Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
+                Text(text = "Start conversation", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            }
         }
     }
 }

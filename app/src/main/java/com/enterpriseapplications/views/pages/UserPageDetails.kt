@@ -42,6 +42,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +54,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.enterpriseapplications.config.authentication.AuthenticatedUser
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
@@ -65,6 +68,8 @@ import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.RatingComponent
 import com.enterpriseapplications.views.ReviewCard
 import com.enterpriseapplications.views.UserImage
+import com.enterpriseapplications.views.alerts.create.CreateReport
+import com.enterpriseapplications.views.alerts.create.CreateReview
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -79,6 +84,7 @@ import java.util.UUID
 fun UserPageDetails(navController: NavHostController,userID: String?) {
     val viewModel: UserDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentUsersDetails: State<UserDetails?> = viewModel.currentUserDetails.collectAsState()
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     viewModel.userID = UUID.fromString(userID)
     viewModel.initialize()
     Column(
@@ -151,6 +157,7 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                     }
                                 }
                             }
+                            val amountOfFollowers: State<Int?> = viewModel.currentAmountOfFollowers.collectAsState()
                             Column(modifier = Modifier
                                 .weight(1f)
                                 .padding(vertical = 10.dp)) {
@@ -164,7 +171,7 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                     ) {
                                         val followerAmount = DescriptionItem(
                                             "Followers",
-                                            currentUsersDetails.value!!.amountOfFollowers.toString()
+                                            amountOfFollowers.value!!.toString()
                                         );
                                         val followedAmount = DescriptionItem(
                                             "Followed",
@@ -173,12 +180,24 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                         DescriptionItem(descriptionItem = followerAmount, headerFontSize = 15.sp, contentTextSize = 15.sp)
                                         DescriptionItem(descriptionItem = followedAmount, headerFontSize = 15.sp, contentTextSize = 15.sp)
                                     }
+                                    val createReport = remember { mutableStateOf(false) }
+                                    if(createReport.value)
+                                        CreateReport(userID = UUID.fromString(userID!!), confirmCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        Button(onClick = {}) {
-                                            Text(text = "Follow", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                        Button(onClick = {}) {
-                                            Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                        val hasFollow: State<Boolean> = viewModel.hasFollow.collectAsState()
+                                        val currentText: String = if(hasFollow.value) "Remove Follow" else "Add Follow";
+                                        if(authenticatedUser.value!!.userID.toString() != userID) {
+                                            Button(onClick = {
+                                                if(hasFollow.value)
+                                                    viewModel.removeFollow();
+                                                else
+                                                    viewModel.addFollow();
+                                            }) {
+                                                Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Button(onClick = {createReport.value = true}) {
+                                                Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     }
                                 }
@@ -198,6 +217,16 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                     },icon = {
                         Icon(imageVector = Icons.Filled.ShoppingCart,contentDescription = null)
                     })
+                }
+                val createReview = remember {mutableStateOf(false)}
+                if(createReview.value)
+                    CreateReview(userID = UUID.fromString(userID!!), update = false, confirmCallback = {createReview.value = false}, cancelCallback = {createReview.value = false})
+                if(authenticatedUser.value!!.userID.toString() != userID) {
+                    Button(modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {createReview.value = true}) {
+                        Text(text = "Write a review", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
                 if(currentSelectedTab.value == 0)
                     ReviewList(viewModel = viewModel)

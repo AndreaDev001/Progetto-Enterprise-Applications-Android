@@ -1,5 +1,6 @@
 package com.enterpriseapplications.views
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -138,6 +139,7 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
             .padding(5.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                    UserImage(userID = product.seller.id)
                     Text(text = product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
             }
@@ -371,13 +373,14 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
 }
 @Composable
 fun UserImage(modifier: Modifier = Modifier,size: Dp = 40.dp,userID: String) {
-    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/userImages/public/$userID";
+    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/$userID";
     AsyncImage(modifier = modifier
         .clip(RoundedCornerShape(60))
         .size(size), model = path, contentDescription = null)
 }
 @Composable
-fun ProductImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier = Modifier,productID: String) {
-    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/productImages/public/$productID/first";
+fun ProductImage(contentScale: ContentScale = ContentScale.None,
+                 @SuppressLint("ModifierParameter") modifier: Modifier = Modifier, productID: String) {
+    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/$productID/first";
     AsyncImage(contentScale = contentScale,modifier = modifier,model = path, contentDescription = null)
 }

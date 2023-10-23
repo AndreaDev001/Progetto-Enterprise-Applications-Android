@@ -3,7 +3,9 @@ package com.enterpriseapplications.controllers
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.PagedModel
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.UUID
@@ -14,4 +16,6 @@ interface ConversationRetrofitApi
     fun getConversations(@Path("userID") userID: UUID): Call<List<Conversation>>;
     @GET("conversations/public/conversation/{conversationID}")
     fun getConversationById(@Path("conversationID") conversationID: UUID): Call<Conversation>;
+    @POST("conversations/private")
+    fun createConversation(@Body createConversation: ConversationRetrofitApi): Call<Conversation>;
 }

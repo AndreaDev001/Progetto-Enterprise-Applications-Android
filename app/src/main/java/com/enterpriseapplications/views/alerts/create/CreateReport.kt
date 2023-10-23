@@ -27,9 +27,9 @@ import com.enterpriseapplications.views.pages.search.FormDropdown
 import java.util.UUID
 
 @Composable
-fun CreateReport(userID: UUID? = null,productID: UUID? = null,messageID: UUID?,update: Boolean = false,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
+fun CreateReport(userID: UUID? = null,productID: UUID? = null,messageID: UUID? = null,update: Boolean = false,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
     val viewModel: CreateReportViewModel = viewModel(factory = viewModelFactory)
-    val text: String = if(!update) "Create" else "Update";
+    val text: String = if(!update) "Create Report" else "Update Report";
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
 
     viewModel.userID = userID
@@ -49,7 +49,10 @@ fun CreateReport(userID: UUID? = null,productID: UUID? = null,messageID: UUID?,u
             FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reasonControl, items = reasons.value)
         }
     }, confirmButton = {
-        Button(onClick = {confirmCallback()}) {
+        Button(onClick = {
+            viewModel.createReport()
+            confirmCallback()
+        }) {
             Text(text = "Confirm", fontSize = 15.sp)
         }
     }, dismissButton = {

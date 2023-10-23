@@ -1,10 +1,12 @@
 package com.enterpriseapplications.views.alerts.create
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,14 +31,18 @@ fun CreateOffer(productID: UUID,update: Boolean,confirmCallback: () -> Unit = {}
     viewModel.productID = productID
     viewModel.update = update
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
-       Icon(imageVector = Icons.Default.Warning, contentDescription = null,modifier = Modifier.size(50.dp))
+       Icon(imageVector = Icons.Default.LocalOffer, contentDescription = null,modifier = Modifier.size(50.dp))
     }, title = {
        Text(modifier = Modifier.fillMaxWidth(),text = text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }, text = {
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the description of the offer", placeHolder = "Write a description...", label = "Description")
-        CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.priceControl, supportingText = "Write the price of the offer", placeHolder = "Write a text...", label = "Price", keyboardType = KeyboardType.Number)
+        Column(modifier = Modifier.padding(2.dp)) {
+            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the description of the offer", placeHolder = "Write a description...", label = "Description")
+            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.priceControl, supportingText = "Write the price of the offer", placeHolder = "Write a text...", label = "Price", keyboardType = KeyboardType.Number)
+        }
     }, confirmButton = {
-        Button(onClick = {confirmCallback()},shape = RoundedCornerShape(10.dp)) {
+        Button(onClick = {
+            viewModel.createOffer()
+            confirmCallback()},shape = RoundedCornerShape(10.dp)) {
             Text(text = "Confirm", fontSize = 15.sp)
         }
     }, dismissButton = {

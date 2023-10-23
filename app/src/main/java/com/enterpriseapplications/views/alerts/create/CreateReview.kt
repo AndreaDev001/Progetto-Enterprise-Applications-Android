@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Reviews
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,7 +31,7 @@ fun CreateReview(userID: UUID,update: Boolean,confirmCallback: () -> Unit = {},c
     viewModel.userID = userID
     viewModel.update = update
     AlertDialog(shape = RoundedCornerShape(10.dp), onDismissRequest = {dismissCallback()}, icon = {
-        Icon(imageVector = Icons.Default.Warning, contentDescription = null,modifier = Modifier.size(50.dp))
+        Icon(imageVector = Icons.Default.Reviews, contentDescription = null,modifier = Modifier.size(50.dp))
     }, title = {
         Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
     }, text = {
@@ -41,7 +42,10 @@ fun CreateReview(userID: UUID,update: Boolean,confirmCallback: () -> Unit = {},c
             CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.ratingControl, supportingText = "Write the rating of the review", placeHolder = "Write a number...", label = "Rating", keyboardType = KeyboardType.Number)
         }
     }, confirmButton = {
-        Button(onClick = {confirmCallback()}) {
+        Button(onClick = {
+            viewModel.createReview()
+            confirmCallback()
+        }) {
             Text(text = "Confirm", fontSize = 15.sp)
         }
     }, dismissButton = {

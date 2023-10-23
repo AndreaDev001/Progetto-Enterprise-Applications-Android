@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Reply
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -36,18 +37,20 @@ fun CreateReply(reviewID: UUID,update: Boolean,confirmCallback: () -> Unit = {},
     viewModel.update = update
 
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
-        Icon(imageVector = Icons.Default.Warning, contentDescription = null,modifier = Modifier.size(50.dp))
+        Icon(imageVector = Icons.Default.Reply, contentDescription = null,modifier = Modifier.size(50.dp))
     }, title = {
         Text(text = text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }, text = {
         Column(modifier = Modifier
             .padding(5.dp)
             .verticalScroll(ScrollState(0))) {
-            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.textControl, supportingText = "Write the text of the review", placeHolder = "Write the text...", label = "Text")
-            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.ratingControl, supportingText = "Write the rating of the review", placeHolder = "Write the rating of the review...",label = "Rating")
+            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.textControl, supportingText = "Write the text of the reply", placeHolder = "Write the text...", label = "Text")
         }
     }, confirmButton = {
-        Button(onClick = {confirmCallback()}) {
+        Button(onClick = {
+            viewModel.createReply()
+            confirmCallback()
+        }) {
             Text(text = "Confirm", fontSize = 15.sp)
         }
     }, dismissButton = {

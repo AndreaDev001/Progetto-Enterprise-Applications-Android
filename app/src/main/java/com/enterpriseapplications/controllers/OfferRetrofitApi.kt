@@ -2,8 +2,11 @@ package com.enterpriseapplications.controllers
 
 import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.PagedModel
+import com.enterpriseapplications.model.create.CreateOffer
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.UUID
@@ -30,4 +33,6 @@ interface OfferRetrofitApi
     fun getReceivedOffers(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int = 20): Call<PagedModel<Offer>>;
     @GET("offers/public/statuses")
     fun getStatuses(): Call<List<String>>;
+    @POST("offers/private")
+    fun createOffer(@Body createOffer: CreateOffer): Call<Offer>;
 }

@@ -48,7 +48,10 @@ fun CreateBan(userID: UUID,update: Boolean,confirmCallback: () -> Unit = {},canc
             FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reasonControl, items = reasons.value)
         }
     }, confirmButton = {
-        Button(onClick = {confirmCallback()}) {
+        Button(onClick = {
+            viewModel.createBan()
+            confirmCallback()}
+        ) {
             Text(text = "Confirm", fontSize = 15.sp)
         }
     }, dismissButton = {

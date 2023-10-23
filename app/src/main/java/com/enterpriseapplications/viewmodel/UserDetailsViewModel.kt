@@ -1,6 +1,7 @@
 package com.enterpriseapplications.viewmodel
 
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
@@ -11,7 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(application) {
+
     var userID: UUID? = null;
+    private var _currentFollowerCount: MutableStateFlow<Int?> = MutableStateFlow(0);
+    private var _hasFollow: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _currentSelectedTab: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentUserDetails: MutableStateFlow<UserDetails?> = MutableStateFlow(null)
     private var _currentReviews: MutableStateFlow<List<Review>> = MutableStateFlow(emptyList())
@@ -25,10 +29,17 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
         if(this.userID != null) {
             this.makeRequest(this.retrofitConfig.userController.getUserDetails(userID!!),{
                 this._currentUserDetails.value = it
-                this.updateReviews(false);
-                //this.updateProducts(false);
+                this._currentFollowerCount.value = it.amountOfFollowers
+                this.updateReviews(false)
+                this.updateProducts(false)
             })
         }
+    }
+
+    fun getFollow() {
+        this.makeRequest(this.retrofitConfig.followController.getFollow(AuthenticationManager.currentUser.value!!.userID,userID!!),{
+            this._hasFollow.value = true;
+        },{this._hasFollow.value = false })
     }
     private fun updateReviews(page: Boolean) {
         this._currentReviewsSearching.value = true;
@@ -73,6 +84,7 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
          return;
      when(index) {
          0 -> this.updateReviews(true);
+         1 -> this.updateProducts(true);
      }
     }
     fun resetTab(index: Int) {
@@ -90,6 +102,20 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
             1 -> this.updateProducts(false);
         }
     }
+
+    fun addFollow() {
+        this.makeRequest(this.retrofitConfig.followController.createFollows(userID!!),{
+            this._hasFollow.value = true;
+            this._currentFollowerCount.value = this._currentFollowerCount.value!! + 1;
+        })
+    }
+    fun removeFollow() {
+        this.makeRequest(this.retrofitConfig.followController.deleteFollowsByFollowed(userID!!),{
+            this._hasFollow.value = false;
+            this._currentFollowerCount.value = this._currentFollowerCount.value!! + 1;
+        })
+    }
+
     val currentSelectedTab: StateFlow<Int> = _currentSelectedTab.asStateFlow();
     val currentUserDetails: StateFlow<UserDetails?> = _currentUserDetails.asStateFlow()
     val currentReviews: StateFlow<List<Review>> = _currentReviews.asStateFlow()
@@ -98,4 +124,6 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
     val currentProductsPage: StateFlow<Page> = _currentProductsPage.asStateFlow()
     val currentReviewsSearching: StateFlow<Boolean> = _currentReviewsSearching.asStateFlow()
     val currentProductsSearching: StateFlow<Boolean> = _currentProductsSearching.asStateFlow()
+    val hasFollow: StateFlow<Boolean> = _hasFollow.asStateFlow()
+    val currentAmountOfFollowers: StateFlow<Int?> = _currentFollowerCount.asStateFlow();
 }

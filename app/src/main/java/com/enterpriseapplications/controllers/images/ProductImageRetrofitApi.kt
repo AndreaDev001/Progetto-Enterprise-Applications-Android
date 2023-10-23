@@ -7,5 +7,5 @@ import java.util.UUID
 
 interface ProductImageRetrofitApi {
     @GET("productImages/public/{productID}/amount")
-    fun getAmount(@Path("productID") productID: UUID): Call<Integer>;
+    fun getAmount(@Path("productID") productID: UUID): Call<Int>;
 }

@@ -2,8 +2,11 @@ package com.enterpriseapplications.controllers
 
 import com.enterpriseapplications.model.PagedModel
 import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.model.create.CreateProduct
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.UUID
@@ -42,4 +45,6 @@ interface ProductRetrofitApi {
     fun getConditions(): Call<List<String>>;
     @GET("products/public/visibilities")
     fun getVisibilities(): Call<List<String>>
+    @POST("products/private")
+    fun createProduct(@Body createProduct: CreateProduct): Call<Product>;
 }

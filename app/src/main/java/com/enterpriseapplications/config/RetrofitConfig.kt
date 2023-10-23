@@ -21,6 +21,7 @@ import com.enterpriseapplications.controllers.images.ImageRetrofitApi
 import com.enterpriseapplications.controllers.images.ProductImageRetrofitApi
 import com.enterpriseapplications.controllers.images.UserImageRetrofitApi
 import com.enterpriseapplications.controllers.reports.MessageReportRetrofitApi
+import com.enterpriseapplications.controllers.reports.ProductReportRetrofitApi
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -46,7 +47,7 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
     val userController: UserRetrofitApi = retrofit.create(UserRetrofitApi::class.java)
     val banController: BanRetrofitApi = retrofit.create(BanRetrofitApi::class.java)
     val reportController: ReportRetrofitApi = retrofit.create(ReportRetrofitApi::class.java)
-    val productReportController: ProductRetrofitApi = retrofit.create(ProductRetrofitApi::class.java)
+    val productReportController: ProductReportRetrofitApi = retrofit.create(ProductReportRetrofitApi::class.java)
     val messageReportController: MessageReportRetrofitApi = retrofit.create(MessageReportRetrofitApi::class.java)
     val followController: FollowRetrofitApi = retrofit.create(FollowRetrofitApi::class.java)
     val messageController: MessageRetrofitApi = retrofit.create(MessageRetrofitApi::class.java)

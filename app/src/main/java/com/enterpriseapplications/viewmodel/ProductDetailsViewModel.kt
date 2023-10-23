@@ -2,6 +2,7 @@ package com.enterpriseapplications.viewmodel
 
 import androidx.compose.runtime.State
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import java.util.UUID
 class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel(application) {
     var productID: UUID? = null;
 
+    private var _hasLike: MutableStateFlow<Boolean> = MutableStateFlow(false);
     private var _currentProductDetails: MutableStateFlow<Product?> = MutableStateFlow(null);
     private var _currentSelectedIndex: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentProductImagesAmount: MutableStateFlow<Int> = MutableStateFlow(0);
@@ -20,20 +22,26 @@ class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel
     private var _similarProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _sellerProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
 
-    init
-    {
-
-    }
-
     fun initialize()
     {
         if(this.productID != null)
         {
             this.makeRequest(this.retrofitConfig.productController.getDetails(this.productID!!),{
                 this._currentProductDetails.value = it
+                this.updateProductImages()
+                this.updateCurrentSimilarProducts(false)
                 this.updateCurrentSellerProducts(false)
+                this.makeRequest(this.retrofitConfig.likeController.getLike(AuthenticationManager.currentUser.value!!.userID,productID!!),{
+                    this._hasLike.value = true;
+                }, errorCallback = {this._hasLike.value = false})
             })
         }
+    }
+    
+    private fun updateProductImages() {
+        this.makeRequest(this.retrofitConfig.productImageController.getAmount(this.productID!!),{
+            this._currentProductImagesAmount.value = it
+        })
     }
 
     private fun updateCurrentSimilarProducts(page: Boolean) {
@@ -85,6 +93,19 @@ class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel
         this._currentSelectedIndex.value = index;
     }
 
+    fun addLike() {
+        this.makeRequest(this.retrofitConfig.likeController.createLike(productID!!),{
+            this._hasLike.value = true
+        })
+    }
+
+    fun removeLike() {
+        this.makeRequest(this.retrofitConfig.likeController.deleteLikeByProduct(productID!!),{
+            this._hasLike.value = false
+        })
+    }
+
+    val hasLike: StateFlow<Boolean> = _hasLike.asStateFlow()
     val currentProductDetails: StateFlow<Product?> = _currentProductDetails.asStateFlow()
     val currentSelectedIndex: StateFlow<Int> = _currentSelectedIndex.asStateFlow()
     val currentProductImagesAmount: StateFlow<Int> = _currentProductImagesAmount.asStateFlow()
