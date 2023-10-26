@@ -44,6 +44,7 @@ import com.enterpriseapplications.views.pages.profile.LikedProductsPage
 import com.enterpriseapplications.views.pages.profile.MessagePage
 import com.enterpriseapplications.views.pages.profile.OffersPage
 import com.enterpriseapplications.views.pages.profile.OrdersPage
+import com.enterpriseapplications.views.pages.profile.PaymentMethodsPage
 import com.enterpriseapplications.views.pages.profile.ProfilePage
 import com.enterpriseapplications.views.pages.profile.ReviewsPage
 import com.enterpriseapplications.views.pages.search.SearchBans
@@ -112,48 +113,38 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Search.SearchBans.route) { SearchBans(navController = navController)}
 
             composable(Screen.Profile.Message.route) { MessagePage(navController = navController)}
-            composable(Screen.Profile.Conversation.route) {backStackEntry ->
-                val userID: String? = backStackEntry.arguments?.getString("userID")
-                ConversationPage(navController = navController,userID = userID)
-            }
+            composable(Screen.Profile.Conversation.route) { ConversationPage(navController = navController)}
             composable(Screen.Profile.Product.route) { backStackEntry ->
                 val productID: String? = backStackEntry.arguments?.getString("productID");
                 ProductPageDetails(navController,productID = productID)
             }
             composable(Screen.Profile.LikedProducts.route) { LikedProductsPage(navController = navController)}
             composable(Screen.Profile.Reviews.route) {ReviewsPage(navController = navController)}
-            composable(Screen.Profile.Orders.route) { backStackEntry ->
-                val userID: String? = backStackEntry.arguments?.getString("userID")
-                OrdersPage(navController = navController,userID = userID)
-            }
+            composable(Screen.Profile.Orders.route) { OrdersPage(navController = navController)}
             composable(Screen.Profile.Follows.route) { FollowPage(navController = navController)}
             composable(Screen.Profile.ProfilePage.route) { backStackEntry ->
                 val userID: String? = backStackEntry.arguments?.getString("userID");
                 UserPageDetails(navController = navController,userID = userID)
             }
-            composable(Screen.Profile.Offers.route) {backStackEntry ->
-                val userID: String? = backStackEntry.arguments?.getString("userID")
-                OffersPage(navController = navController,userID = userID)
-            }
-            composable(Screen.Profile.Addresses.route) {backStackEntry ->
-                val userID: String? = backStackEntry.arguments?.getString("userID")
-                AddressesPage(navController = navController,userID = userID)
-            }
+            composable(Screen.Profile.Offers.route) { OffersPage(navController = navController)}
+            composable(Screen.Profile.Addresses.route) { AddressesPage(navController = navController)}
+            composable(Screen.Profile.PaymentMethods.route) { PaymentMethodsPage(navController = navController)}
         }
     }
 }
 sealed class Screen(val route: String, @StringRes resourceID: Int) {
     object Profile: Screen("profile", R.string.profile) {
+        object PaymentMethods: Screen("paymentMethodsPage",R.string.paymentMethods)
         object Message: Screen("messagePage/{conversationID}",R.string.messagePage)
         object Conversation: Screen("conversationPage",R.string.conversationPage)
         object Product: Screen("productPage/{productID}",R.string.productPage)
         object ProfilePage: Screen("profilePage/{userID}",R.string.profilePage)
         object LikedProducts: Screen("likedProducts",R.string.likedProducts)
-        object Orders: Screen("orders/{userID}",R.string.orders)
-        object Reviews: Screen("reviews/{userID}",R.string.reviews)
-        object Offers: Screen("offers/{userID}",R.string.offers)
+        object Orders: Screen("orders",R.string.orders)
+        object Reviews: Screen("reviews}",R.string.reviews)
+        object Offers: Screen("offers",R.string.offers)
         object Follows: Screen("follows/{userID}",R.string.follows)
-        object Addresses: Screen("addresses/{userID}",R.string.addresses)
+        object Addresses: Screen("addresses",R.string.addresses)
     }
     object Search: Screen("search",R.string.search) {
         object SearchProducts: Screen("searchProducts",R.string.searchProducts)

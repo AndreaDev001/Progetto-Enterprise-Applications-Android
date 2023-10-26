@@ -27,7 +27,7 @@ import java.util.UUID
 @Composable
 fun CreateOffer(productID: UUID,update: Boolean,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
     val viewModel: CreateOfferViewModel = viewModel(factory = viewModelFactory)
-    val text: String = if(!update) "Create an Offer" else "Update Offer";
+    val text: String = if(!update) "Create an offer" else "Update offer";
     viewModel.productID = productID
     viewModel.update = update
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {

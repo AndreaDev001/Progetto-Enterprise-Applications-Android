@@ -20,4 +20,5 @@
     <string name = "conversationPage">Conversations</string>
     <string name = "messagePage">Messages</string>
     <string name = "loginPage">Login</string>
+    <string name = "paymentMethods">Payment Methods</string>
 </resources>

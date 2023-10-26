@@ -2,6 +2,7 @@ package com.enterpriseapplications.viewmodel.profile
 
 import android.provider.Telephony.Sms.Conversations
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.BaseViewModel
@@ -12,14 +13,16 @@ import java.util.UUID
 
 class ConversationPageViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
-    var userID: UUID? = null;
+    var userID: UUID? = AuthenticationManager.currentUser.value!!.userID;
     private var _currentConversations: MutableStateFlow<List<Conversation>> = MutableStateFlow(emptyList())
     private var _currentConversationsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    init
+    {
+        this.updateCurrentConversations();
+    }
     fun initialize() {
-        if(this.userID != null) {
-            this.updateCurrentConversations()
-        }
+        this.updateCurrentConversations();
     }
 
     private fun updateCurrentConversations() {

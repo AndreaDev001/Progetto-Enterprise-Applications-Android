@@ -58,11 +58,9 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OffersPage(navController: NavHostController,userID: String?)
+fun OffersPage(navController: NavHostController)
 {
     val viewModel: OfferPageViewModel = viewModel(factory = viewModelFactory)
-    viewModel.userID = UUID.fromString(userID)
-    viewModel.initialize()
     val refreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
     val currentSelectedTab: State<Int> = viewModel.currentSelectedTab.collectAsState()
     Column(modifier = Modifier

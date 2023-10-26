@@ -1,6 +1,7 @@
 package com.enterpriseapplications.viewmodel.profile
 
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.BaseViewModel
@@ -10,14 +11,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 class OrderPageViewModel(val application: CustomApplication): BaseViewModel(application) {
-    var userID: UUID? = null;
+    var userID: UUID? = AuthenticationManager.currentUser.value!!.userID;
     private var _orders: MutableStateFlow<List<Order>> = MutableStateFlow(emptyList())
     private var _ordersPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0))
     private var _ordersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
+    init
+    {
+        this.initialize()
+    }
+
     fun initialize() {
-        if(this.userID != null)
-             this.updateOrders(page = false)
+        this.updateOrders(false)
     }
     private fun updateOrders(page: Boolean) {
         this._ordersSearching.value = !page;

@@ -3,6 +3,7 @@ package com.enterpriseapplications.config
 import android.app.Application
 import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.config.authentication.AuthorizationInterceptor
+import com.enterpriseapplications.controllers.AddressRetrofitApi
 import com.enterpriseapplications.controllers.BanRetrofitApi
 import com.enterpriseapplications.controllers.CategoryRetrofitApi
 import com.enterpriseapplications.controllers.ConversationRetrofitApi
@@ -59,6 +60,7 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
     val conversationController: ConversationRetrofitApi = retrofit.create(ConversationRetrofitApi::class.java)
     val replyController: ReplyRetrofitApi = retrofit.create(ReplyRetrofitApi::class.java)
     val imageController: ImageRetrofitApi = retrofit.create(ImageRetrofitApi::class.java)
+    val addressController: AddressRetrofitApi = retrofit.create(AddressRetrofitApi::class.java)
     val productImageController: ProductImageRetrofitApi = retrofit.create(ProductImageRetrofitApi::class.java)
     val userImageController: UserImageRetrofitApi = retrofit.create(UserImageRetrofitApi::class.java)
 }

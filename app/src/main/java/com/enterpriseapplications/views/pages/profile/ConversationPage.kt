@@ -48,11 +48,9 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConversationPage(navController: NavHostController,userID: String?) {
+fun ConversationPage(navController: NavHostController) {
     val viewModel: ConversationPageViewModel = viewModel(factory = viewModelFactory)
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-    viewModel.userID = UUID.fromString(userID)
-    viewModel.initialize()
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(2.dp)) {

@@ -5,6 +5,7 @@ import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.create.CreateProduct
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,12 +32,12 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _secondaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _tertiaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
+    private var _success: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     init
     {
         this.initialize()
     }
-
-
     fun initialize() {
         this.makeRequest(this.retrofitConfig.productController.getConditions(),{
             this._conditions.value = it
@@ -69,7 +70,14 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
 
     fun confirm()
     {
-
+        val createProduct: CreateProduct = CreateProduct(_nameControl.currentValue.value!!,
+        _descriptionControl.currentValue.value!!,_priceControl.currentValue.value!!.toBigDecimal(),_minPriceControl.currentValue.value!!.toBigDecimal(),_brandControl.currentValue.value!!,
+        _conditionControl.currentValue.value!!,_visibilityControl.currentValue.value!!,_primaryCategoryControl.currentValue.value!!,_secondaryCategoryControl.currentValue.value!!,_tertiaryCategoryControl.currentValue.value!!)
+        if(this._formGroup.validate()) {
+            this.makeRequest(this.retrofitConfig.productController.createProduct(createProduct),{
+                this._success.value = true
+            })
+        }
     }
 
     fun reset()
@@ -90,6 +98,7 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
     val tertiaryCategoryControl: FormControl<String?> = _tertiaryCategoryControl
     val formGroup: FormGroup = _formGroup
 
+    val success: StateFlow<Boolean> = _success.asStateFlow()
     val conditions: StateFlow<List<String>> = _conditions.asStateFlow()
     val visibilities: StateFlow<List<String>> = _visibilities.asStateFlow()
     val primaryCategories: StateFlow<List<String>> = _primaryCategories.asStateFlow()

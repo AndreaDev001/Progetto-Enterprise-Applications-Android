@@ -3,10 +3,13 @@ package com.enterpriseapplications.controllers.reports
 import com.enterpriseapplications.model.PagedModel
 import com.enterpriseapplications.model.create.CreateReport
 import com.enterpriseapplications.model.reports.Report
+import com.enterpriseapplications.model.update.UpdateReply
+import com.enterpriseapplications.model.update.UpdateReport
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.UUID
@@ -31,4 +34,6 @@ interface ReportRetrofitApi {
     fun getTypes(): Call<List<String>>
     @POST("reports/private/{userID}")
     fun createReport(@Body createReport: CreateReport,@Path("userID") userID: UUID): Call<Report>;
+    @PUT("reports/private")
+    fun updateReport(@Body updateReport: UpdateReport)
 }

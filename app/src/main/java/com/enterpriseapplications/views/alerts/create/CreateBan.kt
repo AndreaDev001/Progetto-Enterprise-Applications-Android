@@ -30,7 +30,7 @@ import java.util.UUID
 @Composable
 fun CreateBan(userID: UUID,update: Boolean,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
     val viewModel: CreateBanViewModel = viewModel(factory = viewModelFactory)
-    val text: String = if(!update) "Create" else "Update";
+    val text: String = if(!update) "Create a Ban" else "Update a Ba";
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
 
     viewModel.userID = userID

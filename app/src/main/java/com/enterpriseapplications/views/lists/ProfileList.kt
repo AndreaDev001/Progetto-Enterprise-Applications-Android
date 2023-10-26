@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
@@ -54,15 +55,15 @@ fun ProfileList(navController: NavHostController)
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
             MenuItem(callback = {navController.navigate("messagePage")},headerText = "Messages", supportingText = "Text", leadingIcon = Icons.Filled.Message)
-            MenuItem(callback = {navController.navigate("conversationPage/$userID")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
-            MenuItem(callback = {navController.navigate("productPage/$userID")}, headerText = "Product", supportingText = "Test", leadingIcon = Icons.Filled.ShoppingCart)
+            MenuItem(callback = {navController.navigate("conversationPage")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
+            MenuItem(callback = {navController.navigate("paymentMethodsPage")}, headerText = "Payment Methods", supportingText = "View all of your payment methods", leadingIcon = Icons.Filled.Payments)
             MenuItem(callback = {navController.navigate("profilePage/$userID")}, leadingIcon = Icons.Filled.AccountCircle , headerText = "Profile", supportingText = "View your own profile")
-            MenuItem(callback = {navController.navigate("likedProducts/$userID")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
+            MenuItem(callback = {navController.navigate("likedProducts")}, leadingIcon = Icons.Filled.ThumbUp, headerText = "Liked Products", supportingText = "View the products you liked")
             MenuItem(callback = {navController.navigate("follows/$userID")},leadingIcon = Icons.Filled.Person,headerText = "Follows", supportingText = "View who you follow and who is following you")
-            MenuItem(callback = {navController.navigate("orders/$userID")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
-            MenuItem(callback = {navController.navigate("offers/$userID")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
-            MenuItem(callback = {navController.navigate("reviews/$userID")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
-            MenuItem(callback = {navController.navigate("addresses/$userID")}, leadingIcon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
+            MenuItem(callback = {navController.navigate("orders")}, leadingIcon = Icons.Filled.ShoppingCart, headerText = "Orders", supportingText = "View the orders you created previously")
+            MenuItem(callback = {navController.navigate("offers")}, leadingIcon = Icons.Filled.Star, headerText = "Offers", supportingText = "View the offers you created and received")
+            MenuItem(callback = {navController.navigate("reviews")}, leadingIcon = Icons.Filled.AccountBox, headerText = "Reviews", supportingText = "View the reviews you made and received")
+            MenuItem(callback = {navController.navigate("addresses")}, leadingIcon = Icons.Filled.LocationOn , headerText = "Addresses", supportingText = "View the addresses that have been registered for you")
         }
     }
 }

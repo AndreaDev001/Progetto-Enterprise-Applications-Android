@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -116,7 +117,7 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                     ) {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                                UserImage(userID = userID!!,size = 180.dp)
+                                UserImage(contentScale = ContentScale.Crop, userID = userID!!,size = 120.dp)
                                 Column(modifier = Modifier.padding(2.dp)) {
                                     Row(
                                         modifier = Modifier
@@ -128,14 +129,14 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                         Text(
                                             text = currentUsersDetails.value!!.username,
                                             modifier = Modifier.padding(vertical = 1.dp),
-                                            fontSize = 15.sp,
+                                            fontSize = 20.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
                                     if (currentUsersDetails.value!!.rating != null)
                                         RatingComponent(
                                             rating = currentUsersDetails.value!!.rating!!.toInt(),
-                                            iconSize = 35.dp
+                                            iconSize = 20.dp
                                         )
                                     if (currentUsersDetails.value!!.name != null && currentUsersDetails.value!!.surname != null) {
                                         Row(

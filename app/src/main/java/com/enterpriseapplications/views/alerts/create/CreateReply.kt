@@ -31,7 +31,7 @@ import java.util.UUID
 @Composable
 fun CreateReply(reviewID: UUID,update: Boolean,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
     val viewModel: CreateReplyViewModel = viewModel(factory = viewModelFactory)
-    val text: String = if(!update) "Create" else "Update";
+    val text: String = if(!update) "Create a reply" else "Update reply";
 
     viewModel.reviewID = reviewID
     viewModel.update = update

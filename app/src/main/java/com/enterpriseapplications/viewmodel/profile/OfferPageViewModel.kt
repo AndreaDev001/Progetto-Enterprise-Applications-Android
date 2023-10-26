@@ -1,6 +1,7 @@
 package com.enterpriseapplications.viewmodel.profile
 
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.BaseViewModel
@@ -11,7 +12,7 @@ import java.util.UUID
 
 class OfferPageViewModel(val application: CustomApplication): BaseViewModel(application) {
 
-    var userID: UUID? = null;
+    var userID: UUID = AuthenticationManager.currentUser.value!!.userID;
     private var _currentSelectedTab: MutableStateFlow<Int> = MutableStateFlow(0)
     private var _currentCreatedOffers: MutableStateFlow<List<Offer>> = MutableStateFlow(emptyList())
     private var _currentReceivedOffers: MutableStateFlow<List<Offer>> = MutableStateFlow(emptyList())
@@ -20,11 +21,14 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
     private var _currentCreatedOffersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _currentReceivedOffersSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    init
+    {
+        this.initialize()
+    }
+
     fun initialize() {
-        if(this.userID != null) {
-            this.updateCreatedOffers(false)
-            this.updateReceivedOffers(false)
-        }
+        this.updateCreatedOffers(false)
+        this.updateReceivedOffers(false)
     }
 
     private fun updateCreatedOffers(page: Boolean) {

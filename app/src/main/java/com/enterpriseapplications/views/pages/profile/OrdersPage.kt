@@ -51,14 +51,11 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrdersPage(navController: NavHostController,userID: String?) {
+fun OrdersPage(navController: NavHostController) {
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(vertical = 2.dp)) {
         val viewModel: OrderPageViewModel = viewModel(factory = viewModelFactory)
-        val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
-        viewModel.userID = UUID.fromString(userID)
-        viewModel.initialize()
         TopAppBar(title = {
             Text(text = "Orders", fontSize = 20.sp)
         }, navigationIcon = {

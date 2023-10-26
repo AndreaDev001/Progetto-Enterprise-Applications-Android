@@ -14,7 +14,7 @@ import java.util.UUID
 interface UserRetrofitApi
 {
 
-    @PUT("users/public")
+    @PUT("users/private")
     fun updateUser(@Body updateUser: UpdateUser): Call<UserDetails>;
 
     @GET("users/public/{userID}/details")

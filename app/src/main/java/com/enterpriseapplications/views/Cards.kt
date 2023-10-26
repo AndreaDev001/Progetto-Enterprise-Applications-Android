@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
@@ -45,11 +47,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.enterpriseapplications.config.RetrofitConfig
+import com.enterpriseapplications.model.Address
 import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Message
 import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Order
+import com.enterpriseapplications.model.PaymentMethod
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
 import com.enterpriseapplications.model.UserDetails
@@ -372,9 +376,30 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
      }
 }
 @Composable
-fun UserImage(modifier: Modifier = Modifier,size: Dp = 40.dp,userID: String) {
+fun AddressCard(address: Address) {
+    Row(modifier = Modifier.fillMaxWidth().padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(modifier = Modifier.size(40.dp).padding(2.dp),imageVector = Icons.Filled.LocationOn, contentDescription = null)
+        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text(modifier = Modifier.padding(2.dp),text = "${address.code},${address.street},${address.locality},${address.postalCode}")
+        }
+    }
+}
+@Composable
+fun PaymentMethodCard(paymentMethod: PaymentMethod) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(modifier = Modifier.size(40.dp).padding(2.dp),imageVector = Icons.Filled.CreditCard, contentDescription = null)
+        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.number)
+            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.expirationDate)
+        }
+    }
+}
+@Composable
+fun UserImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier = Modifier,size: Dp = 40.dp,userID: String) {
     val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/$userID";
-    AsyncImage(modifier = modifier
+    AsyncImage(contentScale = contentScale,modifier = modifier
         .clip(RoundedCornerShape(60))
         .size(size), model = path, contentDescription = null)
 }

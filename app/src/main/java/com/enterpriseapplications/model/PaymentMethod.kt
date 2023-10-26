@@ -4,10 +4,10 @@ import com.enterpriseapplications.model.refs.UserRef
 import java.time.LocalDate
 import java.util.UUID
 
-data class PaymentMethod(val id: UUID,
-val owner: UserRef,
+data class PaymentMethod(val id: String,
+val user: UserRef,
 val holderName: String,
 val number: String,
-val country: String,
-val createdDate: LocalDate,
-val expirationDate: LocalDate)
+val brand: String,
+val createdDate: String,
+val expirationDate: String)
