@@ -156,13 +156,14 @@ fun CustomTextField(modifier: Modifier = Modifier,editable: Boolean = true,enabl
     )
 }
 @Composable
-fun ProgressIndicator(size: Dp = 40.dp,text: String = "Searching",strokeWidth: Dp = 4.dp) {
+fun ProgressIndicator(size: Dp = 40.dp,text: String? = "Searching",strokeWidth: Dp = 4.dp) {
     Row(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             CircularProgressIndicator(modifier = Modifier.size(size), strokeWidth = strokeWidth)
-            Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
+            if(text != null)
+                Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
         }
     }
 }

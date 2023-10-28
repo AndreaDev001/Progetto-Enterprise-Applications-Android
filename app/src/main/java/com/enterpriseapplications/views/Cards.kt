@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +63,7 @@ import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.model.refs.ProductRef
 import com.enterpriseapplications.model.refs.UserRef
 import com.enterpriseapplications.model.reports.Report
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.util.UUID
 
@@ -137,6 +141,7 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
       clickCallback()
     }, shape = RoundedCornerShape(5.dp),modifier = Modifier
         .fillMaxWidth()
+        .defaultMinSize(200.dp)
     ) {
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +153,7 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
                 }
             }
             Column(modifier = Modifier.fillMaxWidth()) {
-                ProductImage(productID = product.id, modifier = Modifier.fillMaxWidth())
+                ProductImage(productID = product.id)
             }
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = product.price.toString(),modifier = Modifier.fillMaxWidth(), fontSize = 15.sp, fontWeight = FontWeight.Normal)
@@ -377,9 +382,15 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
 }
 @Composable
 fun AddressCard(address: Address) {
-    Row(modifier = Modifier.fillMaxWidth().padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        Icon(modifier = Modifier.size(40.dp).padding(2.dp),imageVector = Icons.Filled.LocationOn, contentDescription = null)
-        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Icon(modifier = Modifier
+            .size(40.dp)
+            .padding(2.dp),imageVector = Icons.Filled.LocationOn, contentDescription = null)
+        Column(modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(modifier = Modifier.padding(2.dp),text = "${address.countryCode},${address.street},${address.locality},${address.postalCode}")
         }
     }
@@ -389,8 +400,12 @@ fun PaymentMethodCard(paymentMethod: PaymentMethod) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        Icon(modifier = Modifier.size(40.dp).padding(2.dp),imageVector = Icons.Filled.CreditCard, contentDescription = null)
-        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Icon(modifier = Modifier
+            .size(40.dp)
+            .padding(2.dp),imageVector = Icons.Filled.CreditCard, contentDescription = null)
+        Column(modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.number)
             Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.expirationDate)
         }
@@ -407,5 +422,20 @@ fun UserImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier 
 fun ProductImage(contentScale: ContentScale = ContentScale.None,
                  @SuppressLint("ModifierParameter") modifier: Modifier = Modifier, productID: String) {
     val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/$productID/first";
-    AsyncImage(contentScale = contentScale,modifier = modifier,model = path, contentDescription = null)
+    BetterAsyncImage(modifier = modifier, url = path, contentScale)
+}
+
+@Composable
+fun BetterAsyncImage(modifier: Modifier = Modifier,url: String,contentScale: ContentScale = ContentScale.None) {
+    val loading = remember { mutableStateOf(true) }
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        if(loading.value) {
+            ProgressIndicator()
+        }
+        AsyncImage(modifier = modifier,contentScale = contentScale,onLoading = {
+            loading.value = true
+        }, onSuccess = {
+            loading.value = false
+        }, model = url, contentDescription = null)
+    }
 }
