@@ -18,6 +18,6 @@ interface AddressRetrofitApi {
     fun getCountries(): Call<List<String>>;
     @GET("addresses/public/query")
     fun searchForAddresses(@Query("countryCode") code: String,@Query("query") query: String): Call<AddressSearchResponse>;
-    @POST("address/private")
+    @POST("addresses/private")
     fun createAddress(@Body createAddress: CreateAddress): Call<Address>;
 }

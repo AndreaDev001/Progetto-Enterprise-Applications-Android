@@ -25,6 +25,11 @@ class AddressPageViewModel(val application: CustomApplication): BaseViewModel(ap
             this._currentAddressesSearching.value = false
         }, {this._currentAddressesSearching.value = false})
     }
+    fun addAddress(address: Address) {
+        val mutableList: MutableList<Address> = mutableListOf(address);
+        mutableList.addAll(this._currentAddresses.value)
+        this._currentAddresses.value  = mutableList
+    }
     val currentAddresses: StateFlow<List<Address>> = _currentAddresses.asStateFlow()
     val currentAddressesSearching: StateFlow<Boolean> = _currentAddressesSearching.asStateFlow()
 }

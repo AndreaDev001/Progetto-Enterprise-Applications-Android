@@ -17,8 +17,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +32,7 @@ import com.enterpriseapplications.model.Address
 import com.enterpriseapplications.viewmodel.profile.AddressPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.AddressCard
+import com.enterpriseapplications.views.alerts.create.CreateAddress
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -52,6 +56,13 @@ fun AddressesPage(navController: NavHostController)
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         },modifier = Modifier.fillMaxWidth())
+        val creatingAddress: MutableState<Boolean> = remember { mutableStateOf(false) }
+        val callback = {creatingAddress.value = false}
+        if(creatingAddress.value)
+            CreateAddress(navController = navController, confirmCallback = {
+                viewModel.addAddress(it)
+                callback()
+            }, dismissCallback = callback, cancelCallback = callback)
         SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
             Column(modifier = Modifier
                 .fillMaxWidth()
@@ -59,7 +70,7 @@ fun AddressesPage(navController: NavHostController)
                 Text(modifier = Modifier.padding(5.dp),text = "Here you can see your own addresses",fontSize = 15.sp, fontWeight = FontWeight.Normal)
                 Button(modifier = Modifier
                     .padding(5.dp)
-                    .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {}) {
+                    .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {creatingAddress.value = true}) {
                     Text(modifier = Modifier.padding(2.dp),text = "Add a new address",fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
                 AddressList(viewModel = viewModel)

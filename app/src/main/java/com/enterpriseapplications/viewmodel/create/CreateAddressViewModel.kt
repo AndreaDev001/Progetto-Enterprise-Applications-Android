@@ -2,6 +2,7 @@ package com.enterpriseapplications.viewmodel.create
 
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Address
 import com.enterpriseapplications.model.AddressItem
@@ -26,6 +27,7 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     private var _localityControl: FormControl<String?> = FormControl("",Validators.required())
     private var _postalCodeControl: FormControl<String?> = FormControl("",Validators.required())
     private var _ownerNameControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _formGroup: FormGroup = FormGroup(_queryControl,_selectedStreetControl,_streetControl,_countryCodeControl,_postalCodeControl,_ownerNameControl)
 
     init
     {
@@ -42,7 +44,7 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     fun searchForAddresses() {
         this._currentCandidatesSearching.value = true
         if(_countryCodeControl.currentValue.value != null && _queryControl.currentValue.value != null) {
-            this.makeRequest(this.retrofitConfig.addressController.searchForAddresses(_countryCodeControl.currentValue.value!!,_streetControl.currentValue.value!!),{
+            this.makeRequest(this.retrofitConfig.addressController.searchForAddresses(_countryCodeControl.currentValue.value!!,_queryControl.currentValue.value!!),{
                 this._currentCandidatesSearching.value = false
                 val candidates: List<AddressItem> = it.candidates
                 val values: MutableList<String> = mutableListOf()
@@ -53,6 +55,13 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
                 this._currentCandidates.value = values
             },{this._currentCandidatesSearching.value = false})
         }
+    }
+
+    fun resetSearch() {
+        this._selectedStreetControl.updateValue("");
+        this._streetControl.updateValue("");
+        this._localityControl.updateValue("");
+        this._postalCodeControl.updateValue("");
     }
 
     fun updateSelectedStreet(requiredValue: String) {
@@ -70,7 +79,10 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
             this._createdAddress.value = it
         },{this._createdAddress.value = null})
     }
-
+    fun reset() {
+        this._formGroup.reset()
+        this._createdAddress.value = null;
+    }
     val currentCountries: StateFlow<List<String>> = _currentCountries.asStateFlow()
     val currentCountriesSearching: StateFlow<Boolean> = _currentCountriesSearching.asStateFlow()
     val currentCandidates: StateFlow<List<String>> = _currentCandidates.asStateFlow()
@@ -79,6 +91,7 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     val ownerNameControl: FormControl<String?> = _ownerNameControl;
     val localityControl: FormControl<String?> = _localityControl
     val queryControl: FormControl<String?> = _queryControl
+    val streetControl: FormControl<String?> = _streetControl
     val countryCodeControl: FormControl<String?> = _countryCodeControl
     val postalCodeControl: FormControl<String?> = _postalCodeControl
 }

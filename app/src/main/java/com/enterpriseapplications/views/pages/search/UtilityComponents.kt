@@ -30,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -48,6 +49,8 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -59,7 +62,7 @@ import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.views.ProductCard
 
 @Composable
-fun MissingItems(missingText: String = "No results found, set is empty", missingIcon: ImageVector = Icons.Filled.Search,callback: () -> Unit, buttonText: String = "Retry", button: @Composable () ->  Unit = {
+fun MissingItems(iconSize: Dp = 80.dp, missingText: String = "No results found, set is empty",useButton: Boolean = true, missingIcon: ImageVector = Icons.Filled.Search,callback: () -> Unit, buttonText: String = "Retry", button: @Composable () ->  Unit = {
     Button(onClick = {callback()}, shape = RoundedCornerShape(20.dp), modifier = Modifier.padding(vertical = 10.dp)) {
         Text(text = buttonText,modifier = Modifier.padding(5.dp), fontSize = 15.sp)
     }
@@ -70,48 +73,59 @@ fun MissingItems(missingText: String = "No results found, set is empty", missing
         .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(imageVector = missingIcon,contentDescription = null,modifier = Modifier
             .padding(5.dp)
-            .size(80.dp))
+            .size(iconSize))
         Text(text = missingText, fontSize = 15.sp,modifier = Modifier.padding(5.dp))
-        button();
+        if(useButton)
+            button();
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormDropdown(modifier: Modifier = Modifier,formControl: FormControl<String?>,label: String? = null,items: List<String>,valueCallback: () -> Unit = {},expandedChange: (value: Boolean) -> Unit = {}) {
-    var expanded: MutableState<Boolean> = remember {mutableStateOf(false)};
+fun FormDropdown(modifier: Modifier = Modifier,useMissingButton: Boolean = false,missingCallback: () -> Unit = {},searching: Boolean = false,supportingText: String? = null,formControl: FormControl<String?>,label: String? = null,items: List<String>,valueCallback: (item: String) -> Unit = {},expandedChange: (value: Boolean) -> Unit = {}) {
+    val expanded: MutableState<Boolean> = remember {mutableStateOf(false)};
     val value: State<String?> = formControl.currentValue.collectAsState()
-    if(items.isNotEmpty()) {
-        ExposedDropdownMenuBox(expanded = expanded.value, onExpandedChange = {expanded.value = !expanded.value;expandedChange(expanded.value)}) {
-            TextField(readOnly = true, modifier = modifier.menuAnchor(),value = value.value.toString(), onValueChange = {valueCallback()}, trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
-                expanded = expanded.value
-            )},label = {
-                if(label != null)
-                    Text(text = label, fontSize = 15.sp)
-            })
-            ExposedDropdownMenu(expanded = expanded.value, onDismissRequest = {expanded.value = false}) {
-                items.forEach { value: String ->
-                    DropdownMenuItem(text = {
-                       Text(text = value, fontSize = 15.sp)
-                    }, onClick = {
-                        expanded.value = false
-                        formControl.updateValue(value)
-                        valueCallback();
-                    })
+    if(searching)
+        ProgressIndicator(size = 20.dp,strokeWidth = 1.dp)
+    else
+    {
+        if(items.isNotEmpty()) {
+            ExposedDropdownMenuBox(expanded = expanded.value, onExpandedChange = {expanded.value = !expanded.value;expandedChange(expanded.value)}) {
+                TextField(readOnly = true, modifier = modifier.menuAnchor(),value = value.value.toString(), onValueChange = {valueCallback(it)}, trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded.value
+                )},label = {
+                    if(label != null)
+                        Text(text = label, fontSize = 15.sp)
+                },supportingText = {
+                    if(supportingText != null)
+                        Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
+                })
+                ExposedDropdownMenu(expanded = expanded.value, onDismissRequest = {expanded.value = false}) {
+                    items.forEach { value: String ->
+                        DropdownMenuItem(text = {
+                            Text(text = value, fontSize = 15.sp)
+                        }, onClick = {
+                            expanded.value = false
+                            formControl.updateValue(value)
+                            valueCallback(value);
+                        })
+                    }
                 }
             }
         }
+        else
+            MissingItems(iconSize = 20.dp,callback = missingCallback, useButton = useMissingButton);
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<String?>, leadingIcon: ImageVector? = null, trailingIcon: ImageVector? = null, label: String? = null, supportingText: String? = null, placeHolder: String? = null, keyboardType: KeyboardType = KeyboardType.Text, valueCallback: () -> Unit = {}) {
+fun CustomTextField(modifier: Modifier = Modifier,editable: Boolean = true,enabled: Boolean = true, formControl: FormControl<String?>, leadingIcon: ImageVector? = null, trailingIcon: ImageVector? = null, label: String? = null, supportingText: String? = null, placeHolder: String? = null, keyboardType: KeyboardType = KeyboardType.Text, valueCallback: (item: String) -> Unit = {}) {
     val currentValue = formControl.currentValue.collectAsState()
     val currentErrors = formControl.errors.collectAsState()
     val isValid = formControl.valid.collectAsState()
-    TextField(modifier = modifier,value = currentValue.value.toString(), onValueChange = {
+    TextField(readOnly =!editable, enabled = enabled,textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),modifier = modifier,value = currentValue.value.toString(), onValueChange = {
         formControl.updateValue(it)
-        valueCallback()
+        valueCallback(it)
     }, isError = !isValid.value
     , leadingIcon = {
         if(leadingIcon != null)
@@ -128,7 +142,7 @@ fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<Stri
                  Text(text = placeHolder, fontSize = 15.sp)
         }, supportingText = {
             if(supportingText != null && isValid.value)
-                Text(text = supportingText, fontSize = 15.sp)
+                Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
             else
             {
                 Column()
@@ -142,12 +156,12 @@ fun CustomTextField(modifier: Modifier = Modifier, formControl: FormControl<Stri
     )
 }
 @Composable
-fun ProgressIndicator(text: String = "Searching") {
+fun ProgressIndicator(size: Dp = 40.dp,text: String = "Searching",strokeWidth: Dp = 4.dp) {
     Row(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            CircularProgressIndicator(modifier = Modifier.padding(vertical = 2.dp))
+            CircularProgressIndicator(modifier = Modifier.size(size), strokeWidth = strokeWidth)
             Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(vertical = 2.dp))
         }
     }

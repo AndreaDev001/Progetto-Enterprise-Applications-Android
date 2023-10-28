@@ -380,7 +380,7 @@ fun AddressCard(address: Address) {
     Row(modifier = Modifier.fillMaxWidth().padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(modifier = Modifier.size(40.dp).padding(2.dp),imageVector = Icons.Filled.LocationOn, contentDescription = null)
         Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(modifier = Modifier.padding(2.dp),text = "${address.code},${address.street},${address.locality},${address.postalCode}")
+            Text(modifier = Modifier.padding(2.dp),text = "${address.countryCode},${address.street},${address.locality},${address.postalCode}")
         }
     }
 }
