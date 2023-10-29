@@ -54,6 +54,7 @@ fun ProfileList(navController: NavHostController)
             }
         })
         Column(modifier = Modifier.padding(vertical = 2.dp)) {
+            MenuItem(callback = {navController.navigate("checkoutPage/91d17732-64f9-4d8a-bd68-ad763e91c398")}, headerText = "Checkout", supportingText = "Test")
             MenuItem(callback = {navController.navigate("messagePage")},headerText = "Messages", supportingText = "Text", leadingIcon = Icons.Filled.Message)
             MenuItem(callback = {navController.navigate("conversationPage")},headerText = "Conversations",supportingText = "Test",leadingIcon = Icons.Filled.Chat)
             MenuItem(callback = {navController.navigate("paymentMethodsPage")}, headerText = "Payment Methods", supportingText = "View all of your payment methods", leadingIcon = Icons.Filled.Payments)

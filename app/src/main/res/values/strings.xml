@@ -21,4 +21,5 @@
     <string name = "messagePage">Messages</string>
     <string name = "loginPage">Login</string>
     <string name = "paymentMethods">Payment Methods</string>
+    <string name = "checkoutPage"></string>
 </resources>

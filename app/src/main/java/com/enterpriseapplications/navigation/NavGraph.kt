@@ -34,6 +34,7 @@ import com.enterpriseapplications.views.lists.ProfileList
 import com.enterpriseapplications.views.lists.SearchList
 import com.enterpriseapplications.views.pages.SettingsPage
 import com.enterpriseapplications.views.pages.AddProduct
+import com.enterpriseapplications.views.pages.CheckoutPage
 import com.enterpriseapplications.views.pages.LoginPage
 import com.enterpriseapplications.views.pages.ProductPageDetails
 import com.enterpriseapplications.views.pages.UserPageDetails
@@ -87,6 +88,7 @@ fun NavigationBarController(navController: NavHostController) {
                 NavigationBarItem(label = {
                    Text(text = text, fontSize = 15.sp)
                 }, icon = { Icon(imageVector = icon, contentDescription = null)}, selected = currentDestination?.hierarchy?.any {it.route == screen.route} == true, onClick = {
+                    navController.popBackStack()
                     navController.navigate(screen.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
@@ -129,6 +131,10 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Profile.Offers.route) { OffersPage(navController = navController)}
             composable(Screen.Profile.Addresses.route) { AddressesPage(navController = navController)}
             composable(Screen.Profile.PaymentMethods.route) { PaymentMethodsPage(navController = navController)}
+            composable(Screen.Profile.Checkout.route) {backStackEntry ->
+                val productID: String? = "91d17732-64f9-4d8a-bd68-ad763e91c398";
+                CheckoutPage(navController = navController,productID = productID)
+            }
         }
     }
 }
@@ -140,6 +146,7 @@ sealed class Screen(val route: String, @StringRes resourceID: Int) {
         object Product: Screen("productPage/{productID}",R.string.productPage)
         object ProfilePage: Screen("profilePage/{userID}",R.string.profilePage)
         object LikedProducts: Screen("likedProducts",R.string.likedProducts)
+        object Checkout: Screen("checkoutPage/{productID}",R.string.checkoutPage)
         object Orders: Screen("orders",R.string.orders)
         object Reviews: Screen("reviews}",R.string.reviews)
         object Offers: Screen("offers",R.string.offers)
