@@ -161,7 +161,7 @@ private fun ItemList(viewModel: SearchUsersViewModel,navController: NavHostContr
         ProgressIndicator()
     else
     {
-        PageShower(page = currentPage.value)
+        PageShower(page = currentPage.value,modifier = Modifier.padding(10.dp))
         Column(modifier = Modifier.padding(5.dp)) {
             if(currentPage.value.totalElements > 0) {
                 LazyVerticalGrid(state = lazyGridState, modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {

@@ -40,9 +40,13 @@ class CreatePaymentMethodViewModel(val application: CustomApplication): BaseView
             }, {this._createdPaymentMethod.value = null})
     }
 
+    fun reset() {
+        this._formGroup.reset()
+        this._createdPaymentMethod.value = null
+    }
+
 
     val currentPaymentMethodsBrands: StateFlow<List<String>> = _currentPaymentMethodBrands.asStateFlow()
-    val currentPaymentMethodSearching: StateFlow<Boolean> = _currentPaymentMethodBrandsSearching.asStateFlow()
     val holderNameControl: FormControl<String?> = _holderNameControl
     val numberControl: FormControl<String?> = _numberControl
     val brandControl: FormControl<String?> = _brandControl

@@ -2,6 +2,7 @@ package com.enterpriseapplications.views.lists
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,20 +37,20 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuItem(callback: () -> Unit, leadingIcon: ImageVector? = null,trailingIcon: ImageVector = Icons.Filled.ArrowForward, headerText: String, supportingText: String) {
-    ListItem(headlineText = {
-        Text(text = headerText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    }, supportingText = {
-        Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
-    }, leadingContent = {
-        if (leadingIcon != null) {
-            Icon(imageVector = leadingIcon, contentDescription = null)
-        }
-    },
-        trailingContent = {
-            IconButton(onClick = {callback()}) {
-                Icon(imageVector = trailingIcon, contentDescription = null)
+    Button(contentPadding = PaddingValues(0.dp), modifier = Modifier.fillMaxWidth().padding(2.dp), onClick = {callback()}) {
+        ListItem(headlineText = {
+            Text(text = headerText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        }, supportingText = {
+            Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
+        }, leadingContent = {
+            if (leadingIcon != null) {
+                Icon(imageVector = leadingIcon, contentDescription = null)
             }
-        }, modifier = Modifier.fillMaxWidth())
+        },
+            trailingContent = {
+                Icon(imageVector = trailingIcon, contentDescription = null)
+            }, modifier = Modifier.fillMaxWidth())
+    }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

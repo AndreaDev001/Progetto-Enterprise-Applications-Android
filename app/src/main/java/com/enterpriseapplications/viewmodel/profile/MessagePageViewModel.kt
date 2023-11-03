@@ -1,10 +1,12 @@
 package com.enterpriseapplications.viewmodel.profile
 
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Message
 import com.enterpriseapplications.model.Page
+import com.enterpriseapplications.model.create.CreateMessage
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,8 +55,16 @@ class MessagePageViewModel(val application: CustomApplication): BaseViewModel(ap
         this.updateCurrentMessages(true);
     }
 
-    fun handleMessage() {
-
+    fun createMessage() {
+        if(this._currentConversation.value != null) {
+            val createMessage: CreateMessage = CreateMessage(UUID.fromString(this._currentConversation.value!!.id),this._currentText.currentValue.value!!)
+            this.makeRequest(this.retrofitConfig.messageController.createMessage(createMessage),{
+                val mutableList: MutableList<Message> = mutableListOf()
+                mutableList.addAll(this._currentMessages.value)
+                mutableList.add(it)
+                this._currentMessages.value = mutableList
+            })
+        }
     }
 
     val currentConversation: StateFlow<Conversation?> = _currentConversation.asStateFlow();

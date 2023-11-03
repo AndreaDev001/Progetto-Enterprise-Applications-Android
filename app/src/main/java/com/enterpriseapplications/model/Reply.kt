@@ -4,8 +4,8 @@ import com.enterpriseapplications.model.refs.UserRef
 import java.time.LocalDate
 import java.util.UUID
 
-data class Reply(val id: UUID,
+data class Reply(val id: String,
 val text: String,
 val writer: UserRef,
-val reviewID: UUID,
-val createdDate: LocalDate)
+val reviewID: String,
+val createdDate: String)

@@ -14,6 +14,9 @@ import retrofit2.http.Query
 import java.util.UUID
 
 interface ReviewRetrofitApi {
+
+    @GET("reviews/public/review")
+    fun getReview(@Query("writerID") writerID: UUID,@Query("receiverID") receiverID: UUID): Call<Review>;
     @GET("reviews/public/{userID}/written")
     fun getWrittenReviews(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize :Int = 20): Call<PagedModel<Review>>;
     @GET("reviews/public/{userID}/received")

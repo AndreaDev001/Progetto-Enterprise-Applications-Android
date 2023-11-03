@@ -2,6 +2,7 @@ package com.enterpriseapplications.controllers
 
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.PagedModel
+import com.enterpriseapplications.model.create.CreateConversation
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,10 +13,10 @@ import java.util.UUID
 
 interface ConversationRetrofitApi
 {
-    @GET("conversations/public/{userID}")
+    @GET("conversations/private/{userID}")
     fun getConversations(@Path("userID") userID: UUID): Call<List<Conversation>>;
-    @GET("conversations/public/conversation/{conversationID}")
+    @GET("conversations/private/conversation/{conversationID}")
     fun getConversationById(@Path("conversationID") conversationID: UUID): Call<Conversation>;
     @POST("conversations/private")
-    fun createConversation(@Body createConversation: ConversationRetrofitApi): Call<Conversation>;
+    fun createConversation(@Body createConversation: CreateConversation): Call<Conversation>;
 }

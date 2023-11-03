@@ -14,8 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,6 +48,7 @@ import com.enterpriseapplications.model.Like
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.UserDetails
+import com.enterpriseapplications.model.refs.ProductRef
 import com.enterpriseapplications.viewmodel.ProductDetailsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.DescriptionItem
@@ -84,10 +87,14 @@ fun ProductPageDetails(navController: NavHostController,productID: String?) {
         val currentSellerProducts: State<List<Product>> = viewModel.sellerProducts.collectAsState()
         val currentSimilarProducts: State<List<Product>> = viewModel.similarProducts.collectAsState()
         val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
+        val conversationCreated: State<Boolean> = viewModel.createdConversation.collectAsState()
         SwipeRefresh(state = refreshState, onRefresh = {}) {
             Column(modifier = Modifier
                 .padding(vertical = 5.dp)
                 .verticalScroll(ScrollState(0))) {
+                if(conversationCreated.value) {
+                    ConversationCreated(viewModel = viewModel, navController = navController)
+                }
                 if(productDetails.value != null) {
                     ProductDetails(productDetails = productDetails.value!!,viewModel = viewModel)
                     ProductDescription(productDetails = productDetails.value!!)
@@ -135,7 +142,7 @@ private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsView
                     .fillMaxWidth()
                     .padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically
             ) {
-                UserImage(userID = productDetails.seller.id, size = 50.dp)
+                UserImage(userID = productDetails.seller.id, size = 50.dp, contentScale = ContentScale.Crop)
                 Text(
                     modifier = Modifier.padding(horizontal = 2.dp),
                     text = productDetails.seller.username,
@@ -150,12 +157,7 @@ private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsView
                 .padding(2.dp)
         ) {
             val currentIndex: State<Int> = viewModel.currentSelectedIndex.collectAsState()
-            AsyncImage(
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Crop,
-                model = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${currentIndex.value}",
-                contentDescription = null
-            )
+            AsyncImage(modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.Crop, model = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${currentIndex.value}", contentDescription = null)
         }
         Row(
             modifier = Modifier
@@ -230,6 +232,26 @@ private fun ProductDescription(productDetails: Product) {
         }
     }
 }
+
+@Composable
+private fun ConversationCreated(viewModel: ProductDetailsViewModel,navController: NavHostController) {
+    AlertDialog(icon = {
+        Icon(imageVector = Icons.Default.Message, contentDescription = null, modifier = Modifier
+            .padding(2.dp)
+            .size(60.dp))
+    }, onDismissRequest = {viewModel.updateCreateConversation(false)}, confirmButton = {}, dismissButton = {}, text = {
+        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text(modifier = Modifier.padding(2.dp), text = "Conversation created", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(modifier = Modifier.padding(2.dp), text = "The required conversation has been successfully created", fontSize = 15.sp, fontWeight = FontWeight.Thin)
+            Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {}) {
+                Text(text = "Go to conversation",modifier = Modifier.padding(2.dp),fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            }
+            Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {viewModel.updateCreateConversation(false)}) {
+                Text(text = "Cancel",modifier = Modifier.padding(2.dp),fontSize = 15.sp,fontWeight = FontWeight.Bold)
+            }
+        }
+    })
+}
 @Composable
 private fun ProductDetailsButton(productDetails: Product,viewModel: ProductDetailsViewModel) {
     val hasLike: State<Boolean> = viewModel.hasLike.collectAsState()
@@ -264,7 +286,7 @@ private fun ProductDetailsButton(productDetails: Product,viewModel: ProductDetai
             Button(onClick = {offerVisible.value = true},modifier = Modifier.padding(horizontal = 2.dp)) {
                 Text(text = "Make an offer", fontSize = 15.sp, fontWeight = FontWeight.Normal)
             }
-            Button(onClick = {},modifier = Modifier.padding(horizontal = 2.dp)) {
+            Button(onClick = {viewModel.createConversation()},modifier = Modifier.padding(horizontal = 2.dp)) {
                 Text(text = "Start conversation", fontSize = 15.sp, fontWeight = FontWeight.Normal)
             }
         }

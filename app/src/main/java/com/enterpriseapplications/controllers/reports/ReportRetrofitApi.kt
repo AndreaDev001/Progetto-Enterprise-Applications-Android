@@ -28,6 +28,10 @@ interface ReportRetrofitApi {
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20,
     ) : Call<PagedModel<Report>>
+
+    @GET("reports/private/report/{reporterID}/{reportedID}")
+    fun getReportBetween(@Path("reporterID") reporterID: UUID,@Path("reportedID") reportedID: UUID): Call<Report>;
+
     @GET("reports/public/reasons")
     fun getReasons(): Call<List<String>>
     @GET("reports/public/types")

@@ -5,6 +5,7 @@ import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.model.create.CreateConversation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel
     private var _sellerProducts: MutableStateFlow<List<Product>> = MutableStateFlow(emptyList())
     private var _similarProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _sellerProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
+    private var _conversationCreated: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     fun initialize()
     {
@@ -105,10 +107,24 @@ class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel
         })
     }
 
+    fun createConversation() {
+        if(this._currentProductDetails.value != null) {
+            val createConversation: CreateConversation = CreateConversation(UUID.fromString(this._currentProductDetails.value!!.id))
+            this.makeRequest(this.retrofitConfig.conversationController.createConversation(createConversation),{
+               this._conversationCreated.value = true
+            },{this._conversationCreated.value = false})
+        }
+    }
+
+    fun updateCreateConversation(value: Boolean) {
+        this._conversationCreated.value = value
+    }
+
     val hasLike: StateFlow<Boolean> = _hasLike.asStateFlow()
     val currentProductDetails: StateFlow<Product?> = _currentProductDetails.asStateFlow()
     val currentSelectedIndex: StateFlow<Int> = _currentSelectedIndex.asStateFlow()
     val currentProductImagesAmount: StateFlow<Int> = _currentProductImagesAmount.asStateFlow()
     val similarProducts: StateFlow<List<Product>> = _similarProducts.asStateFlow()
     val sellerProducts: StateFlow<List<Product>> = _sellerProducts.asStateFlow()
+    val createdConversation: StateFlow<Boolean> = _conversationCreated.asStateFlow()
 }

@@ -126,7 +126,9 @@ private fun CreatedOffers(navController: NavHostController,viewModel: OfferPageV
                     content = {
                         itemsIndexed(items = currentOffers.value) { index, item ->
                             Box(modifier = Modifier.padding(2.dp)) {
-                                OfferCard(navController,item, receiver = false)
+                                OfferCard(navController,item, receiver = false,updateCallback = {
+                                    viewModel.initialize()
+                                })
                             }
                         }
                     })
@@ -165,7 +167,7 @@ private fun ReceivedOffers(navController: NavHostController,viewModel: OfferPage
                     content = {
                         itemsIndexed(items = currentOffers.value) { index, item ->
                             Box(modifier = Modifier.padding(2.dp)) {
-                                OfferCard(navController,item, receiver = true)
+                                OfferCard(navController,item, receiver = true,updateCallback = {viewModel.initialize()})
                             }
                         }
                     })

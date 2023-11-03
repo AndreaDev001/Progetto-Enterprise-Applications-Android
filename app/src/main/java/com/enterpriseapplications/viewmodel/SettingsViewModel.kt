@@ -29,11 +29,11 @@ import java.util.UUID
 class SettingsViewModel(val application: CustomApplication) : BaseViewModel(application) {
 
     private var _userDetails: MutableStateFlow<UserDetails?> = MutableStateFlow(null)
-    private var _nameControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _surnameControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _genderControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _visibilityControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _nameControl: FormControl<String?> = FormControl(null)
+    private var _surnameControl: FormControl<String?> = FormControl(null)
+    private var _descriptionControl: FormControl<String?> = FormControl(null)
+    private var _genderControl: FormControl<String?> = FormControl(null)
+    private var _visibilityControl: FormControl<String?> = FormControl(null)
     private var _formGroup = FormGroup(_nameControl,_surnameControl,_descriptionControl,_genderControl,_visibilityControl)
 
     private var _currentSelectedUri: MutableStateFlow<Uri?> = MutableStateFlow(null)

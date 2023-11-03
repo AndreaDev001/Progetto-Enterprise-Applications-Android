@@ -84,14 +84,17 @@ fun MissingItems(iconSize: Dp = 80.dp, missingText: String = "No results found, 
 @Composable
 fun FormDropdown(modifier: Modifier = Modifier,useMissingButton: Boolean = false,missingCallback: () -> Unit = {},searching: Boolean = false,supportingText: String? = null,formControl: FormControl<String?>,label: String? = null,items: List<String>,valueCallback: (item: String) -> Unit = {},expandedChange: (value: Boolean) -> Unit = {}) {
     val expanded: MutableState<Boolean> = remember {mutableStateOf(false)};
+    val isValid = formControl.valid.collectAsState()
     val value: State<String?> = formControl.currentValue.collectAsState()
+    val touched: State<Boolean> = formControl.touched.collectAsState()
+    val currentText: String = if(value.value != null) value.value!! else "";
     if(searching)
         ProgressIndicator(size = 20.dp,strokeWidth = 1.dp)
     else
     {
         if(items.isNotEmpty()) {
             ExposedDropdownMenuBox(expanded = expanded.value, onExpandedChange = {expanded.value = !expanded.value;expandedChange(expanded.value)}) {
-                TextField(readOnly = true, modifier = modifier.menuAnchor(),value = value.value.toString(), onValueChange = {valueCallback(it)}, trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
+                TextField(readOnly = true, modifier = modifier.menuAnchor(),value = currentText, onValueChange = {valueCallback(it)}, trailingIcon = {ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded.value
                 )},label = {
                     if(label != null)
@@ -99,7 +102,7 @@ fun FormDropdown(modifier: Modifier = Modifier,useMissingButton: Boolean = false
                 },supportingText = {
                     if(supportingText != null)
                         Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
-                })
+                }, isError = !isValid.value && touched.value)
                 ExposedDropdownMenu(expanded = expanded.value, onDismissRequest = {expanded.value = false}) {
                     items.forEach { value: String ->
                         DropdownMenuItem(text = {
@@ -121,12 +124,14 @@ fun FormDropdown(modifier: Modifier = Modifier,useMissingButton: Boolean = false
 @Composable
 fun CustomTextField(modifier: Modifier = Modifier,editable: Boolean = true,enabled: Boolean = true, formControl: FormControl<String?>, leadingIcon: ImageVector? = null, trailingIcon: ImageVector? = null, label: String? = null, supportingText: String? = null, placeHolder: String? = null, keyboardType: KeyboardType = KeyboardType.Text, valueCallback: (item: String) -> Unit = {}) {
     val currentValue = formControl.currentValue.collectAsState()
-    val currentErrors = formControl.errors.collectAsState()
-    val isValid = formControl.valid.collectAsState()
-    TextField(readOnly =!editable, enabled = enabled,textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),modifier = modifier,value = currentValue.value.toString(), onValueChange = {
+    val currentErrors = formControl.errorsText.collectAsState()
+    val isValid: State<Boolean>  = formControl.valid.collectAsState()
+    val touched: State<Boolean> = formControl.touched.collectAsState()
+    val currentText: String = if(currentValue.value != null) currentValue.value!! else "";
+    TextField(readOnly =!editable, enabled = enabled,textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),modifier = modifier,value = currentText, onValueChange = {
         formControl.updateValue(it)
         valueCallback(it)
-    }, isError = !isValid.value
+    }, isError = !isValid.value && touched.value
     , leadingIcon = {
         if(leadingIcon != null)
             Icon(imageVector = leadingIcon, contentDescription = null,modifier = Modifier.size(30.dp))
@@ -141,14 +146,18 @@ fun CustomTextField(modifier: Modifier = Modifier,editable: Boolean = true,enabl
              if(placeHolder != null)
                  Text(text = placeHolder, fontSize = 15.sp)
         }, supportingText = {
-            if(supportingText != null && isValid.value)
+            if(supportingText != null && (isValid.value || !touched.value))
                 Text(text = supportingText, fontSize = 15.sp, fontWeight = FontWeight.Thin)
             else
             {
                 Column()
                 {
-                    for (s in currentErrors.value) {
-                        Text(text = s, fontSize = 15.sp)
+                    if(touched.value) {
+                        for (currentError in currentErrors.value) {
+                            Text(text = currentError, fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier
+                                .padding(2.dp)
+                                .fillMaxWidth())
+                        }
                     }
                 }
             }
@@ -251,5 +260,11 @@ fun PageShower(modifier: Modifier = Modifier,page: com.enterpriseapplications.mo
             Text(text = "${page.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
             Text(text = "${page.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
         }
+    }
+}
+@Composable
+fun CustomButton(modifier: Modifier = Modifier,enabled: Boolean = true,text: String,clickCallback: () -> Unit = {}) {
+    Button(enabled = enabled,modifier = modifier.padding(5.dp).fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
+        Text(text = text,fontSize = 15.sp, fontWeight = FontWeight.Normal)
     }
 }

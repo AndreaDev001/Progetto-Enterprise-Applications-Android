@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +49,7 @@ import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.viewmodel.profile.MessagePageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.MessageCard
+import com.enterpriseapplications.views.UserImage
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -58,27 +60,24 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessagePage(navController: NavHostController) {
-    val conversationID: UUID? = UUID.fromString("e1aaa4c3-b372-4de9-83a4-ae262e312e1e")
+fun MessagePage(navController: NavHostController,conversationID: String) {
+    val conversation: UUID? = UUID.fromString(conversationID);
     val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
     val viewModel: MessagePageViewModel = viewModel(factory = viewModelFactory);
-    viewModel.conversationID = conversationID;
+    viewModel.conversationID = conversation
     viewModel.userID = authenticatedUser.value!!.userID
     viewModel.initialize()
     Column(modifier = Modifier.fillMaxWidth()) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
             val currentConversation: State<Conversation?> = viewModel.currentConversation.collectAsState()
             if(currentConversation.value != null) {
-                val username: String = if(currentConversation.value!!.first.id == authenticatedUser.value!!.userID.toString()) currentConversation.value!!.first.username else currentConversation.value!!.second.username;
+                val requiredUser = if(currentConversation.value!!.starter.id == authenticatedUser.value!!.userID.toString()) currentConversation.value!!.starter else currentConversation.value!!.product.seller;
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                        AsyncImage(model = "https://as1.ftcdn.net/v2/jpg/03/46/83/96/1000_F_346839683_6nAPzbhpSkIpb8pmAwufkC7c5eD7wYws.jpg", contentDescription = null,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(60))
-                                .size(60.dp))
+                        UserImage(userID = requiredUser.id,contentScale = ContentScale.Crop)
                         Column(modifier = Modifier.padding(horizontal = 2.dp)) {
-                            Text(text = username,modifier = Modifier.padding(horizontal = 2.dp),fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(text = requiredUser.username,modifier = Modifier.padding(horizontal = 2.dp),fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             Text(text = currentConversation.value!!.createdDate,modifier = Modifier.padding(horizontal = 2.dp),fontSize = 15.sp, fontWeight = FontWeight.Thin)
                         }
                     }
@@ -107,7 +106,7 @@ fun MessagePage(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
                     CustomTextField(formControl = viewModel.currentText,modifier = Modifier.weight(0.75f), supportingText = "Write a message", placeHolder = "Text...")
-                    IconButton(onClick = {viewModel.handleMessage()},modifier = Modifier.padding(horizontal = 1.dp)) {
+                    IconButton(onClick = {viewModel.createMessage()},modifier = Modifier.padding(horizontal = 1.dp)) {
                         Icon(imageVector = Icons.Filled.Send, contentDescription = null)
                     }
                 }
@@ -128,10 +127,7 @@ private fun MessageList(viewModel: MessagePageViewModel) {
     LaunchedEffect(endReached) {
         viewModel.updateCurrentPage()
     }
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(5.dp)) {
-
+    Column(modifier = Modifier.fillMaxWidth().padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         if(currentMessagesPage.value.totalElements > 0) {
             LazyColumn(state = lazyListState) {
                 itemsIndexed(currentMessages.value) {index,item ->

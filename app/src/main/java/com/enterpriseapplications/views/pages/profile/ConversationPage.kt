@@ -66,16 +66,17 @@ fun ConversationPage(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(10.dp)) {
                 Text(text = "Here you can see all of your conversations, click on them to continue to chat", fontSize = 17.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 2.dp))
-                ConversationList(viewModel = viewModel)
+                ConversationList(viewModel = viewModel,navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun ConversationList(viewModel: ConversationPageViewModel) {
+fun ConversationList(viewModel: ConversationPageViewModel,navController: NavHostController) {
     val conversations: State<List<Conversation>> = viewModel.currentConversations.collectAsState()
     val conversationsSearching: State<Boolean> = viewModel.currentConversationsSearching.collectAsState()
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val lazyState: LazyListState = rememberLazyListState()
     Column(modifier = Modifier.padding(2.dp)) {
         if (conversationsSearching.value)
@@ -88,13 +89,13 @@ fun ConversationList(viewModel: ConversationPageViewModel) {
                     verticalArrangement = Arrangement.Top,
                     content = {
                         itemsIndexed(items = conversations.value) { index, item ->
-                            Box(modifier = Modifier.padding(2.dp)) {
-                                var receiver: Boolean = item.second.id.equals(viewModel.userID)
-                                ConversationCard(item,receiver)
-                            }
+                            ConversationCard(conversation = item, receiver = false, clickCallback = {
+                                navController.navigate("messagePage/${item.id}")
+                            })
                         }
                     })
-            } else
+            }
+             else
                 MissingItems(
                     buttonText = "Reload",
                     missingText = "No conversations have been found, set is empty",

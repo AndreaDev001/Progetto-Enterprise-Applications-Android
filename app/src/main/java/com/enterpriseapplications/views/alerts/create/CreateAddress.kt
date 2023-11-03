@@ -2,6 +2,7 @@ package com.enterpriseapplications.views.alerts.create
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,13 +31,15 @@ import androidx.navigation.NavHostController
 import com.enterpriseapplications.model.Address
 import com.enterpriseapplications.viewmodel.create.CreateAddressViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
+import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 
 @Composable
-fun CreateAddress(navController: NavHostController,confirmCallback: (address: Address) -> Unit = {},dismissCallback: () -> Unit = {},cancelCallback: () -> Unit = {}) {
+fun CreateAddress(confirmCallback: (address: Address) -> Unit = {},dismissCallback: () -> Unit = {},cancelCallback: () -> Unit = {}) {
     val viewModel: CreateAddressViewModel = viewModel(factory = viewModelFactory)
     viewModel.reset()
+    val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
     val countries: State<List<String>> = viewModel.currentCountries.collectAsState()
     val currentCandidates: State<List<String>> = viewModel.currentCandidates.collectAsState()
     val currentCandidatesSearching: State<Boolean> = viewModel.currentCountriesSearching.collectAsState()
@@ -44,12 +47,11 @@ fun CreateAddress(navController: NavHostController,confirmCallback: (address: Ad
     val createdAddress: State<Address?> = viewModel.createdAddress.collectAsState()
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
         Icon(imageVector = Icons.Default.LocationOn, contentDescription = null,modifier = Modifier.size(50.dp))
-    }, title = {
-        Text(text = "Create Address", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    }, text = {
+    },text = {
         Column(modifier = Modifier
             .padding(2.dp)
             .verticalScroll(ScrollState(0))) {
+            Text(text = "Create Address", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Text(modifier = Modifier.padding(2.dp),fontSize = 15.sp, fontWeight = FontWeight.Normal, text = "Choose one of the countries available addresses, query the desired address, then choose one of the found addresses")
             FormDropdown(valueCallback = {
                 queryVisible.value = it != "";
@@ -65,15 +67,7 @@ fun CreateAddress(navController: NavHostController,confirmCallback: (address: Ad
         }
         if(createdAddress.value != null)
             confirmCallback(createdAddress.value!!)
-    }, confirmButton = {
-        Button(onClick = {
-            viewModel.createAddress()}
-        ) {
-            Text(text = "Confirm", fontSize = 15.sp)
-        }
-    }, dismissButton = {
-        Button(onClick = {cancelCallback()}) {
-            Text(text = "Cancel",fontSize = 15.sp)
-        }
-    })
+        CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createAddress()})
+        CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
+    }, confirmButton = {}, dismissButton = {})
 }

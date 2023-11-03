@@ -101,8 +101,7 @@ fun SettingsPage(navController: NavHostController) {
             }
             else
             {
-                Button(contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(60), onClick = {
-                    photoPickerVisible.value = true;
+                Button(contentPadding = PaddingValues(0.dp),shape = RoundedCornerShape(60), onClick = { photoPickerVisible.value = true;
                 }) {
                     SinglePhotoPicker(visible = photoPickerVisible.value, callback = {
                         viewModel.updateCurrentSelectedUri(it)

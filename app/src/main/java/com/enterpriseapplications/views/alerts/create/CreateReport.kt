@@ -2,6 +2,8 @@ package com.enterpriseapplications.views.alerts.create
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,44 +22,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.enterpriseapplications.model.Ban
+import com.enterpriseapplications.model.reports.MessageReport
+import com.enterpriseapplications.model.reports.ProductReport
+import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.viewmodel.create.CreateReportViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
+import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 import java.util.UUID
 
 @Composable
-fun CreateReport(userID: UUID? = null,productID: UUID? = null,messageID: UUID? = null,update: Boolean = false,confirmCallback: () -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
+fun CreateReport(userID: UUID? = null, productID: UUID? = null, messageID: UUID? = null, update: Boolean = false, confirmReportCallback: (createdReport: Report?) -> Unit = {},confirmProductReport: (createdReport: ProductReport?) -> Unit = {},confirmMessageReport: (createdReport: MessageReport?) -> Unit = {}, cancelCallback: () -> Unit = {}, dismissCallback: () -> Unit = {}) {
     val viewModel: CreateReportViewModel = viewModel(factory = viewModelFactory)
     val text: String = if(!update) "Create Report" else "Update Report";
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
+    val createdUserReport: State<Report?> = viewModel.createdUserReport.collectAsState()
+    val createdProductReport: State<ProductReport?> = viewModel.createdProductReport.collectAsState()
+    val createdMessageReport: State<MessageReport?> = viewModel.createdMessageReport.collectAsState()
+    val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
 
+    viewModel.reset()
     viewModel.userID = userID
     viewModel.productID = productID
     viewModel.messageID = messageID
     viewModel.update = update
 
+    if(createdUserReport.value != null)
+        confirmReportCallback(createdUserReport.value!!)
+    if(createdMessageReport.value != null)
+        confirmMessageReport(createdMessageReport.value!!)
+    if(createdProductReport.value != null)
+        confirmProductReport(createdProductReport.value!!)
+
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
         Icon(imageVector = Icons.Default.Warning, contentDescription = null,modifier = Modifier.size(50.dp))
-    }, title = {
-        Text(text = text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }, text = {
         Column(modifier = Modifier
             .padding(5.dp)
             .verticalScroll(ScrollState(0))) {
+            Text(text = text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the description of the report", placeHolder = "Write a description...", label = "Description")
-            FormDropdown(modifier = Modifier.padding(5.dp),formControl = viewModel.reasonControl, items = reasons.value)
+            FormDropdown(label = "Reason", supportingText = "Please choose one of the available reasons", modifier = Modifier.padding(5.dp),formControl = viewModel.reasonControl, items = reasons.value)
+            Spacer(modifier = Modifier.height(2.dp))
+            CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createReport()})
+            CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
         }
-    }, confirmButton = {
-        Button(onClick = {
-            viewModel.createReport()
-            confirmCallback()
-        }) {
-            Text(text = "Confirm", fontSize = 15.sp)
-        }
-    }, dismissButton = {
-        Button(onClick = {cancelCallback()}) {
-            Text(text = "Cancel",fontSize = 15.sp)
-        }
-    })
+    }, confirmButton = {}, dismissButton = {})
 }

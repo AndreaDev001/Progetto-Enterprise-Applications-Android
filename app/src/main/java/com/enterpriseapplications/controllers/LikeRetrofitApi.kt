@@ -12,7 +12,7 @@ import java.util.UUID
 
 interface LikeRetrofitApi
 {
-    @GET("likes/public/user/{userID}")
+    @GET("likes/private/user/{userID}")
     fun getLikedProducts(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int = 20): Call<PagedModel<Like>>
     @GET("likes/private/{userID}/{productID}")
     fun getLike(@Path("userID") userID: UUID,@Path("productID") productID: UUID): Call<Like>;

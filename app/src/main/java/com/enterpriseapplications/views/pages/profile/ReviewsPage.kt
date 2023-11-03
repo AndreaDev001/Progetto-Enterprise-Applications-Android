@@ -48,6 +48,7 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ReviewCard
 import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -96,16 +97,16 @@ fun ReviewsPage(navController: NavHostController) {
                     .padding(10.dp)
                     .fillMaxWidth()) {
                     if(currentSelectedTab.value == 0)
-                        WrittenReviews(viewModel = viewModel)
+                        WrittenReviews(viewModel = viewModel,authenticatedUser.value)
                     else
-                        ReceivedReviews(viewModel = viewModel)
+                        ReceivedReviews(viewModel = viewModel,authenticatedUser.value)
                 }
             }
         }
     }
 }
 @Composable
-private fun WrittenReviews(viewModel: ReviewPageViewModel) {
+private fun WrittenReviews(viewModel: ReviewPageViewModel,authenticatedUser: AuthenticatedUser?) {
     val currentWrittenReviews: State<List<Review>> = viewModel.writtenReviews.collectAsState()
     val currentWrittenReviewsPage: State<Page> = viewModel.writtenReviewsPage.collectAsState()
     val currentWrittenReviewsSearching: State<Boolean> = viewModel.writtenReviewsSearching.collectAsState()
@@ -121,11 +122,7 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel) {
     Column(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth()) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentWrittenReviewsPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentWrittenReviewsPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentWrittenReviewsPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
+        PageShower(page = currentWrittenReviewsPage.value)
         if(currentWrittenReviewsSearching.value)
             ProgressIndicator()
         else
@@ -137,17 +134,17 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel) {
                         .padding(5.dp)
                 ) {
                     itemsIndexed(items = currentWrittenReviews.value) { index, item ->
-                        ReviewCard(review = item)
+                        ReviewCard(review = item, receiver = authenticatedUser!!.userID == UUID.fromString(item.receiver.id))
                     }
                 }
             }
             else
-                MissingItems(callback = {}, missingText = "No followers found, set is empty")
+                MissingItems(callback = {viewModel.resetTab(0);viewModel.initialize()}, missingText = "No followers found, set is empty")
         }
     }
 }
 @Composable
-private fun ReceivedReviews(viewModel: ReviewPageViewModel) {
+private fun ReceivedReviews(viewModel: ReviewPageViewModel,authenticatedUser: AuthenticatedUser?) {
     val currentReceivedReviews: State<List<Review>> = viewModel.receivedReviews.collectAsState()
     val currentReceivedReviewsPage: State<Page> = viewModel.receivedReviewsPage.collectAsState()
     val currentReceivedReviewsSearching: State<Boolean> = viewModel.receivedReviewsSearching.collectAsState()
@@ -160,31 +157,21 @@ private fun ReceivedReviews(viewModel: ReviewPageViewModel) {
     LaunchedEffect(bottomReached) {
         viewModel.updateCurrentPage(1)
     }
-    Column(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth()) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(text = "${currentReceivedReviewsPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentReceivedReviewsPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            Text(text = "${currentReceivedReviewsPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-        }
+    Column(modifier = Modifier.padding(5.dp).fillMaxWidth()) { PageShower(page = currentReceivedReviewsPage.value)
         if(currentReceivedReviewsSearching.value)
             ProgressIndicator()
         else
         {
             if(currentReceivedReviewsPage.value.totalElements > 0) {
-                LazyColumn(
-                    state = lazyListState, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(5.dp)
+                LazyColumn(state = lazyListState, modifier = Modifier.fillMaxWidth().padding(5.dp)
                 ) {
                     itemsIndexed(items = currentReceivedReviews.value) { index, item ->
-                        ReviewCard(review = item)
+                        ReviewCard(review = item, confirmCallback = {viewModel.resetTab(1);viewModel.initialize()}, receiver = authenticatedUser!!.userID == UUID.fromString(item.receiver.id))
                     }
                 }
             }
             else
-                MissingItems(callback = {}, missingText = "No followers found, set is empty")
+                MissingItems(callback = {viewModel.resetTab(1);viewModel.initialize()}, missingText = "No followers found, set is empty")
         }
     }
 }

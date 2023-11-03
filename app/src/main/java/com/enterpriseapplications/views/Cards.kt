@@ -63,6 +63,8 @@ import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.model.refs.ProductRef
 import com.enterpriseapplications.model.refs.UserRef
 import com.enterpriseapplications.model.reports.Report
+import com.enterpriseapplications.views.alerts.create.CreateOffer
+import com.enterpriseapplications.views.alerts.create.CreateReply
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.util.UUID
@@ -83,7 +85,7 @@ fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,valu
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                UserImage(userID = userID,size = 80.dp)
+                UserImage(userID = userID,size = 80.dp,contentScale = ContentScale.Crop)
             }
             Column(modifier = Modifier
                 .fillMaxWidth()
@@ -148,7 +150,7 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
             .padding(5.dp)) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                    UserImage(userID = product.seller.id)
+                    UserImage(userID = product.seller.id, contentScale = ContentScale.Crop)
                     Text(text = product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
             }
@@ -193,7 +195,7 @@ fun UserCard(navHostController: NavHostController, user: UserDetails, clickCallb
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                UserImage(userID = user.id, size = 80.dp)
+                UserImage(userID = user.id, size = 80.dp,contentScale = ContentScale.Crop)
             }
             Text(text = user.username, fontSize = 15.sp, fontWeight = FontWeight.Bold)
             if(user.name != null && user.surname != null) {
@@ -229,24 +231,73 @@ fun BanCard(ban: Ban,clickCallback: () -> Unit = {}) {
         val expirationDate: DescriptionItem = DescriptionItem("Expiration date",ban.expirationDate)
         GenericCard(title = "Ban", userID = ban.banned.id, values = listOf(description,reason,createdDate,expirationDate))
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReviewCard(review: Review,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
+fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: () -> Unit = {},receiver: Boolean) {
+    Card(modifier = Modifier
         .padding(vertical = 2.dp)
-        .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp)) {
-            Column(modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = review.writer.username, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
-                UserImage(userID = review.writer.id, size = 80.dp)
+        .fillMaxWidth(), shape = RoundedCornerShape(5.dp), onClick = { clickCallback() }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(2.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = review.writer.username, fontSize = 15.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp))
+                UserImage(modifier = Modifier.padding(horizontal = 10.dp,vertical = 2.dp),userID = review.writer.id, size = 90.dp, contentScale = ContentScale.Crop)
             }
-            Column(modifier = Modifier
-                .padding(10.dp), verticalArrangement = Arrangement.Center,horizontalAlignment = Alignment.CenterHorizontally)
+            Column(
+                modifier = Modifier.padding(10.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
             {
-                RatingComponent(rating = review.rating)
-                Text(text = review.text,fontSize = 15.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = review.createdDate, fontWeight = FontWeight.Normal, fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
+                val creatingReply = remember { mutableStateOf(false)}
+                val callback: () -> Unit = {creatingReply.value = false}
+                val successCallback: () -> Unit = {
+                    callback()
+                    confirmCallback()
+                }
+                if(creatingReply.value) {
+                    CreateReply(UUID.fromString(review.id),update = false,confirmCallback = successCallback, dismissCallback = callback, cancelCallback = callback)
+                }
+                RatingComponent(rating = review.rating, iconSize = 25.dp)
+                Text(
+                    text = review.text,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+                Text(
+                    text = review.createdDate,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 15.sp,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+                if(review.reply == null) {
+                    if(receiver) {
+                        Button(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp), shape = RoundedCornerShape(5.dp), onClick = { creatingReply.value = true }) {
+                            Text(
+                                text = "Write a reply",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(2.dp),
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+                else
+                {
+                    Row(modifier = Modifier.fillMaxWidth().padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                        UserImage(userID = review.reply.writer.id, contentScale = ContentScale.Crop, size = 40.dp)
+                        Text(text = review.reply.text,fontSize = 18.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
+                    }
+                }
             }
         }
     }
@@ -273,7 +324,7 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
                 .weight(1f)) {
                 Text(text = "Seller", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(5.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-                    UserImage(userID = order.product.seller.id)
+                    UserImage(userID = order.product.seller.id, contentScale = ContentScale.Crop)
                     Text(text = order.product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
                 val priceItem: DescriptionItem = DescriptionItem("Price",order.price.toString())
@@ -286,7 +337,7 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () -> Unit = {},receiver: Boolean = false) {
+fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () -> Unit = {},updateCallback: () -> Unit = {},receiver: Boolean = false) {
     Card(shape = RoundedCornerShape(5.dp), modifier = Modifier
         .padding(2.dp)
         .fillMaxWidth(), onClick = {clickCallback()}) {
@@ -300,25 +351,30 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
                 val offerStatus: DescriptionItem = DescriptionItem("Status",offer.status)
                 val price: DescriptionItem = DescriptionItem("Price",offer.price.toString())
                 val createdDate: DescriptionItem = DescriptionItem("Created Date",offer.createdDate)
-                val expirationDate: DescriptionItem = DescriptionItem("Expiration Date",offer.expirationDate)
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 5.dp)) {
                     DescriptionItem(descriptionItem = offerStatus, headerFontSize = 13.sp, contentTextSize = 13.sp)
                     DescriptionItem(descriptionItem = price, headerFontSize = 13.sp, contentTextSize = 13.sp)
                     DescriptionItem(descriptionItem = createdDate, headerFontSize = 13.sp, contentTextSize = 13.sp)
-                    DescriptionItem(descriptionItem = expirationDate, headerFontSize = 13.sp, contentTextSize = 13.sp)
                 }
+                val updating = remember { mutableStateOf(false) }
+                val callback: () -> Unit = {updating.value = false}
+                val confirmCallback: () -> Unit = {
+                    callback()
+                    updateCallback()
+                }
+                if(updating.value)
+                    CreateOffer(productID = UUID.fromString(offer.product.id),offerID = UUID.fromString(offer.id), confirmCallback = confirmCallback, dismissCallback = callback, cancelCallback = callback, update = true)
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp)
                     .horizontalScroll(ScrollState(0))) {
                     if(receiver) {
-                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
-                            Text(text = "Accept", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                        }
-                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
-                            Text(text = "Reject", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                        if(offer.status == "OPEN") {
+                            Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {updating.value = true}) {
+                                Text(text = "Update", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                            }
                         }
                     }
                     else
@@ -328,8 +384,17 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
                                 Text(text = "Pay", fontSize = 15.sp, fontWeight = FontWeight.Normal)
                             }
                         }
-                        Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
-                            Text(text = "Delete", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                        if(offer.status == "OPEN") {
+                            Button(modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = { updating.value = true }) {
+                                Text(text = "Update", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                            }
+                            Button(modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                                .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {}) {
+                                Text(text = "Delete", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                            }
                         }
                     }
                 }
@@ -367,13 +432,13 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
          .padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
          Row(modifier = Modifier.fillMaxWidth()) {
               Column(modifier = Modifier.weight(0.25f)) {
-                  val userID: String = if(receiver) conversation.second.id else conversation.first.id;
-                  UserImage(userID = userID,size = 80.dp)
+                  val userID: String = if(receiver) conversation.product.seller.id else conversation.starter.id;
+                  UserImage(userID = userID,size = 80.dp, contentScale = ContentScale.Crop)
               }
              Column(modifier = Modifier
                  .weight(0.75f)
                  .padding(horizontal = 2.dp)) {
-                 val username: String = if(receiver) conversation.second.username else conversation.first.username
+                 val username: String = if(receiver) conversation.product.seller.username else conversation.starter.username
                  Text(text = username, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                  Text(text = "Last message here",fontSize = 15.sp, fontWeight = FontWeight.Normal)
              }

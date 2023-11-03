@@ -5,6 +5,7 @@ import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
 import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
+import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.create.CreateBan
 import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,11 +18,11 @@ class CreateBanViewModel(val application: CustomApplication) : BaseViewModel(app
     var userID: UUID? = null;
     var update: Boolean = false;
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-    private var _success: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
     private var _reasonControl: FormControl<String?> =  FormControl("",Validators.required())
     private var _expirationControl: FormControl<String?> = FormControl("",Validators.required())
     private var _formGroup: FormGroup = FormGroup(_descriptionControl,_reasonControl,_expirationControl)
+    private var _createdBan: MutableStateFlow<Ban?> = MutableStateFlow(null)
 
     init
     {
@@ -30,15 +31,21 @@ class CreateBanViewModel(val application: CustomApplication) : BaseViewModel(app
         })
     }
 
+    fun reset() {
+        this._formGroup.reset()
+        this._createdBan.value = null
+    }
+
     fun createBan() {
         val createBan: CreateBan = CreateBan(userID!!,_reasonControl.currentValue.value!!,_expirationControl.currentValue.value!!)
         this.makeRequest(this.retrofitConfig.banController.createBan(createBan),{
-            this._success.value = true;
-        })
+            this._createdBan.value = it
+        },{this._createdBan.value = null})
     }
 
     val descriptionControl: FormControl<String?> = _descriptionControl
     val reasonControl: FormControl<String?> = _reasonControl
+    val createdBan: StateFlow<Ban?> = _createdBan.asStateFlow()
     val expirationControl: FormControl<String?> = _expirationControl
     val formGroup: FormGroup = _formGroup
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow()

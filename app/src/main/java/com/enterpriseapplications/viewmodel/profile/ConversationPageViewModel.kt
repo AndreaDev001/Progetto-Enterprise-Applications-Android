@@ -19,7 +19,7 @@ class ConversationPageViewModel(val application: CustomApplication) : BaseViewMo
 
     init
     {
-        this.updateCurrentConversations();
+        this.initialize()
     }
     fun initialize() {
         this.updateCurrentConversations();

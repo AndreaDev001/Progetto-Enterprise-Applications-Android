@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.UserDetails
@@ -23,6 +24,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _descriptionControl: FormControl<String?> = FormControl(null, Validators.required())
     private var _minRatingControl: FormControl<String?> = FormControl(null,Validators.required())
     private var _maxRatingControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _formGroup: FormGroup = FormGroup(_emailControl,_nameControl,_surnameControl,_usernameControl,_genderControl,_descriptionControl,_minRatingControl,_maxRatingControl)
 
     private var _genders: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentUsers: MutableStateFlow<List<UserDetails>> = MutableStateFlow(emptyList())
@@ -64,6 +66,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     }
     fun resetSearch() {
         this._currentUsersPage.value = this._currentUsersPage.value.copy(size =20,totalElements = 0,totalPages = 0,number = 0)
+        this._formGroup.reset()
         this.updateCurrentUsers(false)
     }
 
@@ -82,6 +85,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
     val emailControl: FormControl<String?> = _emailControl
     val minRatingControl: FormControl<String?> = _minRatingControl
     val maxRatingControl: FormControl<String?> = _maxRatingControl
+    val formGroup: FormGroup = _formGroup
 
     val genders: StateFlow<List<String>> = _genders.asStateFlow()
     val currentUsers: StateFlow<List<UserDetails>> = _currentUsers.asStateFlow()

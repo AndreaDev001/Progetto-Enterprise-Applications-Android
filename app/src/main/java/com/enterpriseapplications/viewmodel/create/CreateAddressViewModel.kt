@@ -94,4 +94,5 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     val streetControl: FormControl<String?> = _streetControl
     val countryCodeControl: FormControl<String?> = _countryCodeControl
     val postalCodeControl: FormControl<String?> = _postalCodeControl
+    val formGroup: FormGroup = _formGroup
 }

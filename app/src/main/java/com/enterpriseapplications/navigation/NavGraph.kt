@@ -114,7 +114,10 @@ fun NavigationBarController(navController: NavHostController) {
             composable(Screen.Search.SearchReports.route) { SearchReports(navController = navController)}
             composable(Screen.Search.SearchBans.route) { SearchBans(navController = navController)}
 
-            composable(Screen.Profile.Message.route) { MessagePage(navController = navController)}
+            composable(Screen.Profile.Message.route) { backStackEntry ->
+                val conversationID: String? = backStackEntry.arguments?.getString("conversationID");
+                MessagePage(navController = navController,conversationID = conversationID!!)
+            }
             composable(Screen.Profile.Conversation.route) { ConversationPage(navController = navController)}
             composable(Screen.Profile.Product.route) { backStackEntry ->
                 val productID: String? = backStackEntry.arguments?.getString("productID");
@@ -148,7 +151,7 @@ sealed class Screen(val route: String, @StringRes resourceID: Int) {
         object LikedProducts: Screen("likedProducts",R.string.likedProducts)
         object Checkout: Screen("checkoutPage/{productID}",R.string.checkoutPage)
         object Orders: Screen("orders",R.string.orders)
-        object Reviews: Screen("reviews}",R.string.reviews)
+        object Reviews: Screen("reviews",R.string.reviews)
         object Offers: Screen("offers",R.string.offers)
         object Follows: Screen("follows/{userID}",R.string.follows)
         object Addresses: Screen("addresses",R.string.addresses)

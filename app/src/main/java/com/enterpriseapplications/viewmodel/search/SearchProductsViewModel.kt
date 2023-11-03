@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
@@ -17,18 +18,20 @@ import retrofit2.Response
 
 class SearchProductsViewModel(val application: CustomApplication) : BaseViewModel(application) {
 
-    private var _nameControl: FormControl<String?> = FormControl(null, Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _brandControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _conditionControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _minPriceControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _maxPriceControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _minLikesControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _maxLikesControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _nameControl: FormControl<String?> = FormControl(null)
+    private var _descriptionControl: FormControl<String?> = FormControl(null)
+    private var _brandControl: FormControl<String?> = FormControl(null)
+    private var _conditionControl: FormControl<String?> = FormControl(null)
+    private var _minPriceControl: FormControl<String?> = FormControl(null)
+    private var _maxPriceControl: FormControl<String?> = FormControl(null)
+    private var _minLikesControl: FormControl<String?> = FormControl(null)
+    private var _maxLikesControl: FormControl<String?> = FormControl(null)
 
-    private var _primaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _secondaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _tertiaryCategoryControl: FormControl<String?> = FormControl(null,Validators.required())
+    private var _primaryCategoryControl: FormControl<String?> = FormControl(null)
+    private var _secondaryCategoryControl: FormControl<String?> = FormControl(null)
+    private var _tertiaryCategoryControl: FormControl<String?> = FormControl(null)
+    private var _formGroup: FormGroup = FormGroup(_nameControl,_descriptionControl,_brandControl,_conditionControl,
+    _minPriceControl,_maxPriceControl,_minLikesControl,_maxLikesControl,_primaryCategoryControl,_secondaryCategoryControl,_tertiaryCategoryControl)
 
     private var _conditions: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _primaryCategories: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
@@ -104,6 +107,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         }
     }
     fun resetSearch() {
+        this._formGroup.reset()
         this._currentProductsPage.value = this._currentProductsPage.value.copy(size = 20,totalElements = 0,totalPages = 0,number = 0);
         this.updateCurrentProducts(false)
     }
@@ -129,4 +133,5 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     val primaryCategoryControl: FormControl<String?> = _primaryCategoryControl
     val secondaryCategoryControl: FormControl<String?> = _secondaryCategoryControl
     val tertiaryCategoryControl: FormControl<String?> = _tertiaryCategoryControl
+    val formGroup: FormGroup = _formGroup
 }

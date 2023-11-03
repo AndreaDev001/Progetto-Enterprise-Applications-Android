@@ -9,5 +9,6 @@ val writer: UserRef,
 val receiver: UserRef,
 val rating: Int,
 val text: String,
+val reply: Reply?,
 val createdDate: String,
 )

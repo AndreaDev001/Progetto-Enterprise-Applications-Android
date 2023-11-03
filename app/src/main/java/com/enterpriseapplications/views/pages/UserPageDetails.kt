@@ -72,6 +72,7 @@ import com.enterpriseapplications.views.UserImage
 import com.enterpriseapplications.views.alerts.create.CreateReport
 import com.enterpriseapplications.views.alerts.create.CreateReview
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -183,9 +184,10 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                     }
                                     val createReport = remember { mutableStateOf(false) }
                                     if(createReport.value)
-                                        CreateReport(userID = UUID.fromString(userID!!), confirmCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
+                                        CreateReport(userID = UUID.fromString(userID!!), confirmCallback = {createReport.value = false}, dismissCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         val hasFollow: State<Boolean> = viewModel.hasFollow.collectAsState()
+                                        val hasReport: State<Boolean> = viewModel.hasReport.collectAsState()
                                         val currentText: String = if(hasFollow.value) "Remove Follow" else "Add Follow";
                                         if(authenticatedUser.value!!.userID.toString() != userID) {
                                             Button(onClick = {
@@ -196,8 +198,10 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                             }) {
                                                 Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                                             }
-                                            Button(onClick = {createReport.value = true}) {
-                                                Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                            if(!hasReport.value) {
+                                                Button(onClick = {createReport.value = true}) {
+                                                    Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                                }
                                             }
                                         }
                                     }
@@ -220,13 +224,20 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                     })
                 }
                 val createReview = remember {mutableStateOf(false)}
+                val searchingReview: State<Boolean> = viewModel.searchingReview.collectAsState()
+                val hasReview: State<Boolean> = viewModel.hasReview.collectAsState()
                 if(createReview.value)
                     CreateReview(userID = UUID.fromString(userID!!), update = false, confirmCallback = {createReview.value = false}, cancelCallback = {createReview.value = false})
-                if(authenticatedUser.value!!.userID.toString() != userID) {
-                    Button(modifier = Modifier
-                        .padding(10.dp)
-                        .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {createReview.value = true}) {
-                        Text(text = "Write a review", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                if(searchingReview.value)
+                    ProgressIndicator()
+                else
+                {
+                    if(authenticatedUser.value!!.userID.toString() != userID && !hasReview.value) {
+                        Button(modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {createReview.value = true}) {
+                            Text(text = "Write a review", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
                 if(currentSelectedTab.value == 0)
@@ -240,8 +251,8 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
 @Composable
 private fun ReviewList(viewModel: UserDetailsViewModel) {
     val currentReviews: State<List<Review>> = viewModel.currentReviews.collectAsState()
-    val currentReviewsPage: State<Page> = viewModel.currentReviewsPage.collectAsState()
     val currentReviewsSearching: State<Boolean> = viewModel.currentReviewsSearching.collectAsState()
+    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val lazyState: LazyListState = rememberLazyListState()
     val bottomReached by remember {
         derivedStateOf {
@@ -255,31 +266,14 @@ private fun ReviewList(viewModel: UserDetailsViewModel) {
         ProgressIndicator()
     else {
         Column(modifier = Modifier.padding(5.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(
-                    text = "${currentReviewsPage.value.number + 1} page",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-                Text(
-                    text = "${currentReviewsPage.value.totalPages} total pages",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-                Text(
-                    text = "${currentReviewsPage.value.totalElements} total elements",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
-            if (currentReviewsPage.value.totalElements > 0) {
+            if (currentReviews.value.isNotEmpty()) {
                 LazyColumn(
                     state = lazyState,
                     modifier = Modifier.padding(vertical = 2.dp),
                     content = {
                         itemsIndexed(items = currentReviews.value) { _, item ->
                             Box(modifier = Modifier.padding(5.dp)) {
-                                ReviewCard(item)
+                                ReviewCard(item, confirmCallback = {viewModel.initialize()}, receiver = authenticatedUser.value!!.userID == UUID.fromString(item.receiver.id));
                             }
                         }
                     })
@@ -291,7 +285,6 @@ private fun ReviewList(viewModel: UserDetailsViewModel) {
 @Composable
 private fun ProductList(navController: NavHostController,viewModel: UserDetailsViewModel) {
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
-    val currentProductsPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val currentProductsSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
     val bottomReached by remember {
@@ -306,24 +299,7 @@ private fun ProductList(navController: NavHostController,viewModel: UserDetailsV
         ProgressIndicator()
     else {
         Column(modifier = Modifier.padding(5.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(
-                    text = "${currentProductsPage.value.number + 1} page",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-                Text(
-                    text = "${currentProductsPage.value.totalPages} total pages",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-                Text(
-                    text = "${currentProductsPage.value.totalElements} total elements",
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
-            if (currentProductsPage.value.totalElements > 0) {
+            if (currentProducts.value.isNotEmpty()) {
                 LazyVerticalGrid(
                     state = lazyGridState,
                     modifier = Modifier.padding(vertical = 2.dp),

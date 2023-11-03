@@ -149,20 +149,18 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
 @Composable
 private fun GeneralInformation(viewModel: SearchProductsViewModel) {
     val conditions: State<List<String>> = viewModel.conditions.collectAsState()
-    Column(modifier = Modifier
-        .padding(5.dp)
-        .fillMaxWidth()) {
+    Column(modifier = Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = "General information about the product, name, description,brand,condition,minimum and maximum price,minimum and maximum likes", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false);viewModel.nameControl.updateValue(it)},formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false )},formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
+        FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.conditionControl, items = conditions.value, label = "Condition", supportingText = "Please choose one of the available conditions")
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
+        CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
     }
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.nameControl, supportingText = "Write the product's name", label = "Product Name", placeHolder = "Write a name...")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.descriptionControl, supportingText = "Write the product's description",label = "Product Description", placeHolder = "Write a description...")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false )},formControl = viewModel.brandControl, supportingText = "Write the product's brand",label = "Product Brand", placeHolder = "Write a brand...")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.conditionControl, items = conditions.value, label = "Condition")
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product", placeHolder = "Write a number...", label = "Product Minimum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxPriceControl, supportingText = "Write the maximum price of the product", placeHolder = "Write a number...", label = "Product Maximum Price", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.minLikesControl, supportingText = "Write the minimum likes of the product", placeHolder = "Write a number...", label = "Product Minimum Likes", keyboardType = KeyboardType.Number)
-    CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.maxLikesControl, supportingText = "Write the maximum likes of the product", placeHolder = "Write a number...", label = "Product Maximum Likes", keyboardType = KeyboardType.Number)
 }
 
 @Composable
@@ -170,15 +168,14 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
     val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
     val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
     val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(5.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = "Category information about the product, primary, secondary, tertiary categories", fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
+
+        FormDropdown(modifier = Modifier.padding(2.dp).fillMaxWidth(), label = "Primary Category", supportingText = "Please choose one of the available categories", valueCallback = {viewModel.updateSecondaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
+        FormDropdown(modifier = Modifier.padding(2.dp).fillMaxWidth(),supportingText = "Please choose one of the available secondary categories", valueCallback = {viewModel.updateTertiaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
+        FormDropdown(modifier = Modifier.padding(2.dp).fillMaxWidth(),label = "Tertiary Category", supportingText = "Please choose one of the available tertiary categories", valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value)
     }
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateSecondaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.primaryCategoryControl, items = primaryCategories.value, label = "Primary Category")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateTertiaries();viewModel.updateCurrentProducts(false)},formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value, label = "Secondary Category")
-    FormDropdown(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentProducts(false)},formControl = viewModel.tertiaryCategoryControl, items = tertiaryCategories.value, label = "Tertiary Category")
 }
 
 @Composable

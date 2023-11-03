@@ -1,5 +1,6 @@
 package com.enterpriseapplications.form
 
+import java.math.BigInteger
 
 
 class Validators
@@ -8,19 +9,19 @@ class Validators
         fun required(): Validator<String?> {return RequiredValidator()}
         fun minLength(minLength: Int): Validator<String?> {return MinLengthValidator(minLength)}
         fun maxLength(maxLength: Int): Validator<String?> {return MaxLengthValidator(maxLength)}
-        fun min(min: Int): Validator<Int?> {return MinValidator(min)}
-        fun max(max: Int): Validator<Int?> {return MaxValidator(max)}
+        fun min(min: BigInteger): Validator<String?> {return MinValidator(min)}
+        fun max(max: BigInteger): Validator<String?> {return MaxValidator(max)}
     }
 }
-private class RequiredValidator : Validator<String?>(errorName = "required")
+private class RequiredValidator : Validator<String?>(errorName = "required", errorText = "Value can't be null or empty")
 {
     override fun validate(value: String?): Boolean {
-        if(value != null)
+        if(!value.isNullOrEmpty())
             return true;
         return false;
     }
 }
-private class MinLengthValidator(private val minLength: Int) : Validator<String?>(errorName = "minLength")
+private class MinLengthValidator(private val minLength: Int) : Validator<String?>(errorName = "minLength", errorText = "Value's length must be greater than $minLength")
 {
     override fun validate(value: String?): Boolean {
         if(value != null) {
@@ -31,7 +32,7 @@ private class MinLengthValidator(private val minLength: Int) : Validator<String?
         return false;
     }
 }
-private class MaxLengthValidator(private val maxLength: Int): Validator<String?>(errorName = "maxLength")
+private class MaxLengthValidator(private val maxLength: Int): Validator<String?>(errorName = "maxLength", errorText = "Value's length must be less than $maxLength")
 {
     override fun validate(value: String?): Boolean {
         if(value != null) {
@@ -42,7 +43,7 @@ private class MaxLengthValidator(private val maxLength: Int): Validator<String?>
         return false;
     }
 }
-private class RangeLengthValidator(private val minLength: Int,private val maxLength: Int): Validator<String?>(errorName = "rangeLength")
+private class RangeLengthValidator(private val minLength: Int,private val maxLength: Int): Validator<String?>(errorName = "rangeLength", errorText = "Value's length must be between $minLength and $maxLength")
 {
     override fun validate(value: String?): Boolean {
         if(value != null) {
@@ -53,30 +54,36 @@ private class RangeLengthValidator(private val minLength: Int,private val maxLen
     }
 
 }
-private class MinValidator(private val min: Int): Validator<Int?>(errorName = "min")
+private class MinValidator(private val min: BigInteger): Validator<String?>(errorName = "min", errorText = "Value must be greater than $min")
 {
-    override fun validate(value: Int?): Boolean {
+    override fun validate(value: String?): Boolean {
         if(value != null)
         {
-            if(value > min)
-                return true;
+            val requiredValue = value.toBigIntegerOrNull()
+            if(requiredValue != null) {
+                if(requiredValue > min)
+                    return true;
+            }
             return false;
         }
         return false;
     }
 }
-private class MaxValidator(private val max: Int): Validator<Int?>(errorName = "max")
+private class MaxValidator(private val max: BigInteger): Validator<String?>(errorName = "max", errorText = "Value must be less than $max")
 {
-    override fun validate(value: Int?): Boolean {
+    override fun validate(value: String?): Boolean {
         if(value != null)
         {
-            if(value > max)
-                return false;
+            val requiredValue = value.toBigIntegerOrNull();
+            if(requiredValue != null) {
+                if(requiredValue < max)
+                    return false;
+            }
             return false;
         }
         return true;
     }
 }
-abstract class Validator<T>(val errorName: String) {
+abstract class Validator<T>(val errorName: String,val errorText: String) {
     abstract fun validate(value: T?): Boolean
 }
