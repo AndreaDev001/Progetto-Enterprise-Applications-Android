@@ -88,6 +88,7 @@ class ReviewPageViewModel(val application: CustomApplication): BaseViewModel(app
         val currentReviewsPage: MutableStateFlow<Page> = if(index == 0) this._writtenReviewsPage else this._receivedReviewsPage
         if(currentReviewsPage.value.number + 1 >= currentReviewsPage.value.totalPages)
             return;
+        currentReviewsPage.value = currentReviewsPage.value.copy(size = currentReviewsPage.value.size,totalElements = currentReviewsPage.value.totalElements,totalPages = currentReviewsPage.value.totalPages,number = currentReviewsPage.value.number + 1)
         when(index) {
             0 -> this.updateWrittenReviews(page = true)
             1 -> this.updateReceivedReviews(page = true)

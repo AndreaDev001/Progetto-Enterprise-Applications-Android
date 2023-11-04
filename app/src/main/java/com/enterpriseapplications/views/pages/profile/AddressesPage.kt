@@ -59,7 +59,7 @@ fun AddressesPage(navController: NavHostController)
         val creatingAddress: MutableState<Boolean> = remember { mutableStateOf(false) }
         val callback = {creatingAddress.value = false}
         if(creatingAddress.value)
-            CreateAddress(navController = navController, confirmCallback = {
+            CreateAddress(confirmCallback = {
                 viewModel.addAddress(it)
                 callback()
             }, dismissCallback = callback, cancelCallback = callback)

@@ -40,6 +40,7 @@ import androidx.navigation.NavHostController
 import com.enterpriseapplications.config.authentication.AuthenticatedUser
 import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
+import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.HomePageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
@@ -196,7 +197,7 @@ private fun MostExpensive(navController: NavHostController,viewModel: HomePageVi
                 }
             }
             LaunchedEffect(endReached) {
-                viewModel.updateCurrentPage(2);
+                viewModel.updateCurrentPage(2)
             }
             if(currentMostExpensiveProducts.value.isNotEmpty()) {
                 LazyRow(state = lazyListState,modifier = Modifier

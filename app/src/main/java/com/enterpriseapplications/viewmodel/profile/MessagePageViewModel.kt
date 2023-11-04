@@ -52,6 +52,7 @@ class MessagePageViewModel(val application: CustomApplication): BaseViewModel(ap
     fun updateCurrentPage() {
         if(this._currentMessagesPage.value.number + 1 >= this._currentMessagesPage.value.totalPages)
             return;
+        this._currentMessagesPage.value = this._currentMessagesPage.value.copy(size = this._currentMessagesPage.value.size,totalElements = this._currentMessagesPage.value.totalElements, totalPages = this._currentMessagesPage.value.totalPages,number = this._currentMessagesPage.value.number + 1)
         this.updateCurrentMessages(true);
     }
 

@@ -262,7 +262,7 @@ private fun ProductDetailsButton(productDetails: Product,viewModel: ProductDetai
     if(offerVisible.value)
         CreateOffer(productID = viewModel.productID!!, update = false, confirmCallback = {offerVisible.value = false}, cancelCallback = {offerVisible.value = false})
     if(reportVisible.value)
-        CreateReport(productID = viewModel.productID!!, update = false, confirmCallback = {reportVisible.value = false}, cancelCallback = {reportVisible.value = false})
+        CreateReport(productID = viewModel.productID!!, update = false, confirmProductReport = {reportVisible.value = false}, cancelCallback = {reportVisible.value = false})
     if(authenticatedUser.value!!.userID.toString() != productDetails.seller.id)
     {
         Row(modifier = Modifier

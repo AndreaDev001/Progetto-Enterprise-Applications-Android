@@ -62,7 +62,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
-            null,null,0,20),{
+            null,null,this._currentProductsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
                     this._currentProducts.value = it._embedded.content;
@@ -82,7 +82,7 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
     fun updateCurrentPage() {
         if(this._currentProductsPage.value.number + 1 >= this._currentProductsPage.value.totalPages)
             return;
-        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = this._currentProductsPage.value.size,totalElements = this._currentProductsPage.value.totalElements,totalPages = this._currentProductsPage.value.totalPages, number = 0)
+        this._currentProductsPage.value = this._currentProductsPage.value.copy(size = this._currentProductsPage.value.size,totalElements = this._currentProductsPage.value.totalElements,totalPages = this._currentProductsPage.value.totalPages, number = this._currentProductsPage.value.number + 1)
         this.updateCurrentProducts(true)
     }
 

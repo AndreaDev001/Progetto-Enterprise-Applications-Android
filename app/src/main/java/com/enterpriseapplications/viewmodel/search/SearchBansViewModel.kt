@@ -68,7 +68,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.updateCurrentBans(true);
     }
     fun resetSearch() {
-        this._currentBansPage.value = this._currentBansPage.value.copy(size = this._currentBansPage.value.size,totalElements = this._currentBansPage.value.totalElements, totalPages = this._currentBansPage.value.totalPages,number = 0)
+        this._currentBansPage.value = Page(20,0,0,0)
         this.updateCurrentBans(false)
     }
 

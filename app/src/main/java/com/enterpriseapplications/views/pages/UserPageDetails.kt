@@ -184,7 +184,7 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                     }
                                     val createReport = remember { mutableStateOf(false) }
                                     if(createReport.value)
-                                        CreateReport(userID = UUID.fromString(userID!!), confirmCallback = {createReport.value = false}, dismissCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
+                                        CreateReport(userID = UUID.fromString(userID!!), confirmReportCallback = {createReport.value = false}, dismissCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         val hasFollow: State<Boolean> = viewModel.hasFollow.collectAsState()
                                         val hasReport: State<Boolean> = viewModel.hasReport.collectAsState()

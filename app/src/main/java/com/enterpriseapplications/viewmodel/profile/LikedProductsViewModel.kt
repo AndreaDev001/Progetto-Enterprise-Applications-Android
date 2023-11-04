@@ -46,6 +46,7 @@ class LikedProductsViewModel(val application: CustomApplication): BaseViewModel(
     fun updateCurrentPage() {
         if(this._currentLikedProductsPage.value.number + 1 >= this._currentLikedProductsPage.value.totalPages)
             return;
+        this._currentLikedProductsPage.value = this._currentLikedProductsPage.value.copy(size = this._currentLikedProductsPage.value.size, totalElements = this._currentLikedProductsPage.value.totalElements, totalPages = this._currentLikedProductsPage.value.totalPages, number = this._currentLikedProductsPage.value.number + 1)
         this.updateLikedProducts(page = true)
     }
     val currentLikedProducts: StateFlow<List<Like>> = _currentLikedProducts.asStateFlow();

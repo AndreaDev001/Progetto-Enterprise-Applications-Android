@@ -102,7 +102,7 @@ class ProductDetailsViewModel(val application: CustomApplication): BaseViewModel
     }
 
     fun removeLike() {
-        this.makeRequest(this.retrofitConfig.likeController.deleteLikeByProduct(productID!!),{
+        this.makeDeleteRequest(this.retrofitConfig.likeController.deleteLikeByProduct(AuthenticationManager.currentUser.value!!.userID,productID!!),{
             this._hasLike.value = false
         })
     }

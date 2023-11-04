@@ -36,7 +36,7 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
     private var _conditionControl: FormControl<String?> = FormControl("",Validators.required())
     private var _visibilityControl: FormControl<String?> = FormControl("",Validators.required())
     private var _priceControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(BigInteger.valueOf(0)),Validators.max(BigInteger.valueOf(1000)))
-    private var _minPriceControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(BigInteger.valueOf(0)),Validators.max(if(_priceControl.currentValue.value != null && _priceControl.currentValue.value!!.isNotEmpty()) _priceControl.currentValue.value!!.toBigInteger() else BigInteger.valueOf(0)))
+    private var _minPriceControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(BigInteger.valueOf(0)),Validators.required())
 
     private var _primaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _secondaryCategoryControl: FormControl<String?> = FormControl("",Validators.required())
@@ -118,6 +118,10 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
         }
     }
 
+    fun isValid() {
+        _isValid.value = this._currentSelectedUris.value.isNotEmpty() && this._formGroup.validate()
+    }
+
     fun reset()
     {
         this._formGroup.reset()
@@ -138,6 +142,7 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
     val tertiaryCategoryControl: FormControl<String?> = _tertiaryCategoryControl
     val formGroup: FormGroup = _formGroup
 
+    val isValid: StateFlow<Boolean> = _isValid.asStateFlow()
     val createdProduct: StateFlow<Product?> = _createdProduct.asStateFlow()
     val conditions: StateFlow<List<String>> = _conditions.asStateFlow()
     val visibilities: StateFlow<List<String>> = _visibilities.asStateFlow()

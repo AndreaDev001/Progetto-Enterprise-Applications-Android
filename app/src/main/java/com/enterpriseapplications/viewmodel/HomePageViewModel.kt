@@ -91,6 +91,7 @@ class HomePageViewModel(val application: CustomApplication): BaseViewModel(appli
         val currentPage: MutableStateFlow<Page> = if(index == 0) _currentRecentProductsPage else if(index == 1) _currentMostLikedProductsPage else _currentMostExpensiveProductsPage;
         if(currentPage.value.number + 1 >= currentPage.value.totalPages)
             return;
+        currentPage.value = currentPage.value.copy(size = currentPage.value.size,number = currentPage.value.number + 1, totalPages = currentPage.value.totalPages, totalElements = currentPage.value.totalElements)
         when(index) {
             0 -> this.updateRecentProducts(true);
             1 -> this.updateMostLikedProducts(true);

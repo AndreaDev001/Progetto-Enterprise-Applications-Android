@@ -20,8 +20,8 @@ interface FollowRetrofitApi {
     @POST("follows/private/{followedID}")
     fun createFollows(@Path("followedID") followedID: UUID): Call<Follow>;
     @DELETE("follows/private/{followID}")
-    fun deleteFollows(@Path("followID") followedID: UUID): Call<Follow>;
+    fun deleteFollows(@Path("followID") followedID: UUID): Call<Void>;
     @DELETE("follows/private/followed/{followedID}")
-    fun deleteFollowsByFollowed(@Path("followID") followedID: UUID): Call<Follow>;
+    fun deleteFollowsByFollowed(@Path("followID") followedID: UUID): Call<Void>;
 
 }

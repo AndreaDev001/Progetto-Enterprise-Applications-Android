@@ -102,10 +102,12 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
         })
     }
 
-    fun updateCurrentPage(index: Int) {
+    fun updateCurrentPage(index: Int)
+    {
      val currentPage: MutableStateFlow<Page> = if(index == 0) _currentReviewsPage else _currentProductsPage
      if(currentPage.value.number + 1 >= currentPage.value.totalPages)
          return;
+     currentPage.value = currentPage.value.copy(totalPages = currentPage.value.totalPages, totalElements = currentPage.value.totalElements, size = currentPage.value.size,number = currentPage.value.number + 1)
      when(index) {
          0 -> this.updateReviews(true);
          1 -> this.updateProducts(true);
@@ -134,7 +136,7 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
         })
     }
     fun removeFollow() {
-        this.makeRequest(this.retrofitConfig.followController.deleteFollowsByFollowed(userID!!),{
+        this.makeDeleteRequest(this.retrofitConfig.followController.deleteFollowsByFollowed(userID!!),{
             this._hasFollow.value = false;
             this._currentFollowerCount.value = this._currentFollowerCount.value!! + 1;
         })

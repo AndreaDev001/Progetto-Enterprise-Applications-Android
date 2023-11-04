@@ -140,10 +140,11 @@ private fun UserInformation(viewModel: SettingsViewModel) {
 @Composable
 private fun ButtonSection(viewModel: SettingsViewModel) {
     val formValid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val currentUri: State<Uri?> = viewModel.currentSelectedUri.collectAsState()
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(5.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {viewModel.updateUser()}) {
+        Button(enabled = formValid.value || currentUri.value != null, modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {viewModel.updateUser()}) {
             Text(text = "Confirm",fontSize = 15.sp, fontWeight = FontWeight.Bold)
         }
         Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {viewModel.reset()}) {

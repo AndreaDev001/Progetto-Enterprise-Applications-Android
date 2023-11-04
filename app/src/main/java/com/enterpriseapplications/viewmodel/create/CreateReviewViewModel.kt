@@ -10,6 +10,7 @@ import com.enterpriseapplications.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.math.BigInteger
 import java.util.UUID
 
 class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(application)
@@ -17,7 +18,8 @@ class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(appl
     var userID: UUID? = null
     var update: Boolean = false
     private var _textControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _ratingControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _ratingControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(
+        BigInteger.valueOf(0)),Validators.max(BigInteger.valueOf(10)))
     private var _formGroup: FormGroup = FormGroup(_textControl,_ratingControl)
     private var _createdReview: MutableStateFlow<Review?> = MutableStateFlow(null)
 

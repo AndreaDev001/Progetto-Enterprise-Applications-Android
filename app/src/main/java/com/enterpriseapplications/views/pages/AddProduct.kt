@@ -46,11 +46,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.AddProductViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
+import java.math.BigInteger
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,25 +143,31 @@ private fun GeneralInformation(viewModel: AddProductViewModel) {
     val currentPriceControl: State<String?> = viewModel.priceControl.currentValue.collectAsState()
     CustomTextField(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.nameControl, supportingText = "Write the name of the product", placeHolder = "Write a name...", label = "Product Name")
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.nameControl, supportingText = "Write the name of the product", placeHolder = "Write a name...", label = "Product Name")
     CustomTextField(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.descriptionControl, supportingText = "Write the description of the product", placeHolder = "Write a description...", label = "Product Description")
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.descriptionControl, supportingText = "Write the description of the product", placeHolder = "Write a description...", label = "Product Description")
     CustomTextField(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.brandControl, supportingText = "Write the brand of the product", placeHolder = "Write a name...", label = "Product Brand")
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.brandControl, supportingText = "Write the brand of the product", placeHolder = "Write a name...", label = "Product Brand")
     CustomTextField(keyboardType = KeyboardType.Number, modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.priceControl, supportingText = "Write the price of the product", placeHolder = "Write a number...", label = "Product Price")
+        .fillMaxWidth(),formControl = viewModel.priceControl, valueCallback = {
+         viewModel.minPriceControl.clearValidators()
+         viewModel.minPriceControl.addValidator(Validators.required())
+         viewModel.minPriceControl.addValidator(Validators.min(BigInteger.valueOf(0)));
+         viewModel.minPriceControl.addValidator(Validators.max(it.toBigInteger()))
+         viewModel.isValid()
+    }, supportingText = "Write the price of the product", placeHolder = "Write a number...", label = "Product Price")
     CustomTextField(enabled = currentPriceControl.value != null && currentPriceControl.value!!.isNotEmpty(), keyboardType = KeyboardType.Number, modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product (offers)", placeHolder = "Write a number...",label = "Product Minimum Price (Offer)")
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.minPriceControl, supportingText = "Write the minimum price of the product (offers)", placeHolder = "Write a number...",label = "Product Minimum Price (Offer)")
     FormDropdown(label = "Condition", modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.conditionControl, items = conditions.value, supportingText = "Please choose one of the available conditions")
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.conditionControl, items = conditions.value, supportingText = "Please choose one of the available conditions")
     FormDropdown(modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(), label = "Visibility", supportingText = "Please choose one of the available visibilities",formControl = viewModel.visibilityControl,items = visibilities.value)
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()}, label = "Visibility", supportingText = "Please choose one of the available visibilities",formControl = viewModel.visibilityControl,items = visibilities.value)
 }
 
 @Composable
@@ -170,20 +178,20 @@ private fun CategoryInformation(viewModel: AddProductViewModel) {
     Text(text = "Category Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     FormDropdown(label = "Primary Category", supportingText = "Please choose one of the available primary categories", modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(), valueCallback = {viewModel.updateSecondaries()}, formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
+        .fillMaxWidth(), valueCallback = {viewModel.updateSecondaries();viewModel.isValid()}, formControl = viewModel.primaryCategoryControl, items = primaryCategories.value)
     FormDropdown(label = "Secondary Category", supportingText = "Please choose one of the available secondary categories", modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(), valueCallback = {viewModel.updateTertiaries()}, formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
-    FormDropdown(label = "Tertiary Category", supportingText = "Please choose one the avaliable tertiary categories", modifier = Modifier
+        .fillMaxWidth(), valueCallback = {viewModel.updateTertiaries();viewModel.isValid()}, formControl = viewModel.secondaryCategoryControl, items = secondaryCategories.value)
+    FormDropdown(label = "Tertiary Category", supportingText = "Please choose one the available tertiary categories", modifier = Modifier
         .padding(5.dp)
-        .fillMaxWidth(),formControl = viewModel.tertiaryCategoryControl, items =  tertiaryCategories.value)
+        .fillMaxWidth(), valueCallback = {viewModel.isValid()},formControl = viewModel.tertiaryCategoryControl, items =  tertiaryCategories.value)
 }
 
 @Composable
 private fun ButtonSection(viewModel: AddProductViewModel) {
-    val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val valid: State<Boolean> = viewModel.isValid.collectAsState()
     val currentSelectedUris: State<List<Uri?>> = viewModel.currentSelectedUris.collectAsState()
-    Button(enabled = valid.value && currentSelectedUris.value.isNotEmpty(), modifier = Modifier
+    Button(enabled = valid.value, modifier = Modifier
         .fillMaxWidth()
         .padding(2.dp),onClick = {viewModel.confirm()}, shape = RoundedCornerShape(5.dp)) {
         Text(text = "Confirm", fontSize = 15.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))

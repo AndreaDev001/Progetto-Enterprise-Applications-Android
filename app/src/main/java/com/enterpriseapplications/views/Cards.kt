@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -58,6 +63,7 @@ import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Order
 import com.enterpriseapplications.model.PaymentMethod
 import com.enterpriseapplications.model.Product
+import com.enterpriseapplications.model.Reply
 import com.enterpriseapplications.model.Review
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.model.refs.ProductRef
@@ -143,7 +149,7 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
       clickCallback()
     }, shape = RoundedCornerShape(5.dp),modifier = Modifier
         .fillMaxWidth()
-        .defaultMinSize(200.dp)
+        .width(200.dp)
     ) {
         Column(modifier = Modifier
             .fillMaxWidth()
@@ -154,8 +160,9 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
                     Text(text = product.seller.username,modifier = Modifier.padding(horizontal = 5.dp), fontSize = 12.sp, fontWeight = FontWeight.Thin)
                 }
             }
-            Column(modifier = Modifier.fillMaxWidth()) {
-                ProductImage(productID = product.id)
+            Column(modifier = Modifier
+                .fillMaxWidth().heightIn(100.dp,250.dp)) {
+                ProductImage(productID = product.id, contentScale = ContentScale.Crop)
             }
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = product.price.toString(),modifier = Modifier.fillMaxWidth(), fontSize = 15.sp, fontWeight = FontWeight.Normal)
@@ -255,7 +262,7 @@ fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: ()
             {
                 val creatingReply = remember { mutableStateOf(false)}
                 val callback: () -> Unit = {creatingReply.value = false}
-                val successCallback: () -> Unit = {
+                val successCallback: (item: Reply) -> Unit = {
                     callback()
                     confirmCallback()
                 }
@@ -293,7 +300,9 @@ fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: ()
                 }
                 else
                 {
-                    Row(modifier = Modifier.fillMaxWidth().padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp), verticalAlignment = Alignment.CenterVertically) {
                         UserImage(userID = review.reply.writer.id, contentScale = ContentScale.Crop, size = 40.dp)
                         Text(text = review.reply.text,fontSize = 18.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
                     }
@@ -360,7 +369,7 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
                 }
                 val updating = remember { mutableStateOf(false) }
                 val callback: () -> Unit = {updating.value = false}
-                val confirmCallback: () -> Unit = {
+                val confirmCallback: (item: Offer) -> Unit = {
                     callback()
                     updateCallback()
                 }
@@ -493,14 +502,22 @@ fun ProductImage(contentScale: ContentScale = ContentScale.None,
 @Composable
 fun BetterAsyncImage(modifier: Modifier = Modifier,url: String,contentScale: ContentScale = ContentScale.None) {
     val loading = remember { mutableStateOf(true) }
+    val failed = remember {mutableStateOf(false)}
+    if(loading.value)
+        ProgressIndicator()
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-        if(loading.value) {
-            ProgressIndicator()
+        if(failed.value)
+            AsyncImage(model = "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg", contentDescription = null,contentScale = contentScale)
+        else
+        {
+            AsyncImage(modifier = modifier,contentScale = contentScale, onError = {
+                loading.value = false
+                failed.value = true
+            },onLoading = {
+                loading.value = true
+            }, onSuccess = {
+                loading.value = false
+            }, model = url, contentDescription = null)
         }
-        AsyncImage(modifier = modifier,contentScale = contentScale,onLoading = {
-            loading.value = true
-        }, onSuccess = {
-            loading.value = false
-        }, model = url, contentDescription = null)
     }
 }

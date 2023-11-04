@@ -45,7 +45,7 @@ class OrderPageViewModel(val application: CustomApplication): BaseViewModel(appl
     }
 
     fun resetSearch() {
-        this._ordersPage.value = this._ordersPage.value.copy(size = this._ordersPage.value.size,totalElements = 0,totalPages = this._ordersPage.value.totalPages,number = 0)
+        this._ordersPage.value = Page(20,0,0,0)
         this.updateOrders(page = false)
     }
     fun updateCurrentPage() {

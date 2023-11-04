@@ -70,28 +70,41 @@ class SettingsViewModel(val application: CustomApplication) : BaseViewModel(appl
 
     @OptIn(ExperimentalCoilApi::class)
     fun updateUser() {
-        val currentUri = this._currentSelectedUri.value
-        if(currentUri != null) {
-           val value: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/${AuthenticationManager.currentUser.value!!.userID}"
-           val image =  FileHandler.getFile(application.applicationContext,currentUri);
-           val multiPartFile = MultipartBody.Part.createFormData("file",image.name, image.asRequestBody("image/jpeg".toMediaTypeOrNull()))
-            this.makeRequest(this.retrofitConfig.userImageController.updateUserImage(multiPartFile),{
-                this._successImages.value = true
-                application.imageLoader.memoryCache?.remove(MemoryCache.Key(value))
-                application.imageLoader.diskCache?.remove(value)
-            },{this._successImages.value = false})
-        }
-        if(_formGroup.validate()) {
-            val updateUser: UpdateUser = UpdateUser(name = _nameControl.currentValue.value!!,surname = _surnameControl.currentValue.value!!, gender = _genderControl.currentValue.value!!,
-                description = _descriptionControl.currentValue.value!!,visibility = _visibilityControl.currentValue.value!!)
+        if (_formGroup.validate()) {
+            val updateUser: UpdateUser = UpdateUser(
+                name = _nameControl.currentValue.value!!,
+                surname = _surnameControl.currentValue.value!!,
+                gender = _genderControl.currentValue.value!!,
+                description = _descriptionControl.currentValue.value!!,
+                visibility = _visibilityControl.currentValue.value!!
+            )
             this.makeRequest(this.retrofitConfig.userController.updateUser(updateUser), {
                 this._successInfo.value = true
-            },{this._successImages.value = false})
+                if (_currentSelectedUri.value != null) {
+                    val currentUri = this._currentSelectedUri.value!!
+                    val value: String =
+                        "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/${AuthenticationManager.currentUser.value!!.userID}"
+                    val image = FileHandler.getFile(application.applicationContext, currentUri);
+                    val multiPartFile = MultipartBody.Part.createFormData(
+                        "file",
+                        image.name,
+                        image.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    )
+                    this.makeRequest(
+                        this.retrofitConfig.userImageController.updateUserImage(
+                            multiPartFile
+                        ), {
+                            this._successImages.value = true
+                            application.imageLoader.memoryCache?.remove(MemoryCache.Key(value))
+                            application.imageLoader.diskCache?.remove(value)
+                        }, { this._successImages.value = false })
+                }
+            })
         }
     }
-
     fun reset() {
         this._formGroup.reset()
+        this._currentSelectedUri.value = null
     }
 
     fun updateCurrentSelectedUri(uri: Uri?) {

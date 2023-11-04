@@ -13,14 +13,8 @@ class FormGroup(private vararg val controls: FormControl<*>)
     init
     {
         _controlsList.value.addAll(controls)
-    }
-
-    fun addControl(control: FormControl<*>) {
-        this._controlsList.value.add(control)
-    }
-
-    fun removeControl(control: FormControl<*>) {
-        this._controlsList.value.remove(control)
+        for(control in _controlsList.value)
+            control.formGroup = this
     }
 
     fun reset() {

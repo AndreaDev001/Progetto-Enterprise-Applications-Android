@@ -36,7 +36,7 @@ private class MaxLengthValidator(private val maxLength: Int): Validator<String?>
 {
     override fun validate(value: String?): Boolean {
         if(value != null) {
-            if(value.length > maxLength)
+            if(value.length < maxLength)
                 return true;
             return false;
         }
@@ -77,7 +77,7 @@ private class MaxValidator(private val max: BigInteger): Validator<String?>(erro
             val requiredValue = value.toBigIntegerOrNull();
             if(requiredValue != null) {
                 if(requiredValue < max)
-                    return false;
+                    return true;
             }
             return false;
         }

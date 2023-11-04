@@ -124,6 +124,7 @@ fun SearchProducts(navController: NavHostController) {
                     ) {
                         Text(text = "Filters", fontSize = 16.sp)
                     }
+                    Text(modifier = Modifier.padding(horizontal = 5.dp),text = "Use the available filters to find the desired products",fontSize = 18.sp, fontWeight = FontWeight.Normal)
                     ItemsList(viewModel = viewModel, navController = navController)
                 }
             }
@@ -180,6 +181,7 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 
 @Composable
 private fun ItemsList(navController: NavHostController,viewModel: SearchProductsViewModel){
+
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val isSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()

@@ -83,6 +83,7 @@ class FollowPageViewModel(val application: CustomApplication): BaseViewModel(app
         val currentPage: MutableStateFlow<Page> = if(index == 0) _currentFollowersPage else _currentFollowsPage
         if(currentPage.value.number + 1 >= currentPage.value.totalPages)
             return;
+        currentPage.value = currentPage.value.copy(size = currentPage.value.size,totalPages = currentPage.value.totalPages, totalElements = currentPage.value.totalElements,number = currentPage.value.number)
         when(index) {
             0 -> this.updateFollowers(page = true)
             1 -> this.updateFollows(page = true)

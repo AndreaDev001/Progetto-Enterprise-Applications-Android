@@ -65,7 +65,7 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
         })
     }
     fun resetSearch() {
-        this._currentUsersPage.value = this._currentUsersPage.value.copy(size =20,totalElements = 0,totalPages = 0,number = 0)
+        this._currentUsersPage.value = Page(20,0,0,0)
         this._formGroup.reset()
         this.updateCurrentUsers(false)
     }

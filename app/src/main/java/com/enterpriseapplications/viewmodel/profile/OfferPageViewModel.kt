@@ -72,6 +72,7 @@ class OfferPageViewModel(val application: CustomApplication): BaseViewModel(appl
         val currentPage: MutableStateFlow<Page> = if(index == 0) _currentCreatedOffersPage else _currentReceivedOffersPage
         if(currentPage.value.number + 1 >= currentPage.value.totalPages)
             return;
+        currentPage.value = currentPage.value.copy(size = currentPage.value.size,totalElements = currentPage.value.totalElements,totalPages = currentPage.value.totalPages,number = currentPage.value.number + 1)
         this.handlePage(index,true)
     }
 
