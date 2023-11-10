@@ -3,6 +3,7 @@ package com.enterpriseapplications.viewmodel.search
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.Page
@@ -14,13 +15,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
-    private var _bannerEmail: FormControl<String?> = FormControl(null, Validators.required())
-    private var _bannedEmail: FormControl<String?> = FormControl(null, Validators.required())
-    private var _bannerUsername: FormControl<String?> = FormControl(null, Validators.required())
-    private var _bannedUsername: FormControl<String?> = FormControl(null, Validators.required())
-    private var _description: FormControl<String?> = FormControl(null,Validators.required())
-    private var _reason: FormControl<String?> = FormControl(null, Validators.required())
+    private var _bannerEmail: FormControl<String?> = FormControl(null)
+    private var _bannedEmail: FormControl<String?> = FormControl(null)
+    private var _bannerUsername: FormControl<String?> = FormControl(null)
+    private var _bannedUsername: FormControl<String?> = FormControl(null)
+    private var _description: FormControl<String?> = FormControl(null)
+    private var _reason: FormControl<String?> = FormControl(null)
     private var _expired: FormControl<Boolean> = FormControl(false)
+    private var _formGroup: FormGroup = FormGroup(_bannerEmail,_bannedEmail,_bannerUsername,_bannedUsername,_description,_reason,_expired)
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentBans: MutableStateFlow<List<Ban>> = MutableStateFlow(emptyList());
@@ -36,7 +38,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.makeRequest(this.retrofitConfig.reportController.getReasons(),{
             this._reasons.value = it
         })
-        this.resetSearch();
+        this.resetSearch()
     }
 
     fun updateCurrentBans(page: Boolean) {
@@ -68,7 +70,7 @@ class SearchBansViewModel(val application: CustomApplication) : BaseViewModel(ap
         this.updateCurrentBans(true);
     }
     fun resetSearch() {
-        this._currentBansPage.value = Page(20,0,0,0)
+        this._formGroup.reset()
         this.updateCurrentBans(false)
     }
 

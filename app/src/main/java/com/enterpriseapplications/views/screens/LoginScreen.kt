@@ -1,4 +1,4 @@
-package com.enterpriseapplications.views.pages
+package com.enterpriseapplications.views.screens
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,31 +19,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.config.authentication.AuthenticatedUser
 import com.enterpriseapplications.config.authentication.AuthenticationManager
+import com.enterpriseapplications.navigation.Screen
 import com.enterpriseapplications.viewmodel.LoginPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
-fun LoginPage(navController: NavHostController,authenticationManager: AuthenticationManager) {
+fun LoginScreen() {
     val viewModel: LoginPageViewModel = viewModel(factory = viewModelFactory)
-    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
-    if(authenticatedUser.value != null) {
-        navController.navigate("home")
-    }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             viewModel.completeLoginRequest(it)
         }
-        Column(modifier = Modifier
+    Column(
+        modifier = Modifier
             .fillMaxSize()
-            .padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Button(onClick = {viewModel.createLoginRequest(launcher)},shape = RoundedCornerShape(5.dp),modifier = Modifier.padding(10.dp)) {
-                Text(text = "Perform Login", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier
+            .padding(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = { viewModel.createLoginRequest(launcher) },
+            shape = RoundedCornerShape(5.dp),
+            modifier = Modifier.padding(10.dp)
+        ) {
+            Text(
+                text = "Perform Login",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(2.dp))
-            }
+                    .padding(2.dp)
+            )
         }
+    }
 }

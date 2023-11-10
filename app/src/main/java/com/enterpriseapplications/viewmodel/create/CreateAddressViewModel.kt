@@ -27,7 +27,7 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     private var _localityControl: FormControl<String?> = FormControl("",Validators.required())
     private var _postalCodeControl: FormControl<String?> = FormControl("",Validators.required())
     private var _ownerNameControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _formGroup: FormGroup = FormGroup(_queryControl,_selectedStreetControl,_streetControl,_countryCodeControl,_postalCodeControl,_ownerNameControl)
+    private var _formGroup: FormGroup = FormGroup(_queryControl,_selectedStreetControl,_streetControl,_countryCodeControl,_postalCodeControl,_localityControl,_ownerNameControl)
 
     init
     {

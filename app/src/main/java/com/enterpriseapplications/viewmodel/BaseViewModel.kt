@@ -23,7 +23,9 @@ abstract class BaseViewModel(application: CustomApplication) : ViewModel() {
         call.enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>, response: Response<T>) {
                 if (response.isSuccessful)
-                    successCallback(response.body()!!);
+                    successCallback(response.body()!!)
+                else
+                    errorCallback()
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {

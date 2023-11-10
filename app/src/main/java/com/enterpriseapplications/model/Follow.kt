@@ -4,7 +4,7 @@ import com.enterpriseapplications.model.refs.UserRef
 import java.time.LocalDate
 import java.util.UUID
 
-data class Follow(val id: String,
+data class Follow(val id: UUID,
 val follower: UserRef,
 val followed: UserRef,
-val createdDate: String)
+val createdDate: LocalDate)

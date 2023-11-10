@@ -10,14 +10,20 @@ import android.view.Display.Mode
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.runtime.collectAsState
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.enterpriseapplications.ConnectionBuilderForTesting
 import com.enterpriseapplications.CustomApplication
+import com.enterpriseapplications.navigation.Screen
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import net.openid.appauth.AppAuthConfiguration
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
@@ -39,9 +45,11 @@ import java.util.UUID
 
 class AuthenticationManager(val application: CustomApplication)
 {
-    private var authorizationServiceConfiguration: AuthorizationServiceConfiguration;
+    private lateinit var authorizationServiceConfiguration: AuthorizationServiceConfiguration;
     private var authorizationService: AuthorizationService;
-    private var appAuthConfiguration: AppAuthConfiguration;
+    private var appAuthConfiguration: AppAuthConfiguration = AppAuthConfiguration.Builder().setSkipIssuerHttpsCheck(true).setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE).build();
+    private var _hasLoaded: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    lateinit var navController: NavHostController;
 
     companion object
     {
@@ -50,8 +58,8 @@ class AuthenticationManager(val application: CustomApplication)
         private var _currentToken: MutableStateFlow<TokenData?> = MutableStateFlow(null)
         val currentUser: StateFlow<AuthenticatedUser?> = _currentUser.asStateFlow()
         val currentToken: StateFlow<TokenData?> = _currentToken.asStateFlow()
-        private const val authorizationServerIpAddress: String = "192.168.1.74:9000";
-        const val authorizeURI: String = "http://$authorizationServerIpAddress/oauth2/authorize"
+        private const val authorizationServerIpAddress: String = "enterpriseapplications.live:9000";
+        const val issuerURI: String = "http://$authorizationServerIpAddress"
         const val tokenURI: String = "http://$authorizationServerIpAddress/oauth2/token"
         const val redirectURI: String = "clowning://moose.ac"
         const val clientID: String = "client"
@@ -60,11 +68,20 @@ class AuthenticationManager(val application: CustomApplication)
 
     init
     {
-        val authorize = Uri.parse(authorizeURI);
-        val token = Uri.parse(tokenURI);
-        appAuthConfiguration = AppAuthConfiguration.Builder().setSkipIssuerHttpsCheck(true).setConnectionBuilder(ConnectionBuilderForTesting.INSTANCE).build();
-        authorizationServiceConfiguration = AuthorizationServiceConfiguration(authorize,token)
         authorizationService = AuthorizationService(application.getContext()!!,appAuthConfiguration);
+        AuthorizationServiceConfiguration.fetchFromIssuer(Uri.parse(issuerURI),{ configuration: AuthorizationServiceConfiguration?, exception: AuthorizationException? ->
+            if(configuration != null && exception == null) {
+                this.authorizationServiceConfiguration = configuration
+                val preferences: Pair<TokenData?,AuthenticatedUser?>? = this.readPreferences()
+                if(preferences != null) {
+                    if(preferences.first != null && preferences.second != null) {
+                        _currentToken.value = preferences.first
+                        _currentUser.value = preferences.second
+                    }
+                }
+                _hasLoaded.value = true
+            }
+        }, ConnectionBuilderForTesting.INSTANCE)
     }
 
     private fun isExpired(exp: Long): Boolean {
@@ -99,6 +116,8 @@ class AuthenticationManager(val application: CustomApplication)
                     val tokenData: TokenData = TokenData(accessToken,refreshToken,idToken);
                     val authenticatedUser: AuthenticatedUser = this.readFromClaims(accessToken);
                     this.updatePreferences(tokenData,authenticatedUser)
+                    navController.popBackStack(navController.backQueue[0].destination.id,true)
+                    navController.navigate(Screen.Main.route)
                 }
             }
         }
@@ -129,12 +148,12 @@ class AuthenticationManager(val application: CustomApplication)
     }
 
     @Synchronized
-    fun refreshToken(): Pair<TokenData,AuthenticatedUser>? {
-        if(currentUser.value != null && currentToken.value != null) {
-            if(!isExpired(_currentUser.value!!.tokenExpiration))
-                return Pair(currentToken.value!!, currentUser.value!!)
+    fun refreshToken(value: Pair<TokenData?,AuthenticatedUser?>): Pair<TokenData?,AuthenticatedUser?>? {
+        if(value.first!= null && value.second != null) {
+            if(!isExpired(value.second!!.tokenExpiration))
+                return Pair(value.first!!, value.second!!);
             val requestBody: RequestBody = FormBody.Builder().add("grant_type",GrantTypeValues.REFRESH_TOKEN).add("refresh_token", currentToken.value!!.refreshToken).build();
-            val request: Request = Request.Builder().url(tokenURI).post(requestBody).addHeader("Authorization", "Basic ${Base64.getEncoder().encodeToString("secret".toByteArray())}").build()
+            val request: Request = Request.Builder().url(tokenURI).post(requestBody).addHeader("Authorization", "Basic ${Base64.getEncoder().encodeToString("client:secret".toByteArray())}").build()
             try
             {
                 val response = OkHttpClient.Builder().build().newCall(request).execute();
@@ -149,6 +168,10 @@ class AuthenticationManager(val application: CustomApplication)
             }
             catch (exception: Exception) {
                 exception.printStackTrace();
+                CoroutineScope(Dispatchers.Main).launch {
+                    navController.navigate(Screen.Login.route)
+                    updatePreferences(null,null)
+                }
             }
         }
         return null;
@@ -164,4 +187,5 @@ class AuthenticationManager(val application: CustomApplication)
     fun dispose() {
         this.authorizationService.dispose();
     }
+    val hasLoaded: StateFlow<Boolean> = _hasLoaded.asStateFlow()
 }

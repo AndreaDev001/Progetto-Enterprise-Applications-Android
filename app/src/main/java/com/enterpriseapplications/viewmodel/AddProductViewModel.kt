@@ -95,13 +95,13 @@ class AddProductViewModel(val application: CustomApplication) : BaseViewModel(ap
         _descriptionControl.currentValue.value!!,_priceControl.currentValue.value!!.toBigDecimal(),_minPriceControl.currentValue.value!!.toBigDecimal(),_brandControl.currentValue.value!!,
         _conditionControl.currentValue.value!!,_visibilityControl.currentValue.value!!,_primaryCategoryControl.currentValue.value!!,_secondaryCategoryControl.currentValue.value!!,_tertiaryCategoryControl.currentValue.value!!)
         if(this._formGroup.validate()) {
-            this.makeRequest(this.retrofitConfig.productController.createProduct(createProduct),{
-                val result = it
-                val files = this._currentSelectedUris.value.stream().map<MultipartBody.Part> {
-                    val fileImage = FileHandler.getFile(application.applicationContext,it!!)
+            this.makeRequest(this.retrofitConfig.productController.createProduct(createProduct),{ product ->
+                val result = product
+                val files = this._currentSelectedUris.value.stream().map<MultipartBody.Part> {uri ->
+                    val fileImage = FileHandler.getFile(application.applicationContext,uri!!)
                     return@map MultipartBody.Part.createFormData("files", fileImage.name, fileImage.asRequestBody("image/jpeg".toMediaTypeOrNull()))
                 }.toList()
-                this.makeRequest(this.retrofitConfig.productImageController.updateProductImages(UUID.fromString(it.id),files),{
+                this.makeRequest(this.retrofitConfig.productImageController.updateProductImages(product.id,files),{
                   this._createdProduct.value = result
                 },{this._createdProduct.value = null})
             })

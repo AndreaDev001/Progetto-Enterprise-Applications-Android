@@ -10,7 +10,7 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface BanRetrofitApi {
-    @GET("bans/public/spec")
+    @GET("bans/private/spec")
     fun getBans(
         @Query("bannerEmail") bannerEmail: String?,
         @Query("bannedEmail") bannedEmail: String?,

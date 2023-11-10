@@ -41,6 +41,8 @@ class FormControl<T>(private var _initialValue: T, vararg var validators: Valida
         this._currentValue.value = value
         this._errors.value = mutableSetOf()
         this._errorsText.value = mutableSetOf()
+        if(formGroup != null)
+            this.formGroup!!.validate()
         this.isValid()
     }
     fun reset() {
@@ -59,8 +61,6 @@ class FormControl<T>(private var _initialValue: T, vararg var validators: Valida
             }
         }
         _valid.value = true
-        if(formGroup != null)
-            formGroup!!.validate()
         return true;
     }
 

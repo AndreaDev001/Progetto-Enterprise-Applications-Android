@@ -3,6 +3,7 @@ package com.enterpriseapplications.viewmodel.search
 import androidx.lifecycle.ViewModel
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.form.FormControl
+import com.enterpriseapplications.form.FormGroup
 import com.enterpriseapplications.form.Validators
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.reports.Report
@@ -13,16 +14,19 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(application)
 {
-    private var _reporterEmail: FormControl<String?> = FormControl(null,Validators.required())
-    private var _reportedEmail: FormControl<String?> = FormControl(null,Validators.required())
-    private var _reporterUsername: FormControl<String?> = FormControl(null,Validators.required())
-    private var _reportedUsername: FormControl<String?> = FormControl(null,Validators.required())
-    private var _descriptionControl: FormControl<String?> = FormControl(null,Validators.required())
-    private var _reason: FormControl<String?> = FormControl(null,Validators.required())
-    private var _type: FormControl<String?> = FormControl(null,Validators.required())
+    private var _reporterEmail: FormControl<String?> = FormControl(null)
+    private var _reportedEmail: FormControl<String?> = FormControl(null)
+    private var _reporterUsername: FormControl<String?> = FormControl(null)
+    private var _reportedUsername: FormControl<String?> = FormControl(null)
+    private var _descriptionControl: FormControl<String?> = FormControl(null)
+    private var _reason: FormControl<String?> = FormControl(null)
+    private var _type: FormControl<String?> = FormControl(null)
+    private var _formGroup: FormGroup = FormGroup(_reporterEmail,_reportedEmail,_reporterUsername,_reportedUsername,_descriptionControl,_reason,_type)
 
     private var _reasons: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _types: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+
+
 
     private var _currentReports: MutableStateFlow<List<Report>> = MutableStateFlow(emptyList())
     private var _currentReportsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
@@ -71,7 +75,9 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
         this._currentReportsPage.value = this._currentReportsPage.value.copy(size = this._currentReportsPage.value.size, totalElements = this._currentReportsPage.value.totalElements, totalPages = this._currentReportsPage.value.totalPages, number = 0)
         this.updateCurrentReports(true);
     }
+
     fun resetSearch() {
+        this._formGroup.reset()
         this._currentReportsPage.value = this._currentReportsPage.value.copy(20,0,0,0)
         this.updateCurrentReports(false)
     }
@@ -83,6 +89,7 @@ class SearchReportsViewModel(val application: CustomApplication): BaseViewModel(
     val descriptionControl: FormControl<String?> = _descriptionControl
     val reason: FormControl<String?> = _reason
     val type: FormControl<String?> = _type
+    val formGroup: FormGroup = _formGroup
 
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow();
     val types: StateFlow<List<String>> = _types.asStateFlow();

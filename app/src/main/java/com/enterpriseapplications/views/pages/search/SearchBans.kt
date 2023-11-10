@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -128,6 +129,8 @@ fun SearchBans(navController: NavHostController) {
                     ) {
                         Text(text = "Filters", fontSize = 16.sp)
                     }
+                    Text("Use the available filters to find the desired bans",fontSize = 18.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     ItemList(viewModel = viewModel)
                 }
             }
@@ -146,7 +149,7 @@ private fun FilterOptions(viewModel: SearchBansViewModel) {
         CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannerUsername, valueCallback = {viewModel.updateCurrentBans(false)}, supportingText = "Write the banner username", placeHolder = "Write an username...",label = "Banner username")
         CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.bannedUsername, valueCallback = {viewModel.updateCurrentBans(false)}, supportingText = "Write the banned username", placeHolder = "Write an username...",label = "Banned username")
         CustomTextField(modifier = Modifier.padding(2.dp),formControl = viewModel.description, valueCallback = {viewModel.updateCurrentBans(false)}, supportingText = "Write the description of the ban", placeHolder = "Write a description...", label = "Description")
-        FormDropdown(modifier = Modifier.padding(2.dp),formControl = viewModel.reason, valueCallback = {viewModel.updateCurrentBans(false)}, items = reasons.value, label = "Reason")
+        FormDropdown(label = "Reason", supportingText = "Please choose one of the available options", modifier = Modifier.padding(2.dp),formControl = viewModel.reason, valueCallback = {viewModel.updateCurrentBans(false)}, items = reasons.value)
     }
 }
 @Composable

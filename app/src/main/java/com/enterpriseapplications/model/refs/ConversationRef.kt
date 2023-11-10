@@ -1,6 +1,9 @@
 package com.enterpriseapplications.model.refs
 
-data class ConversationRef(val id: String,
+import java.time.LocalDate
+import java.util.UUID
+
+data class ConversationRef(val id: UUID,
 val starter: UserRef,
 val product: ProductRef,
-val createdDate: String)
+val createdDate: LocalDate)

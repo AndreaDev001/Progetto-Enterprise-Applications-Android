@@ -53,15 +53,11 @@ fun CreatePaymentMethod(confirmCallback: (paymentMethod: PaymentMethod) -> Unit 
                 modifier = Modifier.size(50.dp)
             )
         },
-        title = {
-            Text(text = "Create Payment Method", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        },
         text = {
-            Column(
-                modifier = Modifier
-                    .padding(5.dp)
-                    .verticalScroll(ScrollState(0))
+            Column(modifier = Modifier.padding(5.dp).verticalScroll(ScrollState(0))
             ) {
+                Text(text = "Create Payment Method", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Please specify the owner of the card, the number and the brand",fontSize = 15.sp, fontWeight = FontWeight.Thin)
                 CustomTextField(
                     modifier = Modifier.padding(5.dp),
                     formControl = viewModel.holderNameControl,
@@ -80,13 +76,13 @@ fun CreatePaymentMethod(confirmCallback: (paymentMethod: PaymentMethod) -> Unit 
                 )
                 FormDropdown(
                     label = "Brand",
-                    supportingText = "Please choose one of the avaliable options",
+                    supportingText = "Please choose one of the available options",
                     modifier = Modifier.padding(5.dp),
                     formControl = viewModel.brandControl,
                     items = currentBrands.value
                 )
                 Spacer(modifier = Modifier.height(2.dp))
-                CustomButton(enabled = valid.value, text = "Confirm", clickCallback = { viewModel.createPaymentMethod() })
+                CustomButton(enabled = valid.value, text = "Confirm", clickCallback = { viewModel.createPaymentMethod()})
                 CustomButton(text = "Cancel", clickCallback = { cancelCallback() })
             }
         },

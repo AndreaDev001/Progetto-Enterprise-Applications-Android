@@ -13,7 +13,7 @@ import retrofit2.http.Query
 import java.util.UUID
 
 interface MessageRetrofitApi {
-    @GET("messages/public/conversation/{conversationID}")
+    @GET("messages/private/conversation/{conversationID}")
     fun getConversation(@Path("conversationID") conversationID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int = 20): Call<PagedModel<Message>>;
     @POST("messages/private")
     fun createMessage(@Body createMessage: CreateMessage): Call<Message>;

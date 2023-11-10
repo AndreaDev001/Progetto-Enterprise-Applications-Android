@@ -19,7 +19,7 @@ class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(appl
     var update: Boolean = false
     private var _textControl: FormControl<String?> = FormControl("",Validators.required())
     private var _ratingControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(
-        BigInteger.valueOf(0)),Validators.max(BigInteger.valueOf(10)))
+        BigInteger.valueOf(0)),Validators.max(BigInteger.valueOf(11)))
     private var _formGroup: FormGroup = FormGroup(_textControl,_ratingControl)
     private var _createdReview: MutableStateFlow<Review?> = MutableStateFlow(null)
 

@@ -17,6 +17,8 @@ interface ConversationRetrofitApi
     fun getConversations(@Path("userID") userID: UUID): Call<List<Conversation>>;
     @GET("conversations/private/conversation/{conversationID}")
     fun getConversationById(@Path("conversationID") conversationID: UUID): Call<Conversation>;
+    @GET("conversations/private/conversation/{userID}/{productID}")
+    fun getConversationByStarter(@Path("userID") userID: UUID,@Path("productID") productID: UUID): Call<Conversation>;
     @POST("conversations/private")
     fun createConversation(@Body createConversation: CreateConversation): Call<Conversation>;
 }

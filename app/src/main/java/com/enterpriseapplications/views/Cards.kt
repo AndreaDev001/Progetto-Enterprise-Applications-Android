@@ -23,9 +23,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SmartButton
 import androidx.compose.material.icons.filled.Star
@@ -35,6 +38,8 @@ import androidx.compose.material.icons.filled.Start
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,14 +76,16 @@ import com.enterpriseapplications.model.refs.UserRef
 import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.views.alerts.create.CreateOffer
 import com.enterpriseapplications.views.alerts.create.CreateReply
+import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import java.math.BigDecimal
 import java.util.UUID
 
 
 data class DescriptionItem(val description: String,val value: String)
 @Composable
-fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: String,values: List<DescriptionItem>) {
+fun GenericCard(title: String,clickCallback: () -> Unit = {},userID: UUID,values: List<DescriptionItem>) {
     Button(modifier = Modifier
         .fillMaxWidth()
         .padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}){
@@ -161,7 +168,8 @@ fun ProductCard(navHostController: NavHostController,product: Product ,clickCall
                 }
             }
             Column(modifier = Modifier
-                .fillMaxWidth().heightIn(100.dp,250.dp)) {
+                .fillMaxWidth()
+                .heightIn(100.dp, 250.dp)) {
                 ProductImage(productID = product.id, contentScale = ContentScale.Crop)
             }
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -224,19 +232,22 @@ fun UserCard(navHostController: NavHostController, user: UserDetails, clickCallb
 }
 @Composable
 fun ReportCard(report: Report,clickCallback: () -> Unit = {}) {
+        val reporterUsername: DescriptionItem = DescriptionItem("Reporter",report.reporter.username)
+        val reportedUsername: DescriptionItem = DescriptionItem("Reported",report.reported.username);
         val description: DescriptionItem = DescriptionItem("Description",report.description)
         val reason: DescriptionItem = DescriptionItem("Reason",report.reason)
         val type: DescriptionItem = DescriptionItem("type",report.type)
-        val createdDate: DescriptionItem = DescriptionItem("Created Date",report.createdDate)
-        GenericCard(title = "Report",clickCallback = clickCallback, userID = report.reported.id, values = listOf(description,reason,type,createdDate))
+        val createdDate: DescriptionItem = DescriptionItem("Created Date",report.createdDate.toString())
+        GenericCard(title = "Report",clickCallback = clickCallback, userID = report.reported.id, values = listOf(reporterUsername,reportedUsername,description,reason,type,createdDate))
 }
 @Composable
 fun BanCard(ban: Ban,clickCallback: () -> Unit = {}) {
-        val description: DescriptionItem = DescriptionItem("Description",ban.description)
+        val banner: DescriptionItem = DescriptionItem("Banner",ban.banner.username)
+        val banned: DescriptionItem = DescriptionItem("Banned",ban.banned.username)
         val reason: DescriptionItem = DescriptionItem("Reason",ban.reason)
-        val createdDate: DescriptionItem = DescriptionItem("Created date",ban.createdDate)
-        val expirationDate: DescriptionItem = DescriptionItem("Expiration date",ban.expirationDate)
-        GenericCard(title = "Ban", userID = ban.banned.id, values = listOf(description,reason,createdDate,expirationDate))
+        val createdDate: DescriptionItem = DescriptionItem("Created date",ban.createdDate.toString())
+        val expirationDate: DescriptionItem = DescriptionItem("Expiration date",ban.expirationDate.toString())
+        GenericCard(title = "Ban", userID = ban.banned.id, values = listOf(banner,banned,reason,createdDate,expirationDate))
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -267,7 +278,7 @@ fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: ()
                     confirmCallback()
                 }
                 if(creatingReply.value) {
-                    CreateReply(UUID.fromString(review.id),update = false,confirmCallback = successCallback, dismissCallback = callback, cancelCallback = callback)
+                    CreateReply(review.id,update = false,confirmCallback = successCallback, dismissCallback = callback, cancelCallback = callback)
                 }
                 RatingComponent(rating = review.rating, iconSize = 25.dp)
                 Text(
@@ -277,7 +288,7 @@ fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: ()
                     modifier = Modifier.padding(vertical = 2.dp)
                 )
                 Text(
-                    text = review.createdDate,
+                    text = review.createdDate.toString(),
                     fontWeight = FontWeight.Normal,
                     fontSize = 15.sp,
                     modifier = Modifier.padding(vertical = 2.dp)
@@ -311,9 +322,10 @@ fun ReviewCard(review: Review,confirmCallback: () -> Unit = {},clickCallback: ()
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
-    Button(modifier = Modifier
+    Card(modifier = Modifier
         .padding(5.dp)
         .fillMaxWidth(), shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
         Row(modifier = Modifier
@@ -323,7 +335,9 @@ fun OrderCard(order: Order,clickCallback: () -> Unit = {}) {
                 .padding(2.dp)
                 .weight(1f)) {
                 Column(modifier = Modifier.padding(2.dp)) {
-                    ProductImage(productID = order.product.id,modifier = Modifier.fillMaxWidth())
+                    ProductImage(modifier = Modifier
+                        .height(200.dp)
+                        .fillMaxWidth(),productID = order.product.id)
                 }
                 Text(text = order.product.name, fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
                 Text(text = order.product.description, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
@@ -359,7 +373,7 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
                 .padding(horizontal = 2.dp)) {
                 val offerStatus: DescriptionItem = DescriptionItem("Status",offer.status)
                 val price: DescriptionItem = DescriptionItem("Price",offer.price.toString())
-                val createdDate: DescriptionItem = DescriptionItem("Created Date",offer.createdDate)
+                val createdDate: DescriptionItem = DescriptionItem("Created Date",offer.createdDate.toString())
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 5.dp)) {
@@ -374,37 +388,21 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
                     updateCallback()
                 }
                 if(updating.value)
-                    CreateOffer(productID = UUID.fromString(offer.product.id),offerID = UUID.fromString(offer.id), confirmCallback = confirmCallback, dismissCallback = callback, cancelCallback = callback, update = true)
+                    CreateOffer(productID = offer.product.id,offerID = offer.id, confirmCallback = confirmCallback, dismissCallback = callback, cancelCallback = callback, update = true)
                 Row(modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 2.dp)
                     .horizontalScroll(ScrollState(0))) {
                     if(receiver) {
-                        if(offer.status == "OPEN") {
-                            Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {updating.value = true}) {
-                                Text(text = "Update", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            }
-                        }
+                        if(offer.status == "OPEN")
+                            CustomButton(text = "Update",clickCallback = {updating.value = true})
                     }
                     else
                     {
-                        if(offer.status == "ACCEPTED") {
-                            Button(modifier = Modifier.padding(horizontal = 2.dp),onClick = {}) {
-                                Text(text = "Pay", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            }
-                        }
-                        if(offer.status == "OPEN") {
-                            Button(modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                                .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = { updating.value = true }) {
-                                Text(text = "Update", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            }
-                            Button(modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                                .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {}) {
-                                Text(text = "Delete", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            }
-                        }
+                        if(offer.status == "ACCEPTED" && offer.product.status == "AVAILABLE")
+                            CustomButton(text = "Pay", clickCallback = {navController.navigate("checkoutPage/${offer.product.id}/${offer.price}")})
+                        if(offer.status == "OPEN")
+                            CustomButton(text = "Update", clickCallback = {updating.value = true})
                     }
                 }
             }
@@ -412,25 +410,26 @@ fun OfferCard(navController: NavHostController,offer: Offer,clickCallback: () ->
     }
 }
 @Composable
-fun MessageCard(message: Message,received: Boolean = false,clickCallback: () -> Unit = {}) {
+fun MessageCard(message: Message,received: Boolean = false,options: @Composable () -> Unit = {}) {
+    val alignment = if(received) Alignment.Start else Alignment.End;
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 2.dp)) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = if(received) Alignment.Start else Alignment.End) {
-            Column(modifier = Modifier.padding(2.dp)) {
-                Row(modifier = Modifier
-                    .padding(vertical = 2.dp)
-                    .background(Color.Green)
-                    .clip(RoundedCornerShape(10.dp)), horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = message.text,modifier = Modifier.padding(horizontal = 20.dp),fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                    IconButton(onClick = {clickCallback()}) {
-                        Icon(imageVector = Icons.Filled.Send,contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
+        .padding(vertical = 3.dp), horizontalAlignment = alignment) {
+        Column(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Color.LightGray).padding(3.dp))
+        {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = message.text, modifier = Modifier.padding(horizontal = 20.dp), fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                if(received) {
+                    val expanded = remember {mutableStateOf(false)}
+                    IconButton(onClick = {expanded.value = true}) {
+                        Icon(imageVector = Icons.Default.Info,contentDescription = null,modifier = Modifier.padding(2.dp))
+                    }
+                    DropdownMenu(expanded = expanded.value, onDismissRequest = {expanded.value = false}) {
+                        DropdownMenuItem(text = {options()}, onClick = {})
                     }
                 }
-                Text(text = message.createdDate, fontSize = 12.sp, fontWeight = FontWeight.Thin,modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 1.dp))
             }
+            Text(text = message.createdDate.toString(), fontSize = 10.sp, fontWeight = FontWeight.Thin)
         }
     }
 }
@@ -441,7 +440,7 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
          .padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {clickCallback()}) {
          Row(modifier = Modifier.fillMaxWidth()) {
               Column(modifier = Modifier.weight(0.25f)) {
-                  val userID: String = if(receiver) conversation.product.seller.id else conversation.starter.id;
+                  val userID: UUID = if(receiver) conversation.product.seller.id else conversation.starter.id;
                   UserImage(userID = userID,size = 80.dp, contentScale = ContentScale.Crop)
               }
              Column(modifier = Modifier
@@ -449,7 +448,6 @@ fun ConversationCard(conversation: Conversation,receiver: Boolean,clickCallback:
                  .padding(horizontal = 2.dp)) {
                  val username: String = if(receiver) conversation.product.seller.username else conversation.starter.username
                  Text(text = username, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                 Text(text = "Last message here",fontSize = 15.sp, fontWeight = FontWeight.Normal)
              }
          }
      }
@@ -481,12 +479,12 @@ fun PaymentMethodCard(paymentMethod: PaymentMethod) {
             .padding(2.dp)
             .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.number)
-            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.expirationDate)
+            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.expirationDate.toString())
         }
     }
 }
 @Composable
-fun UserImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier = Modifier,size: Dp = 40.dp,userID: String) {
+fun UserImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier = Modifier,size: Dp = 40.dp,userID: UUID) {
     val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/$userID";
     AsyncImage(contentScale = contentScale,modifier = modifier
         .clip(RoundedCornerShape(60))
@@ -494,8 +492,8 @@ fun UserImage(contentScale: ContentScale = ContentScale.None,modifier: Modifier 
 }
 @Composable
 fun ProductImage(contentScale: ContentScale = ContentScale.None,
-                 @SuppressLint("ModifierParameter") modifier: Modifier = Modifier, productID: String) {
-    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/$productID/first";
+                 @SuppressLint("ModifierParameter") modifier: Modifier = Modifier, productID: UUID) {
+    val path: String = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productID.toString()}/first";
     BetterAsyncImage(modifier = modifier, url = path, contentScale)
 }
 

@@ -52,6 +52,7 @@ import com.enterpriseapplications.viewmodel.profile.LikedProductsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -109,23 +110,7 @@ private fun LikedProductsLists(navController: NavHostController,viewModel: Liked
         viewModel.updateCurrentPage();
     }
     Column(modifier = Modifier.padding(2.dp)) {
-        Column(modifier = Modifier.padding(5.dp)) {
-            Text(
-                text = "${currentLikesPage.value.number + 1} page",
-                fontSize = 15.sp,
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
-            Text(
-                text = "${currentLikesPage.value.totalPages} total pages",
-                fontSize = 15.sp,
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
-            Text(
-                text = "${currentLikesPage.value.totalElements} total elements",
-                fontSize = 15.sp,
-                modifier = Modifier.padding(vertical = 2.dp)
-            )
-        }
+        PageShower(page = currentLikesPage.value)
         if (currentLikesSearching.value)
             ProgressIndicator()
         else {

@@ -18,8 +18,23 @@ class FormGroup(private vararg val controls: FormControl<*>)
     }
 
     fun reset() {
+        _valid.value = false
         for(control in _controlsList.value)
             control.reset()
+    }
+
+    fun addControl(formControl: FormControl<*>) {
+        val mutableList = _controlsList.value
+        mutableList.addAll(this._controlsList.value)
+        mutableList.add(formControl);
+        formControl.formGroup = this
+        this._controlsList.value = mutableList
+    }
+
+    fun clearControls() {
+        for(control in _controlsList.value)
+            control.formGroup = null
+       _controlsList.value = mutableListOf()
     }
     fun validate(): Boolean {
         for(control in _controlsList.value) {

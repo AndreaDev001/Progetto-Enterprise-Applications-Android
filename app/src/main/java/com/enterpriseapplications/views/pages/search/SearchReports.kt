@@ -32,10 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -44,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,15 +56,15 @@ import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
-import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.ReportCard
+import com.enterpriseapplications.views.alerts.create.CreateBan
 import com.enterpriseapplications.views.lists.MenuItem
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -104,8 +107,7 @@ fun SearchReports(navController: NavHostController) {
                                 },
                                 trailingIcon = Icons.Filled.Close,
                                 headerText = "Filters",
-                                supportingText = "Use the following filters to find the desired products",
-                                leadingIcon = null
+                                supportingText = "Use the following filters to find the desired reports"
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                             FilterOptions(viewModel = viewModel)
@@ -123,8 +125,10 @@ fun SearchReports(navController: NavHostController) {
                             .fillMaxWidth()
                             .padding(10.dp), shape = RoundedCornerShape(10.dp)
                     ) {
-                        Text(text = "Filters", fontSize = 16.sp)
+                        Text(modifier = Modifier.padding(2.dp),text = "Filters", fontSize = 15.sp, fontWeight = FontWeight.Normal)
                     }
+                    Text(modifier = Modifier.padding(2.dp),text = "Use the available filters the find the desired reports",fontSize = 18.sp, fontWeight = FontWeight.Normal)
+                    Spacer(modifier = Modifier.height(2.dp))
                     ItemList(viewModel = viewModel)
                 }
             }
@@ -144,8 +148,8 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
         CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.reportedEmail, supportingText = "Write the reported email", placeHolder = "Write an email...", label = "Reported Email")
         CustomTextField(modifier = Modifier.padding(2.dp), valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.reporterUsername, supportingText = "Write the reporter username", placeHolder = "Write an username...", label = "Reporter username")
         CustomTextField(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.reportedUsername, supportingText = "Write the reported username", placeHolder = "Write an username...",label = "Reported Username")
-        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.reason, items = reasons.value, label = "Reason")
-        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.type, items = types.value, label = "Type")
+        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.reason, items = reasons.value, label = "Reason", supportingText = "Please choose one of the available options")
+        FormDropdown(modifier = Modifier.padding(2.dp),valueCallback = {viewModel.updateCurrentReports(false)},formControl = viewModel.type, items = types.value, label = "Type", supportingText = "Please choose one of the available options")
     }
 }
 @Composable
@@ -154,6 +158,10 @@ private fun ItemList(viewModel: SearchReportsViewModel) {
     val currentPage: State<Page> = viewModel.currentReportsPage.collectAsState()
     val currentReportsSearching: State<Boolean> = viewModel.currentReportsSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()
+    val currentReport: MutableState<Report?> = remember { mutableStateOf(null) }
+    val callback: () -> Unit = {currentReport.value = null;}
+    if(currentReport.value != null)
+        CreateBan(currentReport.value, update = false, cancelCallback = callback, dismissCallback = callback)
     val bottomReached by remember {
         derivedStateOf {
             lazyGridState.isScrolledToEnd()
@@ -167,17 +175,12 @@ private fun ItemList(viewModel: SearchReportsViewModel) {
     else
     {
         Column(modifier = Modifier.padding(5.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(text = "Use the available filters to find the desired products", fontSize = 18.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            }
+            PageShower(page = currentPage.value)
             if(currentPage.value.totalElements > 0) {
                 LazyVerticalGrid(state = lazyGridState,modifier = Modifier.padding(vertical = 2.dp), columns = GridCells.Fixed(2), verticalArrangement = Arrangement.Top, horizontalArrangement = Arrangement.SpaceBetween, content = {
                     itemsIndexed(items = currentReports.value) { _, item ->
                         Box(modifier = Modifier.padding(5.dp)) {
-                            ReportCard(report = item)
+                            ReportCard(report = item, clickCallback = {currentReport.value = item})
                         }
                     }
                 })

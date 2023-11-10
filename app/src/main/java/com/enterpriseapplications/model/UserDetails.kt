@@ -3,7 +3,7 @@ package com.enterpriseapplications.model
 import java.time.LocalDate
 import java.util.UUID
 
-data class UserDetails(val id: String,
+data class UserDetails(val id: UUID,
 val email: String? = null,
 val username: String,
 val name: String? = null,
@@ -18,4 +18,4 @@ val amountOfProducts: Int? = null,
 val amountOfWrittenReviews: Int? = null,
 val amountOfReceivedReviews: Int? = null,
 val amountOfReplies: Int? = null,
-val createdDate: String? = null)
+val createdDate: LocalDate? = null)

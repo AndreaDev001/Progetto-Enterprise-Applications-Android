@@ -47,6 +47,10 @@ class HomePageViewModel(val application: CustomApplication): BaseViewModel(appli
             }
             this._currentMostLikedProductsSearching.value = false;
             this._currentMostLikedProductsPage.value = this._currentMostLikedProductsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements, totalPages = it.page.totalPages, number = it.page.number)
+        },{
+            this._currentMostLikedProductsSearching.value = false
+            this._currentMostLikedProducts.value = emptyList()
+            this._currentMostLikedProductsPage.value = Page(20,0,0,0)
         })
     }
     private fun updateRecentProducts(page: Boolean) {
@@ -66,6 +70,10 @@ class HomePageViewModel(val application: CustomApplication): BaseViewModel(appli
             }
             this._currentRecentProductsSearching.value = false;
             this._currentRecentProductsPage.value =  this._currentRecentProductsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements, totalPages = it.page.totalPages,number = it.page.number)
+        },{
+            this._currentRecentProductsSearching.value = false
+            this._currentRecentProducts.value = emptyList()
+            this._currentRecentProductsPage.value = Page(20,0,0,0);
         })
     }
     private fun updateMostExpensiveProducts(page: Boolean) {
@@ -84,6 +92,10 @@ class HomePageViewModel(val application: CustomApplication): BaseViewModel(appli
             }
             this._currentMostExpensiveProductsSearching.value = false;
             this._currentMostExpensiveProductsPage.value =  this._currentMostExpensiveProductsPage.value.copy(size = it.page.size, totalElements = it.page.totalElements, totalPages = it.page.totalPages,number = it.page.number)
+        },{
+            this._currentMostExpensiveProductsSearching.value = false
+            this._currentMostExpensiveProducts.value = emptyList()
+            this._currentMostExpensiveProductsPage.value = Page(20,0,0,0)
         })
     }
 
@@ -111,9 +123,6 @@ class HomePageViewModel(val application: CustomApplication): BaseViewModel(appli
     val currentRecentProducts: StateFlow<List<Product>> = _currentRecentProducts.asStateFlow();
     val currentMostLikedProducts: StateFlow<List<Product>> = _currentMostLikedProducts.asStateFlow()
     val currentMostExpensiveProducts: StateFlow<List<Product>> = _currentMostExpensiveProducts.asStateFlow()
-    val currentRecentProductsPage: StateFlow<Page> = _currentRecentProductsPage.asStateFlow()
-    val currentMostLikedProductsPage: StateFlow<Page> = _currentMostLikedProductsPage.asStateFlow()
-    val currentMostExpensiveProductsPage: StateFlow<Page> = _currentMostExpensiveProductsPage.asStateFlow()
     val currentRecentProductsSearching: StateFlow<Boolean> = _currentRecentProductsSearching.asStateFlow()
     val currentMostLikedProductsSearching: StateFlow<Boolean> = _currentMostLikedProductsSearching.asStateFlow()
     val currentMostExpensiveProductsSearching: StateFlow<Boolean> = _currentMostExpensiveProductsSearching.asStateFlow()

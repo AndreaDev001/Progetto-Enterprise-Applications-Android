@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.math.BigDecimal
 import java.util.UUID
 
 interface ProductRetrofitApi {
@@ -21,8 +22,10 @@ interface ProductRetrofitApi {
         @Query("name") name: String?,
         @Query("description") description: String?,
         @Query("condition") condition: String?,
-        @Query("minPrice") minPrice: Number?,
-        @Query("maxPrice") maxPrice: Number?,
+        @Query("minPrice") minPrice: BigDecimal?,
+        @Query("maxPrice") maxPrice: BigDecimal?,
+        @Query("minLikes") minLikes: BigDecimal?,
+        @Query("maxLikes") maxLikes: BigDecimal?,
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20) : Call<PagedModel<Product>>
 

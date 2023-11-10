@@ -41,10 +41,10 @@ fun CreateOffer(productID: UUID,offerID: UUID? = null,update: Boolean,confirmCal
     val viewModel: CreateOfferViewModel = viewModel(factory = viewModelFactory)
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
     val text: String = if(!update) "Create an offer" else "Update offer";
-    viewModel.reset()
     viewModel.productID = productID
     viewModel.offerID = offerID
     viewModel.update = update
+    viewModel.reset()
     val newOffer: State<Offer?> = viewModel.newOffer.collectAsState()
     val buyer: State<Boolean> = viewModel.buyer.collectAsState()
     if(newOffer.value != null)
@@ -52,13 +52,7 @@ fun CreateOffer(productID: UUID,offerID: UUID? = null,update: Boolean,confirmCal
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
        Icon(imageVector = Icons.Default.LocalOffer, contentDescription = null,modifier = Modifier.size(50.dp))
     },text = {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(ScrollState(0)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(
                 text = text,
                 modifier = Modifier.padding(2.dp),

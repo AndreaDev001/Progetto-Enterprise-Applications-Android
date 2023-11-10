@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
@@ -46,7 +45,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,6 +56,7 @@ import coil.compose.AsyncImage
 import com.enterpriseapplications.config.authentication.AuthenticatedUser
 import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
+import com.enterpriseapplications.model.Follow
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
@@ -74,6 +73,7 @@ import com.enterpriseapplications.views.alerts.create.CreateReview
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -83,11 +83,11 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserPageDetails(navController: NavHostController,userID: String?) {
+fun UserPageDetails(navController: NavHostController,userID: UUID?) {
     val viewModel: UserDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentUsersDetails: State<UserDetails?> = viewModel.currentUserDetails.collectAsState()
     val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
-    viewModel.userID = UUID.fromString(userID)
+    viewModel.userID = userID
     viewModel.initialize()
     Column(
         modifier = Modifier
@@ -95,14 +95,15 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
             .padding(vertical = 2.dp, horizontal = 5.dp)
     ) {
         TopAppBar(title = {
-            Text(text = "User Details", fontSize = 20.sp)
+            val text: String = if(currentUsersDetails.value != null) currentUsersDetails.value!!.username else "User Details";
+            Text(text = text , fontSize = 20.sp)
         }, navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
         val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-        SwipeRefresh(state = refreshState, onRefresh = {}) {
+        SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,23 +185,35 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                                     }
                                     val createReport = remember { mutableStateOf(false) }
                                     if(createReport.value)
-                                        CreateReport(userID = UUID.fromString(userID!!), confirmReportCallback = {createReport.value = false}, dismissCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
+                                        CreateReport(userID = userID, confirmReportCallback = {createReport.value = false;viewModel.initialize()}, dismissCallback = {createReport.value = false}, cancelCallback = {createReport.value = false})
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        val hasFollow: State<Boolean> = viewModel.hasFollow.collectAsState()
+                                        val hasFollow: State<Follow?> = viewModel.hasFollow.collectAsState()
                                         val hasReport: State<Boolean> = viewModel.hasReport.collectAsState()
-                                        val currentText: String = if(hasFollow.value) "Remove Follow" else "Add Follow";
-                                        if(authenticatedUser.value!!.userID.toString() != userID) {
-                                            Button(onClick = {
-                                                if(hasFollow.value)
-                                                    viewModel.removeFollow();
-                                                else
-                                                    viewModel.addFollow();
-                                            }) {
-                                                Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                        val searchingFollow: State<Boolean> = viewModel.searchingFollow.collectAsState()
+                                        val searchingReport: State<Boolean> = viewModel.searchingReport.collectAsState()
+                                        val currentText: String = if(hasFollow.value != null) "Remove Follow" else "Add Follow";
+                                        if(authenticatedUser.value!!.userID != userID) {
+                                            if(searchingFollow.value)
+                                                ProgressIndicator()
+                                            else
+                                            {
+                                                Button(onClick = {
+                                                    if(hasFollow.value != null)
+                                                        viewModel.removeFollow();
+                                                    else
+                                                        viewModel.addFollow();
+                                                }) {
+                                                    Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                                }
                                             }
-                                            if(!hasReport.value) {
-                                                Button(onClick = {createReport.value = true}) {
-                                                    Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                            if(searchingReport.value)
+                                                ProgressIndicator()
+                                            else
+                                            {
+                                                if(!hasReport.value) {
+                                                    Button(onClick = {createReport.value = true}) {
+                                                        Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                                    }
                                                 }
                                             }
                                         }
@@ -227,12 +240,12 @@ fun UserPageDetails(navController: NavHostController,userID: String?) {
                 val searchingReview: State<Boolean> = viewModel.searchingReview.collectAsState()
                 val hasReview: State<Boolean> = viewModel.hasReview.collectAsState()
                 if(createReview.value)
-                    CreateReview(userID = UUID.fromString(userID!!), update = false, confirmCallback = {createReview.value = false}, cancelCallback = {createReview.value = false})
+                    CreateReview(userID = userID!!, update = false, confirmCallback = {createReview.value = false;viewModel.initialize()}, cancelCallback = {createReview.value = false})
                 if(searchingReview.value)
                     ProgressIndicator()
                 else
                 {
-                    if(authenticatedUser.value!!.userID.toString() != userID && !hasReview.value) {
+                    if(authenticatedUser.value!!.userID != userID && !hasReview.value) {
                         Button(modifier = Modifier
                             .padding(10.dp)
                             .fillMaxWidth(),shape = RoundedCornerShape(5.dp),onClick = {createReview.value = true}) {
@@ -273,7 +286,7 @@ private fun ReviewList(viewModel: UserDetailsViewModel) {
                     content = {
                         itemsIndexed(items = currentReviews.value) { _, item ->
                             Box(modifier = Modifier.padding(5.dp)) {
-                                ReviewCard(item, confirmCallback = {viewModel.initialize()}, receiver = authenticatedUser.value!!.userID == UUID.fromString(item.receiver.id));
+                                ReviewCard(item, confirmCallback = {viewModel.initialize()}, receiver = authenticatedUser.value!!.userID == item.receiver.id);
                             }
                         }
                     })

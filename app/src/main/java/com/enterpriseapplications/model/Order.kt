@@ -8,11 +8,11 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.UUID
 
-data class Order(val id: String,
+data class Order(val id: UUID,
 val buyer: UserRef,
 val seller: UserRef,
 val price: BigDecimal,
 val product: ProductRef,
 val address: AddressRef,
 val paymentMethod: PaymentMethodRef,
-val createdDate: String)
+val createdDate: LocalDate)

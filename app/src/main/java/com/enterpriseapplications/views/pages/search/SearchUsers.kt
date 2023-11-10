@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -119,6 +120,7 @@ fun SearchUsers(navController: NavHostController) {
                     ) {
                         Text(text = "Filters", fontSize = 16.sp)
                     }
+                    Text(text = "Use the available filters to find the desired users",fontSize = 17.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
                     ItemList(viewModel = viewModel, navController = navController)
                 }
             }

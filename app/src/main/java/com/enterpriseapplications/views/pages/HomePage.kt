@@ -54,7 +54,6 @@ import com.google.accompanist.swiperefresh.SwipeRefreshState
 @Composable
 fun HomePage(navController: NavHostController) {
     val swipeRefreshState: SwipeRefreshState = SwipeRefreshState(isRefreshing = false)
-    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val viewModel: HomePageViewModel = viewModel(factory = viewModelFactory);
     Column(modifier = Modifier.padding(vertical = 5.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
@@ -70,7 +69,7 @@ fun HomePage(navController: NavHostController) {
                 .padding(10.dp)
                 .fillMaxWidth()
                 .verticalScroll(ScrollState(0))) {
-                Text(modifier = Modifier.padding(2.dp), fontSize = 25.sp, fontWeight = FontWeight.Bold,text = "Welcome" + " " + authenticatedUser.value!!.username)
+                Text(modifier = Modifier.padding(2.dp), fontSize = 25.sp, fontWeight = FontWeight.Bold,text = "Welcome back")
                 Text(modifier = Modifier.padding(horizontal = 2.dp), fontSize = 15.sp, fontWeight = FontWeight.Medium, text = "In this page you can find the most recently created products and the most liked ones, if you want to make an accurate search use the available search pages")
                 Column(modifier = Modifier.padding(vertical = 10.dp)) {
                     RecentlyCreated(navController = navController,viewModel = viewModel)

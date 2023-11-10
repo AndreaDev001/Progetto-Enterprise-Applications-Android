@@ -43,6 +43,7 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.OrderCard
 import com.enterpriseapplications.views.ProductCard
 import com.enterpriseapplications.views.pages.search.MissingItems
+import com.enterpriseapplications.views.pages.search.PageShower
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -93,11 +94,7 @@ private fun ItemList(viewModel: OrderPageViewModel) {
     else
     {
         Column(modifier = Modifier.padding(2.dp)) {
-            Column(modifier = Modifier.padding(5.dp)) {
-                Text(text = "${currentOrdersPage.value.number + 1} page", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentOrdersPage.value.totalPages} total pages", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-                Text(text = "${currentOrdersPage.value.totalElements} total elements", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp))
-            }
+            PageShower(page = currentOrdersPage.value)
             if(currentOrdersPage.value.totalElements > 0) {
                 LazyColumn(state = lazyState,modifier = Modifier.padding(vertical = 2.dp), verticalArrangement = Arrangement.Top,content = {
                     itemsIndexed(items = currentOrders.value) {index,item ->

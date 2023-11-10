@@ -64,10 +64,10 @@ fun CreateAddress(confirmCallback: (address: Address) -> Unit = {},dismissCallba
             CustomTextField(modifier = Modifier.padding(2.dp),label = "Street", editable = false, formControl = viewModel.streetControl)
             CustomTextField(label = "Locality",editable = false, modifier = Modifier.padding(2.dp),formControl = viewModel.localityControl)
             CustomTextField(label = "Postal Code", editable = false, modifier = Modifier.padding(2.dp),formControl = viewModel.postalCodeControl)
+            if(createdAddress.value != null)
+                confirmCallback(createdAddress.value!!)
+            CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createAddress()})
+            CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
         }
-        if(createdAddress.value != null)
-            confirmCallback(createdAddress.value!!)
-        CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createAddress()})
-        CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
     }, confirmButton = {}, dismissButton = {})
 }

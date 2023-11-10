@@ -16,7 +16,7 @@ import java.util.UUID
 
 interface ReportRetrofitApi {
 
-    @GET("reports/public/spec")
+    @GET("reports/private/spec")
     fun getReports(
         @Query("reporterEmail") reporterEmail: String?,
         @Query("reportedEmail") reportedEmail: String?,
@@ -28,10 +28,10 @@ interface ReportRetrofitApi {
         @Query("page") page: Int = 0,
         @Query("pageSize") pageSize: Int = 20,
     ) : Call<PagedModel<Report>>
-
-    @GET("reports/private/report/{reporterID}/{reportedID}")
-    fun getReportBetween(@Path("reporterID") reporterID: UUID,@Path("reportedID") reportedID: UUID): Call<Report>;
-
+    @GET("reports/private/{reportID}")
+    fun getReport(@Path("reportID") reportID: UUID): Call<Report>;
+    @GET("reports/private/report/{reporterID}/{reportedID}/{reportType}")
+    fun getReportBetween(@Path("reporterID") reporterID: UUID,@Path("reportedID") reportedID: UUID,@Path("reportType") reportType: String): Call<Report>;
     @GET("reports/public/reasons")
     fun getReasons(): Call<List<String>>
     @GET("reports/public/types")

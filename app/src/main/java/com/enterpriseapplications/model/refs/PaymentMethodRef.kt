@@ -1,3 +1,5 @@
 package com.enterpriseapplications.model.refs
 
-data class PaymentMethodRef(val id: String,val brand: String,val holderName: String)
+import java.util.UUID
+
+data class PaymentMethodRef(val id: UUID, val brand: String, val holderName: String)

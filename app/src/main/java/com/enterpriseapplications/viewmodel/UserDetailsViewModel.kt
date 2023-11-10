@@ -2,6 +2,7 @@ package com.enterpriseapplications.viewmodel
 
 import com.enterpriseapplications.CustomApplication
 import com.enterpriseapplications.config.authentication.AuthenticationManager
+import com.enterpriseapplications.model.Follow
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.Review
@@ -15,9 +16,6 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
 
     var userID: UUID? = null;
     private var _currentFollowerCount: MutableStateFlow<Int?> = MutableStateFlow(0);
-    private var _hasFollow: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var _hasReview: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private var _hasReport: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _currentSelectedTab: MutableStateFlow<Int> = MutableStateFlow(0);
     private var _currentUserDetails: MutableStateFlow<UserDetails?> = MutableStateFlow(null)
     private var _currentReviews: MutableStateFlow<List<Review>> = MutableStateFlow(emptyList())
@@ -26,33 +24,47 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
     private var _currentProductsPage: MutableStateFlow<Page> = MutableStateFlow(Page(20,0,0,0));
     private var _currentReviewsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
     private var _currentProductsSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
+
+
+    private var _hasFollow: MutableStateFlow<Follow?> = MutableStateFlow(null)
+    private var _hasReview: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _hasReport: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _searchingUser: MutableStateFlow<Boolean> = MutableStateFlow(false);
     private var _searchingReview: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _searchingReport: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _searchingFollow: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     fun initialize() {
         if(this.userID != null) {
+            if(this.userID != AuthenticationManager.currentUser.value!!.userID) {
+                this.getFollow();
+                this.getReport();
+                this.getReview();
+            }
             this.makeRequest(this.retrofitConfig.userController.getUserDetails(userID!!),{
                 this._currentUserDetails.value = it
                 this._currentFollowerCount.value = it.amountOfFollowers
                 this.updateReviews(false)
                 this.updateProducts(false)
-            })
-            this.getFollow()
-            this.getReview()
-            this.getReport()
+            },{})
         }
     }
 
 
     private fun getReport() {
-        this.makeRequest(this.retrofitConfig.reportController.getReportBetween(AuthenticationManager.currentUser.value!!.userID,userID!!),{
+        this._searchingReport.value = true;
+        this.makeRequest(this.retrofitConfig.reportController.getReportBetween(AuthenticationManager.currentUser.value!!.userID,userID!!,"USER"),{
             this._hasReport.value = true
-        },{this._hasReport.value = false})
+            this._searchingReport.value = false;
+        },{this._hasReport.value = false;this._searchingReport.value = false})
     }
 
     private fun getFollow() {
+        this._searchingFollow.value = true;
         this.makeRequest(this.retrofitConfig.followController.getFollow(AuthenticationManager.currentUser.value!!.userID,userID!!),{
-            this._hasFollow.value = true;
-        },{ this._hasFollow.value = false})
+            this._hasFollow.value = it
+            this._searchingFollow.value = false;
+        },{ this._hasFollow.value = null;this._searchingFollow.value = false})
     }
 
     private fun getReview() {
@@ -104,14 +116,14 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
 
     fun updateCurrentPage(index: Int)
     {
-     val currentPage: MutableStateFlow<Page> = if(index == 0) _currentReviewsPage else _currentProductsPage
-     if(currentPage.value.number + 1 >= currentPage.value.totalPages)
-         return;
-     currentPage.value = currentPage.value.copy(totalPages = currentPage.value.totalPages, totalElements = currentPage.value.totalElements, size = currentPage.value.size,number = currentPage.value.number + 1)
-     when(index) {
-         0 -> this.updateReviews(true);
-         1 -> this.updateProducts(true);
-     }
+        val currentPage: MutableStateFlow<Page> = if(index == 0) _currentReviewsPage else _currentProductsPage
+        if(currentPage.value.number + 1 >= currentPage.value.totalPages)
+            return;
+        currentPage.value = currentPage.value.copy(totalPages = currentPage.value.totalPages, totalElements = currentPage.value.totalElements, size = currentPage.value.size,number = currentPage.value.number + 1)
+        when(index) {
+            0 -> this.updateReviews(true);
+            1 -> this.updateProducts(true);
+        }
     }
     fun resetTab(index: Int) {
         val currentPage: MutableStateFlow<Page> = if(index == 0) _currentReviewsPage else _currentProductsPage
@@ -130,29 +142,40 @@ class UserDetailsViewModel(val application: CustomApplication): BaseViewModel(ap
     }
 
     fun addFollow() {
+        this._searchingFollow.value = true
         this.makeRequest(this.retrofitConfig.followController.createFollows(userID!!),{
-            this._hasFollow.value = true;
+            this._hasFollow.value = it;
             this._currentFollowerCount.value = this._currentFollowerCount.value!! + 1;
+            this._searchingFollow.value = false
+        },{
+            this._searchingFollow.value = false
+            this._hasFollow.value = null
         })
     }
     fun removeFollow() {
-        this.makeDeleteRequest(this.retrofitConfig.followController.deleteFollowsByFollowed(userID!!),{
-            this._hasFollow.value = false;
-            this._currentFollowerCount.value = this._currentFollowerCount.value!! + 1;
-        })
+        if(_hasFollow.value != null) {
+            this._searchingFollow.value = true
+            this.makeDeleteRequest(this.retrofitConfig.followController.deleteFollows(_hasFollow.value!!.id),{
+                this._hasFollow.value = null
+                this._currentFollowerCount.value = this._currentFollowerCount.value!! - 1;
+                this._searchingFollow.value = false
+            },{
+                this._searchingFollow.value = false
+            })
+        }
     }
 
     val currentSelectedTab: StateFlow<Int> = _currentSelectedTab.asStateFlow();
     val currentUserDetails: StateFlow<UserDetails?> = _currentUserDetails.asStateFlow()
     val currentReviews: StateFlow<List<Review>> = _currentReviews.asStateFlow()
     val currentProducts: StateFlow<List<Product>> = _currentProducts.asStateFlow()
-    val currentReviewsPage: StateFlow<Page> = _currentReviewsPage.asStateFlow()
-    val currentProductsPage: StateFlow<Page> = _currentProductsPage.asStateFlow()
     val currentReviewsSearching: StateFlow<Boolean> = _currentReviewsSearching.asStateFlow()
     val currentProductsSearching: StateFlow<Boolean> = _currentProductsSearching.asStateFlow()
-    val hasFollow: StateFlow<Boolean> = _hasFollow.asStateFlow()
+    val hasFollow: StateFlow<Follow?> = _hasFollow.asStateFlow()
     val hasReview: StateFlow<Boolean> = _hasReview.asStateFlow()
     val hasReport: StateFlow<Boolean> = _hasReport.asStateFlow()
+    val searchingReport: StateFlow<Boolean> = _searchingReport.asStateFlow()
     val searchingReview: StateFlow<Boolean> = _searchingReview.asStateFlow()
+    val searchingFollow: StateFlow<Boolean> = _searchingFollow.asStateFlow()
     val currentAmountOfFollowers: StateFlow<Int?> = _currentFollowerCount.asStateFlow();
 }

@@ -1,6 +1,7 @@
 package com.enterpriseapplications.views.alerts.create
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -17,12 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.reports.MessageReport
 import com.enterpriseapplications.model.reports.ProductReport
 import com.enterpriseapplications.model.reports.Report
@@ -61,8 +62,9 @@ fun CreateReport(userID: UUID? = null, productID: UUID? = null, messageID: UUID?
     }, text = {
         Column(modifier = Modifier
             .padding(5.dp)
-            .verticalScroll(ScrollState(0))) {
+            .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(text = text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = "Please provide a description and a reason",fontSize = 15.sp, fontWeight = FontWeight.Normal)
             CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.descriptionControl, supportingText = "Write the description of the report", placeHolder = "Write a description...", label = "Description")
             FormDropdown(label = "Reason", supportingText = "Please choose one of the available reasons", modifier = Modifier.padding(5.dp),formControl = viewModel.reasonControl, items = reasons.value)
             Spacer(modifier = Modifier.height(2.dp))

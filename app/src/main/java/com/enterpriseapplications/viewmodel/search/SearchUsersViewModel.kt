@@ -45,9 +45,10 @@ class SearchUsersViewModel(val application: CustomApplication): BaseViewModel(ap
 
     fun updateCurrentUsers(page: Boolean) {
         this._currentUsersSearching.value = !page;
+        val minRating: Int? =  if(this._minRatingControl.currentValue.value != null) _minRatingControl.currentValue.value!!.toIntOrNull() else null;
+        val maxRating: Int? = if(this._maxRatingControl.currentValue.value != null) _maxRatingControl.currentValue.value!!.toIntOrNull() else null;
         this.makeRequest(this.retrofitConfig.userController.getUsers(_emailControl.currentValue.value,_usernameControl.currentValue.value,
-            _nameControl.currentValue.value,_surnameControl.currentValue.value,_genderControl.currentValue.value,_descriptionControl.currentValue.value,0,10,
-            _currentUsersPage.value.number,20),{
+            _nameControl.currentValue.value,_surnameControl.currentValue.value,_genderControl.currentValue.value,_descriptionControl.currentValue.value,minRating,maxRating, _currentUsersPage.value.number,20),{
             if(it._embedded != null)
             {
                 if(!page)

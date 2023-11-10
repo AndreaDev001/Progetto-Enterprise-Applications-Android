@@ -8,6 +8,7 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 
 class CustomApplication() : Application()
 {
+    lateinit var navController: NavController;
     lateinit var authenticationManager: AuthenticationManager;
 
     fun getContext(): Context? {
@@ -16,7 +17,7 @@ class CustomApplication() : Application()
 
     override fun onCreate() {
         super.onCreate()
-        authenticationManager = AuthenticationManager(this)
+        authenticationManager = AuthenticationManager(this);
     }
 
     override fun onTerminate() {

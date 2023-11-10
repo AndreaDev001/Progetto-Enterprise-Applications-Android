@@ -1,3 +1,5 @@
 package com.enterpriseapplications.model.refs
 
-data class AddressRef(val id: String,val code: String,val locality: String)
+import java.util.UUID
+
+data class AddressRef(val id: UUID,val code: String,val locality: String)

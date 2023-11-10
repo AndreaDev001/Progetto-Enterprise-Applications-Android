@@ -34,8 +34,8 @@ interface UserRetrofitApi
         @Query("surname") surname: String?,
         @Query("gender") gender: String?,
         @Query("description") description: String?,
-        @Query("minRating") minRating: Number?,
-        @Query("maxRating") maxRating: Number?,
+        @Query("minRating") minRating: Int?,
+        @Query("maxRating") maxRating: Int?,
         @Query("page") page: Int,
         @Query("pageSize") pageSize: Int
     ): Call<PagedModel<UserDetails>>

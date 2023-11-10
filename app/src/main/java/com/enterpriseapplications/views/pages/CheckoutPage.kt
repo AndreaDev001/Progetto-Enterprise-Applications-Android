@@ -51,19 +51,23 @@ import com.enterpriseapplications.views.AddressCard
 import com.enterpriseapplications.views.DescriptionItem
 import com.enterpriseapplications.views.PaymentMethodCard
 import com.enterpriseapplications.views.ProductImage
+import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.MissingItems
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import java.math.BigDecimal
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CheckoutPage(navController: NavHostController,productID: String?) {
+fun CheckoutPage(navController: NavHostController,productID: String? = null,price: String? = null) {
     val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
+    viewModel.reset()
     viewModel.productID = UUID.fromString(productID);
+    viewModel.price = price!!.toBigDecimal()
     viewModel.initialize()
     Column(modifier = Modifier.padding(vertical = 5.dp)) {
         TopAppBar(modifier = Modifier.fillMaxWidth(), title = {
@@ -96,11 +100,7 @@ fun CheckoutPage(navController: NavHostController,productID: String?) {
                                 Icon(imageVector = Icons.Default.CreditCardOff,contentDescription = null,modifier = Modifier.padding(2.dp))
                             }
                             Text(modifier = Modifier.padding(2.dp),text = "You must register a payment method before buying a product", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            Button(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),shape = RoundedCornerShape(5.dp), onClick = {navController.navigate("paymentMethodsPage")}){
-                                Text(text = "Add a payment method",modifier = Modifier.padding(2.dp), fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            }
+                            CustomButton(modifier = Modifier.fillMaxWidth(),text = "Add a payment method",clickCallback = {navController.navigate("paymentMethodsPage")})
                         }
                         if(currentAddresses.value.isEmpty()) {
                             Row(modifier = Modifier
@@ -110,23 +110,15 @@ fun CheckoutPage(navController: NavHostController,productID: String?) {
                                 Icon(imageVector = Icons.Default.LocationOff,contentDescription = null,modifier = Modifier.padding(2.dp))
                             }
                             Text(modifier = Modifier.padding(2.dp),text = "You must register an address before buying a product",fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                            Button(modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp), shape = RoundedCornerShape(5.dp), onClick = {navController.navigate("addresses")}) {
-                                Text(text = "Add an address",modifier = Modifier.padding(2.dp),fontSize = 15.sp,fontWeight = FontWeight.Bold);
-                            }
+                            CustomButton(modifier = Modifier.fillMaxWidth(),text = "Add an address", clickCallback = {navController.navigate("addresses")})
                         }
                     }
                 }
                 else
                 {
                     val success: State<Boolean> = viewModel.success.collectAsState()
-                    if(success.value)
-                        SuccessHandler(navController = navController)
-                    else
-                    {
                         Column(modifier = Modifier.padding(vertical = 10.dp)) {
-                            ProductDetails(viewModel = viewModel)
+                            ProductDetails(viewModel = viewModel,price = price)
                             Spacer(modifier = Modifier.height(2.dp))
                             PaymentMethodsList(viewModel = viewModel)
                             Spacer(modifier = Modifier.height(2.dp))
@@ -136,14 +128,15 @@ fun CheckoutPage(navController: NavHostController,productID: String?) {
                             Spacer(modifier = Modifier.height(2.dp))
                             ButtonSection(viewModel = viewModel)
                         }
-                    }
+                    if(success.value)
+                        SuccessHandler(navController = navController)
                 }
             }
         }
     }
 }
 @Composable
-private fun ProductDetails(viewModel: CheckoutPageViewModel) {
+private fun ProductDetails(viewModel: CheckoutPageViewModel,price: String?) {
     val currentProduct: State<Product?> = viewModel.currentProductDetails.collectAsState()
     val currentProductSearching: State<Boolean> = viewModel.currentProductSearching.collectAsState()
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -160,10 +153,11 @@ private fun ProductDetails(viewModel: CheckoutPageViewModel) {
                 .padding(2.dp)) {
                 val nameDescription: DescriptionItem = DescriptionItem("Name",currentProduct.value!!.name);
                 val description: DescriptionItem = DescriptionItem("Description",currentProduct.value!!.description);
-                val priceDescription: DescriptionItem = DescriptionItem("Price",currentProduct.value!!.price.toString());
+                val priceDescription: DescriptionItem = DescriptionItem("Price",price!!);
                 Column(modifier = Modifier
                     .padding(2.dp)
-                    .weight(0.70f)) {
+                    .weight(0.70f)
+                    .height(200.dp)) {
                     ProductImage(productID = currentProduct.value!!.id)
                 }
                 Column(modifier = Modifier
@@ -251,17 +245,17 @@ private fun OptionsSelected(viewModel: CheckoutPageViewModel) {
 @Composable
 private fun SuccessHandler(navController: NavHostController) {
     AlertDialog(text = {
-        Column(modifier = Modifier.fillMaxWidth().padding(2.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(2.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Icon(imageVector = Icons.Default.MonetizationOn, contentDescription = null, modifier = Modifier.size(80.dp))
             Text(text = "Order created successfully", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp))
             Text(text = "Your order has been created successfully",fontSize = 15.sp, fontWeight = FontWeight.Thin,modifier = Modifier.padding(2.dp))
-            Column(modifier = Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Button(modifier = Modifier.padding(5.dp),shape = RoundedCornerShape(5.dp), onClick = {navController.navigate("orders")}) {
-                    Text("Go to orders page",modifier = Modifier.padding(2.dp),fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                }
-                Button(modifier = Modifier.padding(5.dp),shape = RoundedCornerShape(5.dp), onClick = {navController.navigate("home")}) {
-                    Text("Go to home page",modifier = Modifier.padding(2.dp), fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                }
+            Column(modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                CustomButton(text = "Go to order page",clickCallback = {navController.navigate("orders")})
+                CustomButton(text = "Go to home page",clickCallback = {navController.navigate("home")})
             }
         }
     }, onDismissRequest = { navController.navigate("home") }, confirmButton = {})

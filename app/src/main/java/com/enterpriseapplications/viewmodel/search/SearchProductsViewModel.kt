@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.math.BigDecimal
 
 class SearchProductsViewModel(val application: CustomApplication) : BaseViewModel(application) {
 
@@ -59,10 +60,14 @@ class SearchProductsViewModel(val application: CustomApplication) : BaseViewMode
 
     fun updateCurrentProducts(page: Boolean) {
         this._currentProductsSearching.value = !page;
+        val minPrice: BigDecimal? = if(this._minPriceControl.currentValue.value != null) _minPriceControl.currentValue.value!!.toBigDecimalOrNull() else null;
+        val maxPrice: BigDecimal? = if(this._maxPriceControl.currentValue.value != null) _maxPriceControl.currentValue.value!!.toBigDecimalOrNull() else null;
+        val minLikes: BigDecimal? = if(this._minLikesControl.currentValue.value != null) _minLikesControl.currentValue.value!!.toBigDecimalOrNull() else null;
+        val maxLikes: BigDecimal? = if(this._maxLikesControl.currentValue.value != null) _maxLikesControl.currentValue.value!!.toBigDecimalOrNull() else null;
         this.makeRequest(this.retrofitConfig.productController.getProducts(_primaryCategoryControl.currentValue.value,
             _secondaryCategoryControl.currentValue.value,_tertiaryCategoryControl.currentValue.value,
             _nameControl.currentValue.value,_descriptionControl.currentValue.value,_conditionControl.currentValue.value,
-            null,null,this._currentProductsPage.value.number,20),{
+            minPrice,maxPrice,minLikes,maxLikes,this._currentProductsPage.value.number,20),{
             if(it._embedded != null) {
                 if(!page)
                     this._currentProducts.value = it._embedded.content;

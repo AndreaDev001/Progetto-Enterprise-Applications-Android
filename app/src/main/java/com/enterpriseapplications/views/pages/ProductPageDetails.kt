@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -44,11 +47,15 @@ import coil.compose.AsyncImage
 import com.enterpriseapplications.config.RetrofitConfig
 import com.enterpriseapplications.config.authentication.AuthenticatedUser
 import com.enterpriseapplications.config.authentication.AuthenticationManager
+import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Like
+import com.enterpriseapplications.model.Offer
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.model.UserDetails
 import com.enterpriseapplications.model.refs.ProductRef
+import com.enterpriseapplications.model.reports.ProductReport
+import com.enterpriseapplications.model.reports.Report
 import com.enterpriseapplications.viewmodel.ProductDetailsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.DescriptionItem
@@ -57,7 +64,10 @@ import com.enterpriseapplications.views.UserCard
 import com.enterpriseapplications.views.UserImage
 import com.enterpriseapplications.views.alerts.create.CreateOffer
 import com.enterpriseapplications.views.alerts.create.CreateReport
+import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.ProductList
+import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -69,36 +79,35 @@ import java.util.UUID
 fun ProductPageDetails(navController: NavHostController,productID: String?) {
     val viewModel: ProductDetailsViewModel = viewModel(factory = viewModelFactory)
     val refreshState: SwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
-    val productID: UUID = UUID.fromString(productID)
-    viewModel.productID = productID
+    viewModel.productID = UUID.fromString(productID);
     viewModel.initialize()
+    val currentSellerProducts: State<List<Product>> = viewModel.sellerProducts.collectAsState()
+    val currentSimilarProducts: State<List<Product>> = viewModel.similarProducts.collectAsState()
+    val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
+    val conversationCreated: State<Conversation?> = viewModel.createdConversation.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 2.dp, horizontal = 5.dp)
     ) {
         TopAppBar(title = {
+            val text: String = if(productDetails.value != null) productDetails.value!!.name else "Product Details";
             Text(text = "Product Details", fontSize = 20.sp)
         }, navigationIcon = {
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
             }
         }, modifier = Modifier.fillMaxWidth())
-        val currentSellerProducts: State<List<Product>> = viewModel.sellerProducts.collectAsState()
-        val currentSimilarProducts: State<List<Product>> = viewModel.similarProducts.collectAsState()
-        val productDetails: State<Product?> = viewModel.currentProductDetails.collectAsState()
-        val conversationCreated: State<Boolean> = viewModel.createdConversation.collectAsState()
-        SwipeRefresh(state = refreshState, onRefresh = {}) {
+        SwipeRefresh(state = refreshState, onRefresh = {viewModel.initialize()}) {
             Column(modifier = Modifier
                 .padding(vertical = 5.dp)
                 .verticalScroll(ScrollState(0))) {
-                if(conversationCreated.value) {
-                    ConversationCreated(viewModel = viewModel, navController = navController)
-                }
+                if(conversationCreated.value != null)
+                    ConversationCreated(navController = navController,viewModel = viewModel,conversationCreated.value!!)
                 if(productDetails.value != null) {
                     ProductDetails(productDetails = productDetails.value!!,viewModel = viewModel)
                     ProductDescription(productDetails = productDetails.value!!)
-                    ProductDetailsButton(productDetails = productDetails.value!!, viewModel = viewModel)
+                    ProductDetailsButton(navController = navController,productDetails = productDetails.value!!, viewModel = viewModel)
                 }
                 Column(modifier = Modifier.padding(horizontal = 5.dp)) {
                     ProductRow(navController = navController, items = currentSellerProducts.value, icon = Icons.Filled.Person, headerText = "Seller's products", supportingText = "Here you can see some other products from the same seller")
@@ -157,7 +166,10 @@ private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsView
                 .padding(2.dp)
         ) {
             val currentIndex: State<Int> = viewModel.currentSelectedIndex.collectAsState()
-            AsyncImage(modifier = Modifier.fillMaxWidth(), contentScale = ContentScale.Crop, model = "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${currentIndex.value}", contentDescription = null)
+            val source: String = if(currentImagesAmount.value > 0) "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/productImages/public/${productDetails.id}/${currentIndex.value}" else "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg";
+            AsyncImage(modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp), contentScale = ContentScale.Crop, model = source, contentDescription = null)
         }
         Row(
             modifier = Modifier
@@ -168,12 +180,9 @@ private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsView
             verticalAlignment = Alignment.CenterVertically
         ) {
             for (i in 0 until currentImagesAmount.value) {
-                Button(
-                    contentPadding = PaddingValues(0.dp),
-                    onClick = { viewModel.updateCurrentIndex(i) },
-                    modifier = Modifier
-                        .padding(horizontal = 2.dp)
-                        .size(60.dp)
+                Button(contentPadding = PaddingValues(0.dp), onClick = { viewModel.updateCurrentIndex(i) }, modifier = Modifier
+                    .padding(horizontal = 2.dp)
+                    .size(60.dp)
                 ) {
                     AsyncImage(
                         modifier = Modifier.fillMaxWidth(),
@@ -234,60 +243,93 @@ private fun ProductDescription(productDetails: Product) {
 }
 
 @Composable
-private fun ConversationCreated(viewModel: ProductDetailsViewModel,navController: NavHostController) {
-    AlertDialog(icon = {
-        Icon(imageVector = Icons.Default.Message, contentDescription = null, modifier = Modifier
-            .padding(2.dp)
-            .size(60.dp))
-    }, onDismissRequest = {viewModel.updateCreateConversation(false)}, confirmButton = {}, dismissButton = {}, text = {
-        Column(modifier = Modifier.padding(2.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Text(modifier = Modifier.padding(2.dp), text = "Conversation created", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(modifier = Modifier.padding(2.dp), text = "The required conversation has been successfully created", fontSize = 15.sp, fontWeight = FontWeight.Thin)
-            Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {}) {
-                Text(text = "Go to conversation",modifier = Modifier.padding(2.dp),fontSize = 15.sp, fontWeight = FontWeight.Bold)
+private fun ConversationCreated(navController: NavHostController,viewModel: ProductDetailsViewModel,conversation: Conversation) {
+    val creatingConversation: State<Boolean> = viewModel.creatingConversation.collectAsState()
+    val callback: () -> Unit = {viewModel.closeConversationAlert()}
+    if(creatingConversation.value) {
+        AlertDialog(icon = {
+            Icon(imageVector = Icons.Default.Message, contentDescription = null, modifier = Modifier
+                .padding(2.dp)
+                .size(60.dp))
+        }, onDismissRequest = {}, confirmButton = {}, dismissButton = {}, text = {
+            Column(modifier = Modifier
+                .padding(2.dp)
+                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                Text(modifier = Modifier.padding(2.dp), text = "Conversation created", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(modifier = Modifier.padding(2.dp), text = "The required conversation has been successfully created", fontSize = 15.sp, fontWeight = FontWeight.Thin)
+                CustomButton(text = "Go to conversation", clickCallback = {navController.navigate("messagePage/${conversation.id}")})
+                CustomButton(text = "Cancel", clickCallback = {callback()})
             }
-            Button(modifier = Modifier.padding(2.dp),shape = RoundedCornerShape(5.dp), onClick = {viewModel.updateCreateConversation(false)}) {
-                Text(text = "Cancel",modifier = Modifier.padding(2.dp),fontSize = 15.sp,fontWeight = FontWeight.Bold)
-            }
-        }
-    })
+        })
+    }
 }
 @Composable
-private fun ProductDetailsButton(productDetails: Product,viewModel: ProductDetailsViewModel) {
-    val hasLike: State<Boolean> = viewModel.hasLike.collectAsState()
+private fun ProductDetailsButton(navController: NavHostController,productDetails: Product,viewModel: ProductDetailsViewModel) {
+    val searchingLike: State<Boolean> = viewModel.searchingLike.collectAsState()
+    val searchingReport: State<Boolean> = viewModel.searchingReport.collectAsState()
+    val searchingOffer: State<Boolean> = viewModel.searchingOffer.collectAsState()
+    val searchingConversation: State<Boolean> = viewModel.searchingConversation.collectAsState()
+
+    val hasLike: State<Like?> = viewModel.hasLike.collectAsState()
+    val hasReport: State<ProductReport?> = viewModel.hasReport.collectAsState()
+    val hasOffer: State <Offer?> = viewModel.hasOffer.collectAsState()
+    val hasConversation: State<Conversation?> = viewModel.hasConversation.collectAsState()
+
     val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
-    val currentText: String = if(hasLike.value) "Remove Like" else "Add Like"
+    val currentLikeText: String = if(hasLike.value != null) "Remove Like" else "Add Like"
+    val currentOfferText: String = if(hasOffer.value != null) "Update offer" else "Make an offer";
+    val currentConversationText: String = if(hasConversation.value != null) "Go to conversation" else "Create a conversation";
+
     val offerVisible = remember { mutableStateOf(false) }
     val reportVisible = remember { mutableStateOf(false) }
+
     if(offerVisible.value)
-        CreateOffer(productID = viewModel.productID!!, update = false, confirmCallback = {offerVisible.value = false}, cancelCallback = {offerVisible.value = false})
+        CreateOffer(productID = viewModel.productID!!, update = hasOffer.value != null, offerID = if(hasOffer.value != null) hasOffer.value!!.id else null, confirmCallback = {offerVisible.value = false;viewModel.getOffer()}, cancelCallback = {offerVisible.value = false})
     if(reportVisible.value)
-        CreateReport(productID = viewModel.productID!!, update = false, confirmProductReport = {reportVisible.value = false}, cancelCallback = {reportVisible.value = false})
-    if(authenticatedUser.value!!.userID.toString() != productDetails.seller.id)
+        CreateReport(productID = viewModel.productID!!, update = false, confirmProductReport = {reportVisible.value = false;viewModel.getReport()}, cancelCallback = {reportVisible.value = false})
+    if(authenticatedUser.value!!.userID != productDetails.seller.id)
     {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(2.dp)
-            .horizontalScroll(ScrollState(0))) {
-            Button(onClick = {}) {
-                Text(text = "Buy", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+        val scrollState = rememberScrollState()
+        if(productDetails.status == "BOUGHT") {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "This product has already been sold", fontSize = 20.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
             }
-            Button(onClick = {reportVisible.value = true},modifier = Modifier.padding(horizontal = 2.dp)) {
-                Text(text = "Report", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-            }
-            Button(onClick = {
-                if(hasLike.value)
-                    viewModel.removeLike();
+        }
+        else
+        {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)
+                .horizontalScroll(scrollState)) {
+                CustomButton(text = "Buy", clickCallback = {navController.navigate("checkoutPage/${productDetails.id}/${productDetails.price}")})
+                if(searchingReport.value)
+                    ProgressIndicator()
+                else if(hasReport.value == null)
+                    CustomButton(text = "Report", clickCallback = {reportVisible.value = true})
+                if(searchingLike.value)
+                    ProgressIndicator()
                 else
-                    viewModel.addLike()
-            },modifier = Modifier.padding(horizontal = 2.dp)) {
-                Text(text = currentText, fontSize = 15.sp, fontWeight = FontWeight.Normal)
-            }
-            Button(onClick = {offerVisible.value = true},modifier = Modifier.padding(horizontal = 2.dp)) {
-                Text(text = "Make an offer", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-            }
-            Button(onClick = {viewModel.createConversation()},modifier = Modifier.padding(horizontal = 2.dp)) {
-                Text(text = "Start conversation", fontSize = 15.sp, fontWeight = FontWeight.Normal)
+                {
+                    CustomButton(text = currentLikeText, clickCallback = {
+                        if(hasLike.value != null)
+                            viewModel.removeLike()
+                        else
+                            viewModel.addLike()
+                    })
+                }
+                if(searchingOffer.value)
+                    ProgressIndicator()
+                else
+                    CustomButton(text = currentOfferText, clickCallback = {offerVisible.value = true})
+                if(searchingConversation.value)
+                    ProgressIndicator()
+                else
+                    CustomButton(text = currentConversationText, clickCallback = {
+                        if(hasConversation.value != null)
+                            navController.navigate("messagePage/${hasConversation.value!!.id}")
+                        else
+                            viewModel.createConversation()
+                    })
             }
         }
     }

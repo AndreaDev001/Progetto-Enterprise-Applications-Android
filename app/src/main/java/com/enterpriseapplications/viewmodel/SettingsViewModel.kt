@@ -43,9 +43,12 @@ class SettingsViewModel(val application: CustomApplication) : BaseViewModel(appl
     private var _successImages: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _successInfo: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    private var _defaultUserImage: Uri? = Uri.parse("http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/${AuthenticationManager.currentUser.value!!.userID}");
+
+
     init
     {
-        this._currentSelectedUri.value = Uri.parse("http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/${AuthenticationManager.currentUser.value!!.userID}")
+        this._currentSelectedUri.value = this._defaultUserImage;
         this.initialize()
     }
 
@@ -72,15 +75,15 @@ class SettingsViewModel(val application: CustomApplication) : BaseViewModel(appl
     fun updateUser() {
         if (_formGroup.validate()) {
             val updateUser: UpdateUser = UpdateUser(
-                name = _nameControl.currentValue.value!!,
-                surname = _surnameControl.currentValue.value!!,
-                gender = _genderControl.currentValue.value!!,
-                description = _descriptionControl.currentValue.value!!,
-                visibility = _visibilityControl.currentValue.value!!
+                name = _nameControl.currentValue.value,
+                surname = _surnameControl.currentValue.value,
+                gender = _genderControl.currentValue.value,
+                description = _descriptionControl.currentValue.value,
+                visibility = _visibilityControl.currentValue.value
             )
             this.makeRequest(this.retrofitConfig.userController.updateUser(updateUser), {
                 this._successInfo.value = true
-                if (_currentSelectedUri.value != null) {
+                if (_currentSelectedUri.value != null && _currentSelectedUri.value != _defaultUserImage) {
                     val currentUri = this._currentSelectedUri.value!!
                     val value: String =
                         "http://${RetrofitConfig.resourceServerIpAddress}/api/v1/userImages/public/${AuthenticationManager.currentUser.value!!.userID}"

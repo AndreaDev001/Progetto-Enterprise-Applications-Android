@@ -1,5 +1,6 @@
 package com.enterpriseapplications.views.lists
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,7 +40,7 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuItem(callback: () -> Unit, leadingIcon: ImageVector? = null,trailingIcon: ImageVector = Icons.Filled.ArrowForward, headerText: String, supportingText: String) {
-    Button(contentPadding = PaddingValues(0.dp), modifier = Modifier.fillMaxWidth().padding(2.dp), onClick = {callback()}) {
+    Button(contentPadding = PaddingValues(0.dp), shape = RectangleShape, modifier = Modifier.fillMaxWidth().padding(2.dp), onClick = {callback()}) {
         ListItem(headlineText = {
             Text(text = headerText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }, supportingText = {
@@ -51,6 +54,7 @@ fun MenuItem(callback: () -> Unit, leadingIcon: ImageVector? = null,trailingIcon
                 Icon(imageVector = trailingIcon, contentDescription = null)
             }, modifier = Modifier.fillMaxWidth())
     }
+
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

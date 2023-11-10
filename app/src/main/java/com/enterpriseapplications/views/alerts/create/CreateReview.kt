@@ -1,6 +1,7 @@
 package com.enterpriseapplications.views.alerts.create
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,13 +48,27 @@ fun CreateReview(userID: UUID,update: Boolean,confirmCallback: (createdReview: R
     }, text = {
         Column(modifier = Modifier
             .padding(5.dp)
-            .verticalScroll(ScrollState(0))) {
+            .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(text = text, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.textControl, supportingText = "Write the text of the review", placeHolder = "Write a review...", label = "Text")
-            CustomTextField(modifier = Modifier.padding(5.dp),formControl = viewModel.ratingControl, supportingText = "Write the rating of the review", placeHolder = "Write a number...", label = "Rating", keyboardType = KeyboardType.Number)
+            Text(text = "Please provide a the text and rating of the review",fontSize = 15.sp, fontWeight = FontWeight.Normal)
+            CustomTextField(
+                modifier = Modifier.padding(5.dp),
+                formControl = viewModel.textControl,
+                supportingText = "Write the text of the review",
+                placeHolder = "Write a review...",
+                label = "Text"
+            )
+            CustomTextField(
+                modifier = Modifier.padding(5.dp),
+                formControl = viewModel.ratingControl,
+                supportingText = "Write the rating of the review",
+                placeHolder = "Write a number...",
+                label = "Rating",
+                keyboardType = KeyboardType.Number
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createReview()})
+            CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
         }
-        Spacer(modifier = Modifier.height(2.dp))
-        CustomButton(enabled = valid.value, text = "Confirm", clickCallback = {viewModel.createReview()})
-        CustomButton(text = "Cancel", clickCallback = {cancelCallback()})
     }, confirmButton = {}, dismissButton = {})
 }

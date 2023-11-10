@@ -30,18 +30,30 @@ class CreateOfferViewModel(val application: CustomApplication) : BaseViewModel(a
     private var _offerStatus: FormControl<String?> = FormControl("",Validators.required())
 
     private var _newOffer: MutableStateFlow<Offer?> = MutableStateFlow(null)
-    private var _formGroup: FormGroup = FormGroup(_priceControl,_descriptionControl)
+    private var _formGroup: FormGroup = FormGroup()
 
     fun reset() {
         this._formGroup.reset()
+        this._formGroup.clearControls()
         this._newOffer.value = null
+        if(!update && offerID == null) {
+            this._buyer.value = true
+            this._formGroup.addControl(_descriptionControl);
+            this._formGroup.addControl(_priceControl);
+        }
         if(update && offerID != null) {
-            this._searching.value = true
             this.makeRequest(this.retrofitConfig.offerController.getOffer(offerID!!),{
-                this._buyer.value = UUID.fromString(it.buyer.id) == AuthenticationManager.currentUser.value!!.userID
+                this._buyer.value = it.buyer.id == AuthenticationManager.currentUser.value!!.userID
                 this._descriptionControl.updateValue(it.description)
                 this._priceControl.updateValue(it.price.toString())
                 this._searching.value = false
+                _formGroup.clearControls()
+                if(buyer.value) {
+                    _formGroup.addControl(_descriptionControl);
+                    _formGroup.addControl(_priceControl)
+                }
+                else
+                    _formGroup.addControl(_offerStatus)
             },{this._searching.value = false})
         }
     }
@@ -76,5 +88,4 @@ class CreateOfferViewModel(val application: CustomApplication) : BaseViewModel(a
     val formGroup: FormGroup = _formGroup
     val newOffer: StateFlow<Offer?> = _newOffer.asStateFlow()
     val buyer: StateFlow<Boolean> = _buyer.asStateFlow()
-    val searching: StateFlow<Boolean> = _searching.asStateFlow()
 }

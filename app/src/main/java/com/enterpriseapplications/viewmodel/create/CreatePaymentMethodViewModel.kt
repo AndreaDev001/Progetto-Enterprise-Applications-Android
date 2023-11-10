@@ -18,9 +18,9 @@ class CreatePaymentMethodViewModel(val application: CustomApplication): BaseView
     private var _createdPaymentMethod: MutableStateFlow<PaymentMethod?> = MutableStateFlow(null);
 
     private var _holderNameControl: FormControl<String?> = FormControl("", Validators.required())
-    private var _numberControl: FormControl<String?> = FormControl("",Validators.required())
+    private var _numberControl: FormControl<String?> = FormControl("",Validators.required(),Validators.minLength(15),Validators.maxLength(20))
     private var _brandControl: FormControl<String?> = FormControl("",Validators.required())
-    private var _formGroup: FormGroup = FormGroup(_holderNameControl,_numberControl)
+    private var _formGroup: FormGroup = FormGroup(_holderNameControl,_numberControl,_brandControl)
 
 
     init

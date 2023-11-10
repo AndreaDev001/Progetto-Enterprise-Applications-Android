@@ -33,7 +33,8 @@ interface OfferRetrofitApi
 
     @GET("offers/private/{offerID}")
     fun getOffer(@Path("offerID") offerID:UUID): Call<Offer>;
-
+    @GET("offers/private/offer/{userID}/{productID}")
+    fun getOffer(@Path("userID") userID: UUID,@Path("productID") productID: UUID): Call<Offer>;
     @GET("offers/private/{userID}/created")
     fun getCreatedOffers(@Path("userID") userID: UUID,@Query("page") page: Int = 0,@Query("pageSize") pageSize: Int = 20): Call<PagedModel<Offer>>;
     @GET("offers/private/{userID}/received")

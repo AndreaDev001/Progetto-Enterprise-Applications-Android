@@ -76,7 +76,6 @@ fun ConversationPage(navController: NavHostController) {
 fun ConversationList(viewModel: ConversationPageViewModel,navController: NavHostController) {
     val conversations: State<List<Conversation>> = viewModel.currentConversations.collectAsState()
     val conversationsSearching: State<Boolean> = viewModel.currentConversationsSearching.collectAsState()
-    val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
     val lazyState: LazyListState = rememberLazyListState()
     Column(modifier = Modifier.padding(2.dp)) {
         if (conversationsSearching.value)

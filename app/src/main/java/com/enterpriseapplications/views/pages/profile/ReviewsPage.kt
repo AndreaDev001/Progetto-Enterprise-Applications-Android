@@ -134,7 +134,7 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel,authenticatedUser: Aut
                         .padding(5.dp)
                 ) {
                     itemsIndexed(items = currentWrittenReviews.value) { index, item ->
-                        ReviewCard(review = item, receiver = authenticatedUser!!.userID == UUID.fromString(item.receiver.id))
+                        ReviewCard(review = item, receiver = authenticatedUser!!.userID == item.receiver.id)
                     }
                 }
             }
@@ -166,7 +166,7 @@ private fun ReceivedReviews(viewModel: ReviewPageViewModel,authenticatedUser: Au
                 LazyColumn(state = lazyListState, modifier = Modifier.fillMaxWidth().padding(5.dp)
                 ) {
                     itemsIndexed(items = currentReceivedReviews.value) { index, item ->
-                        ReviewCard(review = item, confirmCallback = {viewModel.resetTab(1);viewModel.initialize()}, receiver = authenticatedUser!!.userID == UUID.fromString(item.receiver.id))
+                        ReviewCard(review = item, confirmCallback = {viewModel.resetTab(1);viewModel.initialize()}, receiver = authenticatedUser!!.userID == item.receiver.id)
                     }
                 }
             }

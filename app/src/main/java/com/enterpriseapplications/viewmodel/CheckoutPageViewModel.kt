@@ -11,11 +11,13 @@ import com.enterpriseapplications.model.create.CreateOrder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.math.BigDecimal
 import java.util.UUID
 
 class CheckoutPageViewModel(val application: CustomApplication): BaseViewModel(application)
 {
     var productID: UUID? = null
+    var price: BigDecimal? = null
     private var _currentProductDetails: MutableStateFlow<Product?> = MutableStateFlow(null)
     private var _currentPaymentMethods: MutableStateFlow<List<PaymentMethod>> = MutableStateFlow(emptyList());
     private var _currentProductSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -50,7 +52,7 @@ class CheckoutPageViewModel(val application: CustomApplication): BaseViewModel(a
 
     fun createOrder() {
         if(this._currentProductDetails.value != null && this._isValid.value) {
-            val createOrder: CreateOrder = CreateOrder(productID!!,this._currentProductDetails.value!!.price,UUID.fromString(this._currentSelectedAddress.value!!.id),UUID.fromString(this._currentSelectedPaymentMethod.value!!.id));
+            val createOrder: CreateOrder = CreateOrder(productID!!,price!!,this._currentSelectedAddress.value!!.id,this._currentSelectedPaymentMethod.value!!.id);
             this.makeRequest(this.retrofitConfig.orderController.createOrder(createOrder),{
                 this._success.value = true;
             },{this._success.value = false})

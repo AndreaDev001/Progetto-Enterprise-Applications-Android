@@ -23,10 +23,16 @@ import com.enterpriseapplications.controllers.images.ProductImageRetrofitApi
 import com.enterpriseapplications.controllers.images.UserImageRetrofitApi
 import com.enterpriseapplications.controllers.reports.MessageReportRetrofitApi
 import com.enterpriseapplications.controllers.reports.ProductReportRetrofitApi
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 class RetrofitConfig(val application: Application,authenticationManager: AuthenticationManager)
 {
@@ -34,12 +40,19 @@ class RetrofitConfig(val application: Application,authenticationManager: Authent
     {
         var resourceServerIpAddress: String = "192.168.1.74:8080";
         var baseURL: String = "http://$resourceServerIpAddress/api/v1/"
+        val gson: Gson = GsonBuilder().registerTypeAdapter(UUID::class.java, JsonDeserializer(){ json, _, _ ->
+            UUID.fromString(json.asString)
+        }).registerTypeAdapter(LocalDate::class.java, JsonDeserializer(){ json, _, _ ->
+            LocalDate.parse(json.asString)
+        }).registerTypeAdapter(LocalDateTime::class.java, JsonDeserializer(){ json, _, _ ->
+            LocalDateTime.parse(json.asString)
+        }).create()
     }
     private val httpClient: OkHttpClient = OkHttpClient.Builder().addInterceptor(AuthorizationInterceptor(authenticationManager)).build()
     private val retrofit: Retrofit = Retrofit.
             Builder()
             .baseUrl(baseURL)
-            .addConverterFactory(GsonConverterFactory.create()).
+            .addConverterFactory(GsonConverterFactory.create(gson)).
             client(httpClient)
             .build()
 

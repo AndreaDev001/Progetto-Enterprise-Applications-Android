@@ -10,5 +10,5 @@ val reported: UserRef,
 val reason: String,
 val type: String,
 val createdDate: String,
-val messageID: UUID,
+val messageID: String,
 val messageText: String)
