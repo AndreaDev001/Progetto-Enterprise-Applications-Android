@@ -89,13 +89,14 @@ fun LikedProductsPage(navController: NavHostController)
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = null,modifier = Modifier.padding(horizontal = 2.dp))
                 }
                 Text(text = "Here you can see all the products you have liked", fontSize = 15.sp,modifier = Modifier.padding(vertical = 2.dp), fontWeight = FontWeight.Thin)
-                LikedProductsLists(navController,viewModel)
+                LikedProductsLists(navController)
             }
         }
     }
 }
 @Composable
-private fun LikedProductsLists(navController: NavHostController,viewModel: LikedProductsViewModel) {
+private fun LikedProductsLists(navController: NavHostController) {
+    val viewModel: LikedProductsViewModel = viewModel(factory = viewModelFactory)
     val currentLikes: State<List<Like>> = viewModel.currentLikedProducts.collectAsState()
     val currentLikesPage: State<Page> = viewModel.currentLikedProductsPage.collectAsState()
     val currentLikesSearching: State<Boolean> =

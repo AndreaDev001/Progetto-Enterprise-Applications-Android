@@ -70,13 +70,14 @@ fun PaymentMethodsPage(navController: NavHostController) {
                     .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {creatingPaymentMethod.value = true}) {
                     Text(modifier = Modifier.padding(2.dp),text = "Add a new payment method",fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
-                PaymentMethodsList(viewModel = viewModel)
+                PaymentMethodsList()
             }
         }
     }
 }
 @Composable
-private fun PaymentMethodsList(viewModel: PaymentMethodsViewModel) {
+private fun PaymentMethodsList() {
+    val viewModel: PaymentMethodsViewModel = viewModel(factory = viewModelFactory)
     val currentPaymentMethods: State<List<PaymentMethod>> = viewModel.currentPaymentMethods.collectAsState()
     val currentPaymentMethodsSearching: State<Boolean> = viewModel.currentPaymentMethodSearching.collectAsState()
     Column(modifier = Modifier

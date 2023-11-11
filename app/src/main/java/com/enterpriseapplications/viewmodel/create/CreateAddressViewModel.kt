@@ -19,6 +19,7 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     private var _currentCandidates: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private var _currentCandidatesSearching: MutableStateFlow<Boolean> = MutableStateFlow(false);
     private var _createdAddress: MutableStateFlow<Address?> = MutableStateFlow(null)
+    private var _creatingAddress: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     private var _queryControl: FormControl<String?> = FormControl("",Validators.required())
     private var _selectedStreetControl: FormControl<String?> = FormControl("",Validators.required())
@@ -72,17 +73,22 @@ class CreateAddressViewModel(val application: CustomApplication): BaseViewModel(
     }
 
     fun createAddress() {
+        this._creatingAddress.value = true
         val createAddress: CreateAddress = CreateAddress(postalCode = this._postalCodeControl.currentValue.value!!,
         countryCode = this._countryCodeControl.currentValue.value!!, street = this._streetControl.currentValue.value!!, locality = this._localityControl.currentValue.value!!,
         ownerName = this._ownerNameControl.currentValue.value!!)
         this.makeRequest(this.retrofitConfig.addressController.createAddress(createAddress),{
             this._createdAddress.value = it
-        },{this._createdAddress.value = null})
+            this._creatingAddress.value = false
+        },{this._createdAddress.value = null;
+        this._creatingAddress.value = false})
     }
     fun reset() {
         this._formGroup.reset()
         this._createdAddress.value = null;
     }
+
+    val creatingAddress: StateFlow<Boolean> = _creatingAddress.asStateFlow()
     val currentCountries: StateFlow<List<String>> = _currentCountries.asStateFlow()
     val currentCountriesSearching: StateFlow<Boolean> = _currentCountriesSearching.asStateFlow()
     val currentCandidates: StateFlow<List<String>> = _currentCandidates.asStateFlow()

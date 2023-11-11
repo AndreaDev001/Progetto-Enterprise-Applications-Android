@@ -30,6 +30,7 @@ import com.enterpriseapplications.model.Review
 import com.enterpriseapplications.viewmodel.create.CreateReviewViewModel
 import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 import java.util.UUID
 
 @Composable
@@ -38,6 +39,9 @@ fun CreateReview(userID: UUID,update: Boolean,confirmCallback: (createdReview: R
     val text: String = if(!update) "Create a Review" else "Update Review"
     val currentCreatedReview = viewModel.createdReview.collectAsState()
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val creatingReview: State<Boolean> = viewModel.creatingReview.collectAsState()
+    if(creatingReview.value)
+        SearchingDialog()
     viewModel.reset()
     viewModel.userID = userID
     viewModel.update = update

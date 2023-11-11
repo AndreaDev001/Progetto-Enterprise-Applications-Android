@@ -54,6 +54,8 @@ import androidx.navigation.NavHostController
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.reports.Report
+import com.enterpriseapplications.navigation.Destination
+import com.enterpriseapplications.navigation.Screen
 import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ReportCard
@@ -110,7 +112,7 @@ fun SearchReports(navController: NavHostController) {
                                 supportingText = "Use the following filters to find the desired reports"
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            FilterOptions(viewModel = viewModel)
+                            FilterOptions()
                         }
                     }
                 }) {
@@ -129,7 +131,7 @@ fun SearchReports(navController: NavHostController) {
                     }
                     Text(modifier = Modifier.padding(2.dp),text = "Use the available filters the find the desired reports",fontSize = 18.sp, fontWeight = FontWeight.Normal)
                     Spacer(modifier = Modifier.height(2.dp))
-                    ItemList(viewModel = viewModel)
+                    ItemList(navController = navController)
                 }
             }
         }
@@ -137,7 +139,8 @@ fun SearchReports(navController: NavHostController) {
 }
 
 @Composable
-private fun FilterOptions(viewModel: SearchReportsViewModel) {
+private fun FilterOptions() {
+    val viewModel: SearchReportsViewModel = viewModel(factory = viewModelFactory)
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
     val types: State<List<String>> = viewModel.types.collectAsState()
     Column(modifier = Modifier
@@ -153,7 +156,8 @@ private fun FilterOptions(viewModel: SearchReportsViewModel) {
     }
 }
 @Composable
-private fun ItemList(viewModel: SearchReportsViewModel) {
+private fun ItemList(navController: NavHostController) {
+    val viewModel: SearchReportsViewModel = viewModel(factory = viewModelFactory)
     val currentReports: State<List<Report>> = viewModel.currentReports.collectAsState()
     val currentPage: State<Page> = viewModel.currentReportsPage.collectAsState()
     val currentReportsSearching: State<Boolean> = viewModel.currentReportsSearching.collectAsState()
@@ -161,7 +165,10 @@ private fun ItemList(viewModel: SearchReportsViewModel) {
     val currentReport: MutableState<Report?> = remember { mutableStateOf(null) }
     val callback: () -> Unit = {currentReport.value = null;}
     if(currentReport.value != null)
-        CreateBan(currentReport.value, update = false, cancelCallback = callback, dismissCallback = callback)
+        CreateBan(currentReport.value, update = false, confirmCallback = {
+            callback()
+            navController.navigate(Destination.Search.SearchBans.route)
+        }, cancelCallback = callback, dismissCallback = callback)
     val bottomReached by remember {
         derivedStateOf {
             lazyGridState.isScrolledToEnd()

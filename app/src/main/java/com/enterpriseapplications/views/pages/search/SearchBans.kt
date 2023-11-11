@@ -55,6 +55,7 @@ import com.enterpriseapplications.model.Ban
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.Product
 import com.enterpriseapplications.viewmodel.search.SearchBansViewModel
+import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.BanCard
 import com.enterpriseapplications.views.ProductCard
@@ -112,7 +113,7 @@ fun SearchBans(navController: NavHostController) {
                                 leadingIcon = null
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            FilterOptions(viewModel = viewModel)
+                            FilterOptions()
                         }
                     }
                 }) {
@@ -131,14 +132,15 @@ fun SearchBans(navController: NavHostController) {
                     }
                     Text("Use the available filters to find the desired bans",fontSize = 18.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
                     Spacer(modifier = Modifier.height(2.dp))
-                    ItemList(viewModel = viewModel)
+                    ItemList()
                 }
             }
         }
     }
 }
 @Composable
-private fun FilterOptions(viewModel: SearchBansViewModel) {
+private fun FilterOptions() {
+    val viewModel: SearchBansViewModel = viewModel(factory = viewModelFactory)
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
     Column(modifier = Modifier
         .padding(5.dp)
@@ -153,7 +155,8 @@ private fun FilterOptions(viewModel: SearchBansViewModel) {
     }
 }
 @Composable
-private fun ItemList(viewModel: SearchBansViewModel) {
+private fun ItemList() {
+    val viewModel: SearchBansViewModel = viewModel(factory = viewModelFactory)
     val currentBans: State<List<Ban>> = viewModel.currentBans.collectAsState()
     val currentPage: State<Page> = viewModel.currentBansPage.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()

@@ -21,6 +21,7 @@ class CreateReportViewModel(val application: CustomApplication) : BaseViewModel(
     var productID: UUID? = null
     var messageID: UUID? = null
     var update: Boolean = false
+    private var _creatingReport: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _createdProductReport: MutableStateFlow<ProductReport?> = MutableStateFlow(null)
     private var _createdMessageReport: MutableStateFlow<MessageReport?> = MutableStateFlow(null);
     private var _createdUserReport: MutableStateFlow<Report?> = MutableStateFlow(null)
@@ -40,21 +41,32 @@ class CreateReportViewModel(val application: CustomApplication) : BaseViewModel(
     }
 
     fun createReport() {
+        this._creatingReport.value = true
         val createReport: CreateReport = CreateReport(this._descriptionControl.currentValue.value!!,this._reasonControl.currentValue.value!!)
         if(this.productID != null) {
             this.makeRequest(this.retrofitConfig.productReportController.createProductReport(createReport,productID!!),{
                 this._createdProductReport.value = it
-            },{this._createdProductReport.value = null})
+                this._creatingReport.value = false
+            },{
+                this._creatingReport.value = false
+                this._createdUserReport.value = null
+            })
         }
         if(this.messageID != null) {
             this.makeRequest(this.retrofitConfig.messageReportController.createMessageReport(createReport,messageID!!),{
                 this._createdMessageReport.value = it
-            },{this._createdMessageReport.value = null})
+                this._creatingReport.value = false
+            },{
+                this._creatingReport.value = false
+                this._createdMessageReport.value = null
+            })
         }
         if(this.userID != null) {
             this.makeRequest(this.retrofitConfig.reportController.createReport(createReport,userID!!),{
                 this._createdUserReport.value = it
-            },{this._createdUserReport.value = null })
+                this._creatingReport.value = false
+            },{this._createdUserReport.value = null
+            this._creatingReport.value = false})
         }
     }
 
@@ -73,4 +85,5 @@ class CreateReportViewModel(val application: CustomApplication) : BaseViewModel(
     val createdUserReport: StateFlow<Report?> = _createdUserReport.asStateFlow()
     val createdMessageReport: StateFlow<MessageReport?> = _createdMessageReport.asStateFlow()
     val createdProductReport: StateFlow<ProductReport?> = _createdProductReport.asStateFlow()
+    val creatingReport: StateFlow<Boolean> = _creatingReport.asStateFlow()
 }

@@ -103,11 +103,11 @@ fun ProductPageDetails(navController: NavHostController,productID: String?) {
                 .padding(vertical = 5.dp)
                 .verticalScroll(ScrollState(0))) {
                 if(conversationCreated.value != null)
-                    ConversationCreated(navController = navController,viewModel = viewModel,conversationCreated.value!!)
+                    ConversationCreated(navController = navController,conversationCreated.value!!)
                 if(productDetails.value != null) {
-                    ProductDetails(productDetails = productDetails.value!!,viewModel = viewModel)
+                    ProductDetails(productDetails = productDetails.value!!)
                     ProductDescription(productDetails = productDetails.value!!)
-                    ProductDetailsButton(navController = navController,productDetails = productDetails.value!!, viewModel = viewModel)
+                    ProductDetailsButton(navController = navController,productDetails = productDetails.value!!)
                 }
                 Column(modifier = Modifier.padding(horizontal = 5.dp)) {
                     ProductRow(navController = navController, items = currentSellerProducts.value, icon = Icons.Filled.Person, headerText = "Seller's products", supportingText = "Here you can see some other products from the same seller")
@@ -131,7 +131,8 @@ private fun ProductRow(navController: NavHostController,items: List<Product>,sea
     }
 }
 @Composable
-private fun ProductDetails(productDetails: Product,viewModel: ProductDetailsViewModel) {
+private fun ProductDetails(productDetails: Product) {
+    val viewModel: ProductDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentImagesAmount: State<Int> = viewModel.currentProductImagesAmount.collectAsState()
     Column(
         modifier = Modifier
@@ -243,7 +244,8 @@ private fun ProductDescription(productDetails: Product) {
 }
 
 @Composable
-private fun ConversationCreated(navController: NavHostController,viewModel: ProductDetailsViewModel,conversation: Conversation) {
+private fun ConversationCreated(navController: NavHostController,conversation: Conversation) {
+    val viewModel: ProductDetailsViewModel = viewModel(factory = viewModelFactory)
     val creatingConversation: State<Boolean> = viewModel.creatingConversation.collectAsState()
     val callback: () -> Unit = {viewModel.closeConversationAlert()}
     if(creatingConversation.value) {
@@ -264,7 +266,8 @@ private fun ConversationCreated(navController: NavHostController,viewModel: Prod
     }
 }
 @Composable
-private fun ProductDetailsButton(navController: NavHostController,productDetails: Product,viewModel: ProductDetailsViewModel) {
+private fun ProductDetailsButton(navController: NavHostController,productDetails: Product) {
+    val viewModel: ProductDetailsViewModel = viewModel(factory = viewModelFactory)
     val searchingLike: State<Boolean> = viewModel.searchingLike.collectAsState()
     val searchingReport: State<Boolean> = viewModel.searchingReport.collectAsState()
     val searchingOffer: State<Boolean> = viewModel.searchingOffer.collectAsState()

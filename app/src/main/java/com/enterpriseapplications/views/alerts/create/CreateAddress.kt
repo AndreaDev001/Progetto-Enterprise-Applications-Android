@@ -34,6 +34,7 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 
 @Composable
 fun CreateAddress(confirmCallback: (address: Address) -> Unit = {},dismissCallback: () -> Unit = {},cancelCallback: () -> Unit = {}) {
@@ -45,6 +46,9 @@ fun CreateAddress(confirmCallback: (address: Address) -> Unit = {},dismissCallba
     val currentCandidatesSearching: State<Boolean> = viewModel.currentCountriesSearching.collectAsState()
     val queryVisible: MutableState<Boolean> = remember { mutableStateOf(false) }
     val createdAddress: State<Address?> = viewModel.createdAddress.collectAsState()
+    val creatingAddress: State<Boolean> = viewModel.creatingAddress.collectAsState()
+    if(creatingAddress.value)
+        SearchingDialog()
     AlertDialog(shape = RoundedCornerShape(10.dp),onDismissRequest = {dismissCallback()}, icon = {
         Icon(imageVector = Icons.Default.LocationOn, contentDescription = null,modifier = Modifier.size(50.dp))
     },text = {

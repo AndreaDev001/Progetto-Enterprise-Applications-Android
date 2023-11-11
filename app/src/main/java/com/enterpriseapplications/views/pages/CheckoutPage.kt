@@ -118,15 +118,15 @@ fun CheckoutPage(navController: NavHostController,productID: String? = null,pric
                 {
                     val success: State<Boolean> = viewModel.success.collectAsState()
                         Column(modifier = Modifier.padding(vertical = 10.dp)) {
-                            ProductDetails(viewModel = viewModel,price = price)
+                            ProductDetails(price = price)
                             Spacer(modifier = Modifier.height(2.dp))
-                            PaymentMethodsList(viewModel = viewModel)
+                            PaymentMethodsList()
                             Spacer(modifier = Modifier.height(2.dp))
-                            AddressesList(viewModel = viewModel)
+                            AddressesList()
                             Spacer(modifier = Modifier.height(2.dp))
-                            OptionsSelected(viewModel = viewModel)
+                            OptionsSelected()
                             Spacer(modifier = Modifier.height(2.dp))
-                            ButtonSection(viewModel = viewModel)
+                            ButtonSection()
                         }
                     if(success.value)
                         SuccessHandler(navController = navController)
@@ -136,7 +136,8 @@ fun CheckoutPage(navController: NavHostController,productID: String? = null,pric
     }
 }
 @Composable
-private fun ProductDetails(viewModel: CheckoutPageViewModel,price: String?) {
+private fun ProductDetails(price: String?) {
+    val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val currentProduct: State<Product?> = viewModel.currentProductDetails.collectAsState()
     val currentProductSearching: State<Boolean> = viewModel.currentProductSearching.collectAsState()
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -172,7 +173,8 @@ private fun ProductDetails(viewModel: CheckoutPageViewModel,price: String?) {
     }
 }
 @Composable
-private fun PaymentMethodsList(viewModel: CheckoutPageViewModel) {
+private fun PaymentMethodsList() {
+    val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val paymentMethods: State<List<PaymentMethod>> = viewModel.currentPaymentMethods.collectAsState()
     val paymentMethodsSearching: State<Boolean> = viewModel.currentPaymentMethodsSearching.collectAsState()
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -199,7 +201,8 @@ private fun PaymentMethodsList(viewModel: CheckoutPageViewModel) {
 }
 
 @Composable
-private fun AddressesList(viewModel: CheckoutPageViewModel) {
+private fun AddressesList() {
+    val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val addresses: State<List<Address>> = viewModel.currentAddresses.collectAsState()
     val addressesSearching: State<Boolean> = viewModel.currentAddressesSearching.collectAsState()
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -225,7 +228,8 @@ private fun AddressesList(viewModel: CheckoutPageViewModel) {
     }
 }
 @Composable
-private fun OptionsSelected(viewModel: CheckoutPageViewModel) {
+private fun OptionsSelected() {
+    val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val currentSelectedPaymentMethod: State<PaymentMethod?> = viewModel.currentSelectedPaymentMethod.collectAsState()
     val currentSelectedAddress: State<Address?> = viewModel.currentSelectedAddress.collectAsState()
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -261,7 +265,8 @@ private fun SuccessHandler(navController: NavHostController) {
     }, onDismissRequest = { navController.navigate("home") }, confirmButton = {})
 }
 @Composable
-private fun ButtonSection(viewModel: CheckoutPageViewModel) {
+private fun ButtonSection() {
+    val viewModel: CheckoutPageViewModel = viewModel(factory = viewModelFactory)
     val isValid: State<Boolean> = viewModel.isValid.collectAsState()
     Row(modifier = Modifier
         .fillMaxWidth()

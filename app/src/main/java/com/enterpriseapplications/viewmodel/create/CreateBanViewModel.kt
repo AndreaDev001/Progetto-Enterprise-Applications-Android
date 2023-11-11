@@ -28,9 +28,9 @@ class CreateBanViewModel(val application: CustomApplication) : BaseViewModel(app
 
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
     private var _reasonControl: FormControl<String?> =  FormControl("",Validators.required())
-    private var _expirationControl: FormControl<String?> = FormControl("2030-11-10",Validators.required())
     private var _formGroup: FormGroup = FormGroup(_descriptionControl,_reasonControl)
     private var _createdBan: MutableStateFlow<Ban?> = MutableStateFlow(null)
+    private var _creatingBan: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
 
     fun reset() {
@@ -61,11 +61,13 @@ class CreateBanViewModel(val application: CustomApplication) : BaseViewModel(app
     }
 
     fun createBan() {
+        this._creatingBan.value = true
         if(_formGroup.validate() && report != null) {
-            val createBan: CreateBan = CreateBan(report!!.reported.id,_reasonControl.currentValue.value!!,_expirationControl.currentValue.value!!)
+            val createBan: CreateBan = CreateBan(report!!.reported.id,_descriptionControl.currentValue.value!!,_reasonControl.currentValue.value!!,"2030-11-10")
             this.makeRequest(this.retrofitConfig.banController.createBan(createBan),{
                 this._createdBan.value = it
-            },{this._createdBan.value = null})
+                this._creatingBan.value = false
+            },{this._createdBan.value = null;this._creatingBan.value = false})
         }
     }
     val descriptionControl: FormControl<String?> = _descriptionControl
@@ -76,5 +78,6 @@ class CreateBanViewModel(val application: CustomApplication) : BaseViewModel(app
     val createdBan: StateFlow<Ban?> = _createdBan.asStateFlow()
     val formGroup: FormGroup = _formGroup
     val reasons: StateFlow<List<String>> = _reasons.asStateFlow()
+    val creatingBan: StateFlow<Boolean> = _creatingBan.asStateFlow()
 
 }

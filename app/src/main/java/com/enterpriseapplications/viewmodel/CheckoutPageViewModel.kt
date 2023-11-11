@@ -26,6 +26,7 @@ class CheckoutPageViewModel(val application: CustomApplication): BaseViewModel(a
     private var _currentAddressesSearching: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _currentSelectedAddress: MutableStateFlow<Address?> = MutableStateFlow(null);
     private var _currentSelectedPaymentMethod: MutableStateFlow<PaymentMethod?> = MutableStateFlow(null);
+    private var _creatingOrder: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _isValid: MutableStateFlow<Boolean> = MutableStateFlow(false);
     private var _success: MutableStateFlow<Boolean> = MutableStateFlow(false);
 
@@ -52,10 +53,13 @@ class CheckoutPageViewModel(val application: CustomApplication): BaseViewModel(a
 
     fun createOrder() {
         if(this._currentProductDetails.value != null && this._isValid.value) {
+            this._creatingOrder.value = true
             val createOrder: CreateOrder = CreateOrder(productID!!,price!!,this._currentSelectedAddress.value!!.id,this._currentSelectedPaymentMethod.value!!.id);
             this.makeRequest(this.retrofitConfig.orderController.createOrder(createOrder),{
                 this._success.value = true;
-            },{this._success.value = false})
+                this._creatingOrder.value = false
+            },{this._success.value = false;
+            this._creatingOrder.value = false})
         }
     }
 
@@ -81,6 +85,7 @@ class CheckoutPageViewModel(val application: CustomApplication): BaseViewModel(a
     val currentSelectedPaymentMethod: StateFlow<PaymentMethod?> = _currentSelectedPaymentMethod.asStateFlow()
     val currentSelectedAddress: StateFlow<Address?> = _currentSelectedAddress.asStateFlow()
     val currentProductSearching: StateFlow<Boolean> = _currentProductSearching.asStateFlow()
+    val creatingOrder: StateFlow<Boolean> = _creatingOrder.asStateFlow()
     val isValid: StateFlow<Boolean> = _isValid.asStateFlow()
     val success: StateFlow<Boolean> = _success.asStateFlow()
 }

@@ -37,6 +37,7 @@ import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
 import com.enterpriseapplications.views.pages.search.ProgressIndicator
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 
 @Composable
 fun CreateBan(report: Report?,update: Boolean, confirmCallback: (createdBan: Ban) -> Unit = {}, cancelCallback: () -> Unit = {}, dismissCallback: () -> Unit = {}) {
@@ -46,7 +47,10 @@ fun CreateBan(report: Report?,update: Boolean, confirmCallback: (createdBan: Ban
     val reasons: State<List<String>> = viewModel.reasons.collectAsState()
     val createdBan: State<Ban?> = viewModel.createdBan.collectAsState()
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val creatingBan: State<Boolean> = viewModel.creatingBan.collectAsState()
 
+    if(creatingBan.value)
+        SearchingDialog()
     if(createdBan.value != null)
         confirmCallback(createdBan.value!!)
 

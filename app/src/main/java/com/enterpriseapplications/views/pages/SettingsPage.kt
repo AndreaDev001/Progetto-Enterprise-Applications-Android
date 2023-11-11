@@ -109,16 +109,17 @@ fun SettingsPage(navController: NavHostController) {
                     })
                     AsyncImage(modifier = Modifier.size(100.dp),contentScale = ContentScale.Crop, model = currentAsyncUri.value, contentDescription = null)
                 }
-                UserInformation(viewModel = viewModel)
+                UserInformation()
                 Spacer(modifier = Modifier.height(2.dp))
-                ButtonSection(viewModel = viewModel)
+                ButtonSection()
             }
         }
     }
 }
 
 @Composable
-private fun UserInformation(viewModel: SettingsViewModel) {
+private fun UserInformation() {
+    val viewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
     val genders: State<List<String>> = viewModel.genders.collectAsState()
     val visibilities: State<List<String>> = viewModel.visibilities.collectAsState()
     CustomTextField(modifier = Modifier
@@ -138,7 +139,8 @@ private fun UserInformation(viewModel: SettingsViewModel) {
         .fillMaxWidth(),formControl = viewModel.visibilityControl , items = visibilities.value,label = "Visibility")
 }
 @Composable
-private fun ButtonSection(viewModel: SettingsViewModel) {
+private fun ButtonSection() {
+    val viewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
     val formValid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
     val currentUri: State<Uri?> = viewModel.currentSelectedUri.collectAsState()
     Row(modifier = Modifier

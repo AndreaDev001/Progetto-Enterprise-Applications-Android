@@ -33,6 +33,7 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 import java.util.UUID
 
 @Composable
@@ -44,6 +45,9 @@ fun CreateReply(reviewID: UUID,update: Boolean,confirmCallback: (createdReply: R
     viewModel.update = update
     val newReply: State<Reply?> = viewModel.newReply.collectAsState()
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val creatingReply: State<Boolean> = viewModel.creatingReply.collectAsState()
+    if(creatingReply.value)
+        SearchingDialog()
     if(newReply.value != null)
         confirmCallback(newReply.value!!)
 

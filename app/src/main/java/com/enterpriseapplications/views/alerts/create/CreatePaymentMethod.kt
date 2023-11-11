@@ -32,6 +32,8 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
+import com.enterpriseapplications.views.pages.search.SearchingDialog
+
 
 @Composable
 fun CreatePaymentMethod(confirmCallback: (paymentMethod: PaymentMethod) -> Unit = {},cancelCallback: () -> Unit = {},dismissCallback: () -> Unit = {}) {
@@ -39,8 +41,10 @@ fun CreatePaymentMethod(confirmCallback: (paymentMethod: PaymentMethod) -> Unit 
     viewModel.reset()
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
     val currentBrands: State<List<String>> = viewModel.currentPaymentMethodsBrands.collectAsState()
-    val createdPaymentMethod: State<PaymentMethod?> =
-        viewModel.createdPaymentMethod.collectAsState()
+    val createdPaymentMethod: State<PaymentMethod?> = viewModel.createdPaymentMethod.collectAsState()
+    val creatingPaymentMethod: State<Boolean> = viewModel.creatingPaymentMethod.collectAsState()
+    if(creatingPaymentMethod.value)
+        SearchingDialog()
     if (createdPaymentMethod.value != null)
         confirmCallback(createdPaymentMethod.value!!)
     AlertDialog(
@@ -54,7 +58,9 @@ fun CreatePaymentMethod(confirmCallback: (paymentMethod: PaymentMethod) -> Unit 
             )
         },
         text = {
-            Column(modifier = Modifier.padding(5.dp).verticalScroll(ScrollState(0))
+            Column(modifier = Modifier
+                .padding(5.dp)
+                .verticalScroll(ScrollState(0))
             ) {
                 Text(text = "Create Payment Method", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(text = "Please specify the owner of the card, the number and the brand",fontSize = 15.sp, fontWeight = FontWeight.Thin)

@@ -189,7 +189,6 @@ private fun MessageList(navController: NavHostController,viewModel: MessagePageV
                             MessageOptions(
                                 navController = navController,
                                 message = item,
-                                viewModel = viewModel
                             )
                         })
                     }
@@ -201,7 +200,8 @@ private fun MessageList(navController: NavHostController,viewModel: MessagePageV
     }
 }
 @Composable
-private fun MessageOptions(navController: NavHostController,message: Message,viewModel: MessagePageViewModel) {
+private fun MessageOptions(navController: NavHostController,message: Message) {
+    val viewModel: MessagePageViewModel = viewModel(factory = viewModelFactory)
     viewModel.getReport(message.id)
     val searchingReport: State<Boolean> = viewModel.searchingReport.collectAsState()
     val creatingReport: MutableState<Boolean> = remember { mutableStateOf(false) }

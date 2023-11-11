@@ -24,6 +24,7 @@ class CreateOfferViewModel(val application: CustomApplication) : BaseViewModel(a
     var offerID: UUID? = null;
     private var _buyer: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _searching: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _creatingOffer: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     private var _priceControl: FormControl<String?> = FormControl("", Validators.required())
     private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required())
@@ -59,29 +60,37 @@ class CreateOfferViewModel(val application: CustomApplication) : BaseViewModel(a
     }
 
     fun createOffer() {
+        this._creatingOffer.value = true
         val requiredValue: BigDecimal = this._priceControl.currentValue.value!!.toBigDecimal()
         val createOffer: CreateOffer = CreateOffer(requiredValue,_descriptionControl.currentValue.value!!,productID!!);
         this.makeRequest(this.retrofitConfig.offerController.createOffer(createOffer),{
             this._newOffer.value = it
-        },{_newOffer.value = null})
+            this._creatingOffer.value = false
+        },{_newOffer.value = null;
+        this._creatingOffer.value = false})
     }
     fun updateOffer() {
         if(offerID != null) {
+            this._creatingOffer.value = true
             if(buyer.value) {
                 val updateOfferBuyer: UpdateOfferBuyer = UpdateOfferBuyer(offerID!!,_descriptionControl.currentValue.value!!,_priceControl.currentValue.value!!.toBigDecimal())
                 this.makeRequest(this.retrofitConfig.offerController.updateOfferBuyer(updateOfferBuyer),{
                     this._newOffer.value = it
-                },{this._newOffer.value = null})
+                    this._creatingOffer.value = false
+                },{this._newOffer.value = null;this._creatingOffer.value = false})
             }
             else {
                 val updateOfferSeller: UpdateOfferSeller = UpdateOfferSeller(offerID!!,productID!!,_offerStatus.currentValue.value!!);
                 this.makeRequest(this.retrofitConfig.offerController.updateOfferSeller(updateOfferSeller),{
                     this._newOffer.value = it
-                },{this._newOffer.value = null})
+                    this._creatingOffer.value = false
+                },{this._newOffer.value = null
+                this._creatingOffer.value = false})
             }
         }
     }
 
+    val creatingOffer: StateFlow<Boolean> = _creatingOffer.asStateFlow()
     val priceControl: FormControl<String?> = _priceControl
     val descriptionControl: FormControl<String?> = _descriptionControl
     val offerStatus: FormControl<String?> = _offerStatus

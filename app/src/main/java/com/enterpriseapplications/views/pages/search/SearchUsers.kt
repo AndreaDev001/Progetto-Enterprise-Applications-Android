@@ -55,6 +55,7 @@ import androidx.navigation.NavHostController
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Page
 import com.enterpriseapplications.model.UserDetails
+import com.enterpriseapplications.viewmodel.search.SearchReportsViewModel
 import com.enterpriseapplications.viewmodel.search.SearchUsersViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ProductCard
@@ -104,7 +105,7 @@ fun SearchUsers(navController: NavHostController) {
                             supportingText = "Use the filters to find the desired users"
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        FilterOptions(viewModel = viewModel)
+                        FilterOptions()
                     }
                 }) {
                 Column(
@@ -121,14 +122,15 @@ fun SearchUsers(navController: NavHostController) {
                         Text(text = "Filters", fontSize = 16.sp)
                     }
                     Text(text = "Use the available filters to find the desired users",fontSize = 17.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(2.dp))
-                    ItemList(viewModel = viewModel, navController = navController)
+                    ItemList(navController = navController)
                 }
             }
         }
     }
 }
 @Composable
-private fun FilterOptions(viewModel: SearchUsersViewModel) {
+private fun FilterOptions() {
+    val viewModel: SearchUsersViewModel = viewModel(factory = viewModelFactory)
     val genders: State<List<String>> = viewModel.genders.collectAsState();
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -146,7 +148,8 @@ private fun FilterOptions(viewModel: SearchUsersViewModel) {
 }
 
 @Composable
-private fun ItemList(viewModel: SearchUsersViewModel,navController: NavHostController) {
+private fun ItemList(navController: NavHostController) {
+    val viewModel: SearchUsersViewModel = viewModel(factory = viewModelFactory)
     val currentUsers: State<List<UserDetails>> = viewModel.currentUsers.collectAsState()
     val currentPage: State<Page> = viewModel.currentUsersPage.collectAsState()
     val isSearching: State<Boolean> = viewModel.currentUsersSearching.collectAsState()

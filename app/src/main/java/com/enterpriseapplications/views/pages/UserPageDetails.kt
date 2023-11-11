@@ -254,15 +254,16 @@ fun UserPageDetails(navController: NavHostController,userID: UUID?) {
                     }
                 }
                 if(currentSelectedTab.value == 0)
-                    ReviewList(viewModel = viewModel)
+                    ReviewList()
                 else
-                    ProductList(navController = navController,viewModel = viewModel)
+                    ProductList(navController = navController)
             }
         }
     }
 }
 @Composable
-private fun ReviewList(viewModel: UserDetailsViewModel) {
+private fun ReviewList() {
+    val viewModel: UserDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentReviews: State<List<Review>> = viewModel.currentReviews.collectAsState()
     val currentReviewsSearching: State<Boolean> = viewModel.currentReviewsSearching.collectAsState()
     val authenticatedUser: State<AuthenticatedUser?> = AuthenticationManager.currentUser.collectAsState()
@@ -296,7 +297,8 @@ private fun ReviewList(viewModel: UserDetailsViewModel) {
     }
 }
 @Composable
-private fun ProductList(navController: NavHostController,viewModel: UserDetailsViewModel) {
+private fun ProductList(navController: NavHostController) {
+    val viewModel: UserDetailsViewModel = viewModel(factory = viewModelFactory)
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentProductsSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()
     val lazyGridState: LazyGridState = rememberLazyGridState()

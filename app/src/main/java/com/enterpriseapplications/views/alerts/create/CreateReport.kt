@@ -32,6 +32,7 @@ import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.pages.search.CustomButton
 import com.enterpriseapplications.views.pages.search.CustomTextField
 import com.enterpriseapplications.views.pages.search.FormDropdown
+import com.enterpriseapplications.views.pages.search.SearchingDialog
 import java.util.UUID
 
 @Composable
@@ -43,6 +44,9 @@ fun CreateReport(userID: UUID? = null, productID: UUID? = null, messageID: UUID?
     val createdProductReport: State<ProductReport?> = viewModel.createdProductReport.collectAsState()
     val createdMessageReport: State<MessageReport?> = viewModel.createdMessageReport.collectAsState()
     val valid: State<Boolean> = viewModel.formGroup.valid.collectAsState()
+    val creatingReport: State<Boolean> = viewModel.creatingReport.collectAsState()
+    if(creatingReport.value)
+        SearchingDialog()
 
     viewModel.reset()
     viewModel.userID = userID

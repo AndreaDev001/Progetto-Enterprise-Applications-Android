@@ -96,17 +96,18 @@ fun AddProduct(navController: NavHostController)
             .fillMaxWidth()
             .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(5.dp))
-            ImageInformation(viewModel = viewModel)
-            GeneralInformation(viewModel = viewModel)
+            ImageInformation()
+            GeneralInformation()
             Spacer(modifier = Modifier.height(2.dp))
-            CategoryInformation(viewModel = viewModel)
+            CategoryInformation()
             Spacer(modifier = Modifier.height(2.dp))
             ButtonSection(viewModel = viewModel)
         }
     }
 }
 @Composable
-private fun ImageInformation(viewModel: AddProductViewModel) {
+private fun ImageInformation() {
+    val viewModel: AddProductViewModel = viewModel(factory = viewModelFactory)
     Text(modifier = Modifier.padding(vertical = 5.dp),text = "Image Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     Text(modifier = Modifier.padding(vertical = 2.dp),text = "Adding images can help your product to stand out between the others", fontSize = 15.sp, fontWeight = FontWeight.Normal)
     val selectedUris: State<List<Uri?>> = viewModel.currentSelectedUris.collectAsState()
@@ -135,7 +136,8 @@ private fun ImageInformation(viewModel: AddProductViewModel) {
     }
 }
 @Composable
-private fun GeneralInformation(viewModel: AddProductViewModel) {
+private fun GeneralInformation() {
+    val viewModel: AddProductViewModel = viewModel(factory = viewModelFactory)
     Text(modifier = Modifier.padding(vertical = 5.dp),text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
     Text(modifier = Modifier.padding(2.dp),text = "Please provide the general information of the product, like name, description, brand, condition, visibility, price and minimum price for offers")
     val conditions: State<List<String>> = viewModel.conditions.collectAsState();
@@ -171,7 +173,8 @@ private fun GeneralInformation(viewModel: AddProductViewModel) {
 }
 
 @Composable
-private fun CategoryInformation(viewModel: AddProductViewModel) {
+private fun CategoryInformation() {
+    val viewModel: AddProductViewModel = viewModel(factory = viewModelFactory)
     val primaryCategories: State<List<String>> = viewModel.primaryCategories.collectAsState()
     val secondaryCategories: State<List<String>> = viewModel.secondaryCategories.collectAsState()
     val tertiaryCategories: State<List<String>> = viewModel.tertiaryCategories.collectAsState()
@@ -188,9 +191,8 @@ private fun CategoryInformation(viewModel: AddProductViewModel) {
 }
 
 @Composable
-private fun ButtonSection(viewModel: AddProductViewModel) {
+private fun ButtonSection(viewModel: AddProductViewModel = viewModel(factory = viewModelFactory)) {
     val valid: State<Boolean> = viewModel.isValid.collectAsState()
-    val currentSelectedUris: State<List<Uri?>> = viewModel.currentSelectedUris.collectAsState()
     Button(enabled = valid.value, modifier = Modifier
         .fillMaxWidth()
         .padding(2.dp),onClick = {viewModel.confirm()}, shape = RoundedCornerShape(5.dp)) {

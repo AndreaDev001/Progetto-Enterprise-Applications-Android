@@ -100,16 +100,17 @@ fun FollowPage(navController: NavHostController) {
                     .fillMaxWidth()
                     .padding(10.dp)) {
                     if(currentSelectedTab.value == 0)
-                        FollowersList(navController = navController,viewModel = viewModel)
+                        FollowersList(navController = navController)
                     else
-                        FollowedList(navController = navController,viewModel = viewModel)
+                        FollowedList(navController = navController)
                 }
             }
         }
     }
 }
 @Composable
-private fun FollowersList(navController: NavHostController,viewModel: FollowPageViewModel) {
+private fun FollowersList(navController: NavHostController) {
+    val viewModel: FollowPageViewModel = viewModel(factory = viewModelFactory)
     val currentFollowers: State<List<Follow>> = viewModel.currentFollowers.collectAsState()
     val currentFollowersPage: State<Page> = viewModel.currentFollowersPage.collectAsState()
     val currentFollowersSearching: State<Boolean> = viewModel.currentFollowersSearching.collectAsState()
@@ -147,8 +148,8 @@ private fun FollowersList(navController: NavHostController,viewModel: FollowPage
     }
 }
 @Composable
-private fun FollowedList(navController: NavHostController,viewModel: FollowPageViewModel) {
-
+private fun FollowedList(navController: NavHostController) {
+    val viewModel: FollowPageViewModel = viewModel(factory = viewModelFactory)
     val currentFollowed: State<List<Follow>> = viewModel.currentFollows.collectAsState()
     val currentFollowedPage: State<Page> = viewModel.currentFollowsPage.collectAsState()
     val currentFollowedSearching: State<Boolean> = viewModel.currentFollowsSearching.collectAsState()

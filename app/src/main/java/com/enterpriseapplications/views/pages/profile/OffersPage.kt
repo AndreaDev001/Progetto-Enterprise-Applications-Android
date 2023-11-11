@@ -92,15 +92,16 @@ fun OffersPage(navController: NavHostController)
                     })
                 }
                 if(currentSelectedTab.value == 0)
-                    CreatedOffers(navController,viewModel)
+                    CreatedOffers(navController)
                 else
-                    ReceivedOffers(navController,viewModel)
+                    ReceivedOffers(navController)
             }
         }
     }
 }
 @Composable
-private fun CreatedOffers(navController: NavHostController,viewModel: OfferPageViewModel) {
+private fun CreatedOffers(navController: NavHostController) {
+    val viewModel: OfferPageViewModel = viewModel(factory = viewModelFactory)
     val currentOffers: State<List<Offer>> = viewModel.currentCreatedOffers.collectAsState()
     val currentOffersPage: State<Page> = viewModel.currentCreatedOffersPage.collectAsState()
     val currentOffersSearching: State<Boolean> = viewModel.currentCreatedOffersSearching.collectAsState()
@@ -141,7 +142,8 @@ private fun CreatedOffers(navController: NavHostController,viewModel: OfferPageV
     }
 }
 @Composable
-private fun ReceivedOffers(navController: NavHostController,viewModel: OfferPageViewModel) {
+private fun ReceivedOffers(navController: NavHostController) {
+    val viewModel: OfferPageViewModel = viewModel(factory = viewModelFactory)
     val currentOffers: State<List<Offer>> = viewModel.currentReceivedOffers.collectAsState()
     val currentOffersPage: State<Page> = viewModel.currentReceivedOffersPage.collectAsState()
     val currentOffersSearching: State<Boolean> = viewModel.currentReceivedOffersSearching.collectAsState()

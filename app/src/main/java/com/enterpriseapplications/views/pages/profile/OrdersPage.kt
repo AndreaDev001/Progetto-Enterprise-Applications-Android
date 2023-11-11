@@ -70,13 +70,14 @@ fun OrdersPage(navController: NavHostController) {
                 .padding(10.dp)
                 .fillMaxWidth()) {
                 Text(text = "Here you can see all of the orders you have created", fontSize = 15.sp, fontWeight = FontWeight.Normal)
-                ItemList(viewModel = viewModel)
+                ItemList()
             }
         }
     }
 }
 @Composable
-private fun ItemList(viewModel: OrderPageViewModel) {
+private fun ItemList() {
+    val viewModel: OrderPageViewModel = viewModel(factory = viewModelFactory)
     val currentOrders: State<List<Order>> = viewModel.orders.collectAsState()
     val currentOrdersPage: State<Page> = viewModel.ordersPage.collectAsState()
     val currentOrdersSearching: State<Boolean> = viewModel.ordersSearching.collectAsState()

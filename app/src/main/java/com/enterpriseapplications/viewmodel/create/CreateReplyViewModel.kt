@@ -16,7 +16,7 @@ class CreateReplyViewModel(val application: CustomApplication) : BaseViewModel(a
 {
     var reviewID: UUID? = null;
     var update: Boolean = false;
-
+    private var _creatingReply: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _textControl: FormControl<String?> = FormControl("",Validators.required())
     private var _newReply: MutableStateFlow<Reply?> = MutableStateFlow(null)
     private var _formGroup: FormGroup = FormGroup(_textControl)
@@ -36,4 +36,5 @@ class CreateReplyViewModel(val application: CustomApplication) : BaseViewModel(a
     val textControl: FormControl<String?> = _textControl
     val formGroup: FormGroup = _formGroup
     val newReply: StateFlow<Reply?> = _newReply.asStateFlow()
+    val creatingReply: StateFlow<Boolean> = _creatingReply.asStateFlow()
 }

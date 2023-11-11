@@ -21,6 +21,7 @@ class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(appl
     private var _ratingControl: FormControl<String?> = FormControl("",Validators.required(),Validators.min(
         BigInteger.valueOf(0)),Validators.max(BigInteger.valueOf(11)))
     private var _formGroup: FormGroup = FormGroup(_textControl,_ratingControl)
+    private var _creatingReview: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private var _createdReview: MutableStateFlow<Review?> = MutableStateFlow(null)
 
     fun reset() {
@@ -29,14 +30,18 @@ class CreateReviewViewModel(application: CustomApplication) : BaseViewModel(appl
     }
 
     fun createReview() {
+        this._creatingReview.value = true
         val createReview: CreateReview = CreateReview(userID!!,_textControl.currentValue.value!!,_ratingControl.currentValue.value!!.toInt())
         this.makeRequest(this.retrofitConfig.reviewController.createReview(createReview),{
             this._createdReview.value = it
-        },{this._createdReview.value = null})
+            this._creatingReview.value = false
+        },{this._createdReview.value = null;
+        this._creatingReview.value = false})
     }
 
     val textControl: FormControl<String?> = _textControl
     val ratingControl: FormControl<String?> = _ratingControl
     val createdReview: StateFlow<Review?> = _createdReview.asStateFlow()
+    val creatingReview: StateFlow<Boolean> = _creatingReview.asStateFlow()
     val formGroup: FormGroup = _formGroup
 }

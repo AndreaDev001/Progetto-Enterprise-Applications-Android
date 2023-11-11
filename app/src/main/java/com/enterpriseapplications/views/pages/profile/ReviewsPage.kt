@@ -97,16 +97,17 @@ fun ReviewsPage(navController: NavHostController) {
                     .padding(10.dp)
                     .fillMaxWidth()) {
                     if(currentSelectedTab.value == 0)
-                        WrittenReviews(viewModel = viewModel,authenticatedUser.value)
+                        WrittenReviews(authenticatedUser.value)
                     else
-                        ReceivedReviews(viewModel = viewModel,authenticatedUser.value)
+                        ReceivedReviews(authenticatedUser.value)
                 }
             }
         }
     }
 }
 @Composable
-private fun WrittenReviews(viewModel: ReviewPageViewModel,authenticatedUser: AuthenticatedUser?) {
+private fun WrittenReviews(authenticatedUser: AuthenticatedUser?) {
+    val viewModel: ReviewPageViewModel = viewModel(factory = viewModelFactory)
     val currentWrittenReviews: State<List<Review>> = viewModel.writtenReviews.collectAsState()
     val currentWrittenReviewsPage: State<Page> = viewModel.writtenReviewsPage.collectAsState()
     val currentWrittenReviewsSearching: State<Boolean> = viewModel.writtenReviewsSearching.collectAsState()
@@ -144,7 +145,8 @@ private fun WrittenReviews(viewModel: ReviewPageViewModel,authenticatedUser: Aut
     }
 }
 @Composable
-private fun ReceivedReviews(viewModel: ReviewPageViewModel,authenticatedUser: AuthenticatedUser?) {
+private fun ReceivedReviews(authenticatedUser: AuthenticatedUser?) {
+    val viewModel: ReviewPageViewModel = viewModel(factory = viewModelFactory)
     val currentReceivedReviews: State<List<Review>> = viewModel.receivedReviews.collectAsState()
     val currentReceivedReviewsPage: State<Page> = viewModel.receivedReviewsPage.collectAsState()
     val currentReceivedReviewsSearching: State<Boolean> = viewModel.receivedReviewsSearching.collectAsState()

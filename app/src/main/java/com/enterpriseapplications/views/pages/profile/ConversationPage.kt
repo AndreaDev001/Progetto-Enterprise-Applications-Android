@@ -34,6 +34,7 @@ import com.enterpriseapplications.config.authentication.AuthenticationManager
 import com.enterpriseapplications.isScrolledToEnd
 import com.enterpriseapplications.model.Conversation
 import com.enterpriseapplications.model.Page
+import com.enterpriseapplications.viewmodel.profile.AddressPageViewModel
 import com.enterpriseapplications.viewmodel.profile.ConversationPageViewModel
 import com.enterpriseapplications.viewmodel.viewModelFactory
 import com.enterpriseapplications.views.ConversationCard
@@ -66,14 +67,15 @@ fun ConversationPage(navController: NavHostController) {
                 .fillMaxWidth()
                 .padding(10.dp)) {
                 Text(text = "Here you can see all of your conversations, click on them to continue to chat", fontSize = 17.sp, fontWeight = FontWeight.Normal,modifier = Modifier.padding(vertical = 2.dp))
-                ConversationList(viewModel = viewModel,navController = navController)
+                ConversationList(navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun ConversationList(viewModel: ConversationPageViewModel,navController: NavHostController) {
+fun ConversationList(navController: NavHostController) {
+    val viewModel: ConversationPageViewModel = viewModel(factory = viewModelFactory)
     val conversations: State<List<Conversation>> = viewModel.currentConversations.collectAsState()
     val conversationsSearching: State<Boolean> = viewModel.currentConversationsSearching.collectAsState()
     val lazyState: LazyListState = rememberLazyListState()

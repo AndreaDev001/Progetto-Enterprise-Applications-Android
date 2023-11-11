@@ -479,7 +479,8 @@ fun PaymentMethodCard(paymentMethod: PaymentMethod) {
             .padding(2.dp)
             .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.number)
-            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.expirationDate.toString())
+            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.brand)
+            Text(modifier = Modifier.padding(vertical = 2.dp),text = paymentMethod.holderName)
         }
     }
 }

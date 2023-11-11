@@ -125,7 +125,7 @@ fun SearchProducts(navController: NavHostController) {
                         Text(text = "Filters", fontSize = 16.sp)
                     }
                     Text(modifier = Modifier.padding(horizontal = 5.dp),text = "Use the available filters to find the desired products",fontSize = 18.sp, fontWeight = FontWeight.Normal)
-                    ItemsList(viewModel = viewModel, navController = navController)
+                    ItemsList(navController = navController)
                 }
             }
         }
@@ -141,14 +141,15 @@ private fun FilterOptions(viewModel: SearchProductsViewModel)
         .padding(2.dp)
         .verticalScroll(ScrollState(0)), horizontalAlignment = Alignment.CenterHorizontally)
     {
-        GeneralInformation(viewModel = viewModel)
+        GeneralInformation()
         Spacer(modifier = Modifier.height(2.dp))
         CategoryInformation(viewModel = viewModel)
     }
 }
 
 @Composable
-private fun GeneralInformation(viewModel: SearchProductsViewModel) {
+private fun GeneralInformation() {
+    val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
     val conditions: State<List<String>> = viewModel.conditions.collectAsState()
     Column(modifier = Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(text = "General Information", fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -180,8 +181,8 @@ private fun CategoryInformation(viewModel: SearchProductsViewModel) {
 }
 
 @Composable
-private fun ItemsList(navController: NavHostController,viewModel: SearchProductsViewModel){
-
+private fun ItemsList(navController: NavHostController){
+    val viewModel: SearchProductsViewModel = viewModel(factory = viewModelFactory)
     val currentProducts: State<List<Product>> = viewModel.currentProducts.collectAsState()
     val currentPage: State<Page> = viewModel.currentProductsPage.collectAsState()
     val isSearching: State<Boolean> = viewModel.currentProductsSearching.collectAsState()

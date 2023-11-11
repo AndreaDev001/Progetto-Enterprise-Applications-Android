@@ -73,13 +73,14 @@ fun AddressesPage(navController: NavHostController)
                     .fillMaxWidth(),shape = RoundedCornerShape(5.dp), onClick = {creatingAddress.value = true}) {
                     Text(modifier = Modifier.padding(2.dp),text = "Add a new address",fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 }
-                AddressList(viewModel = viewModel)
+                AddressList()
             }
         }
     }
 }
 @Composable
-private fun AddressList(viewModel: AddressPageViewModel) {
+private fun AddressList() {
+    val viewModel: AddressPageViewModel = viewModel(factory = viewModelFactory)
     val currentAddresses: State<List<Address>> = viewModel.currentAddresses.collectAsState()
     val currentAddressesSearching: State<Boolean> = viewModel.currentAddressesSearching.collectAsState()
     Column(modifier = Modifier.padding(5.dp)) {

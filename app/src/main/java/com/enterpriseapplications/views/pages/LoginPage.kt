@@ -40,10 +40,10 @@ fun LoginPage(navController: NavHostController,authenticationManager: Authentica
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+
+            Text(text = "You must be logged in to use the application",modifier = Modifier.fillMaxWidth().padding(5.dp))
             Button(onClick = {viewModel.createLoginRequest(launcher)},shape = RoundedCornerShape(5.dp),modifier = Modifier.padding(10.dp)) {
-                Text(text = "Perform Login", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(2.dp))
+                Text(text = "Perform Login", fontSize = 15.sp, fontWeight = FontWeight.Bold,modifier = Modifier.fillMaxWidth().padding(2.dp))
             }
         }
 }
