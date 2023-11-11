@@ -7,4 +7,4 @@ Se si utilizza l'emulatore è necessario sostituire dentro il file **RetrofitCon
 sostuire il valore della variabile con il proprio indirizzo ip **ip_address:SERVER_PORT**. </br>
 Se questa variabile non è impostata non sarà possibile effettuare richieste al resource server e di conseguenza utilizzare l'applicazione
 Se si esegue l'authorization server **localmente** è necessario sostituire dentro il file **AuthenticationManager**, la variabile **authorizationServerIpAddress** con **10.0.2.2:SERVER_PORT**, se si utilizza l'emulatore, altrimenti **ip_address:SERVER_PORT** </br>
-
+Alcune funzionalità sono disponibili solamente per account admin, come l'account con username "andrea"
