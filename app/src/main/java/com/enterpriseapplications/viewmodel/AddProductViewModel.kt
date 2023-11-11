@@ -31,7 +31,7 @@ import kotlin.streams.toList
 class AddProductViewModel(val application: CustomApplication) : BaseViewModel(application)
 {
     private var _nameControl: FormControl<String?> = FormControl("",Validators.required(),Validators.minLength(3),Validators.maxLength(20))
-    private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required(),Validators.minLength(10),Validators.maxLength(20))
+    private var _descriptionControl: FormControl<String?> = FormControl("",Validators.required(),Validators.minLength(10),Validators.maxLength(200))
     private var _brandControl: FormControl<String?> = FormControl("",Validators.required(),Validators.minLength(5),Validators.maxLength(20))
     private var _conditionControl: FormControl<String?> = FormControl("",Validators.required())
     private var _visibilityControl: FormControl<String?> = FormControl("",Validators.required())
