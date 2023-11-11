@@ -153,10 +153,10 @@ private fun FollowedList(navController: NavHostController) {
     val currentFollowed: State<List<Follow>> = viewModel.currentFollows.collectAsState()
     val currentFollowedPage: State<Page> = viewModel.currentFollowsPage.collectAsState()
     val currentFollowedSearching: State<Boolean> = viewModel.currentFollowsSearching.collectAsState()
-    val lazyListState: LazyListState = rememberLazyListState()
+    val lazyGridState: LazyGridState = rememberLazyGridState();
     val bottomReached by remember {
         derivedStateOf {
-            lazyListState.isScrolledToEnd()
+            lazyGridState.isScrolledToEnd()
         }
     }
     LaunchedEffect(bottomReached) {
@@ -171,9 +171,9 @@ private fun FollowedList(navController: NavHostController) {
         else
         {
             if(currentFollowedPage.value.totalElements > 0) {
-                LazyColumn(modifier = Modifier
+                LazyVerticalGrid(modifier = Modifier
                     .padding(vertical = 2.dp)
-                    .fillMaxWidth(),state = lazyListState, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+                    .fillMaxWidth(),state = lazyGridState,columns = GridCells.Fixed(2)){
                     itemsIndexed(items = currentFollowed.value) {index,item ->
                         Box(modifier = Modifier.padding(2.dp)) {
                             UserCard(navHostController = navController, user = item.followed)
