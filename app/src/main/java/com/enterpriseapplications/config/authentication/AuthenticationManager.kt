@@ -74,8 +74,8 @@ class AuthenticationManager(val application: CustomApplication)
                 this.authorizationServiceConfiguration = configuration
                 val preferences: Pair<TokenData?,AuthenticatedUser?>? = this.readPreferences()
                 if(preferences != null) {
-
-                    
+                    _currentToken.value = preferences.first;
+                    _currentUser.value = preferences.second;
                 }
                 _hasLoaded.value = true
             }
